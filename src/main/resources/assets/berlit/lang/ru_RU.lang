@@ -4,3 +4,6 @@ tile.berlit.molecular_transformer.name=Молекулярный трансфор
 tile.berlit.test_generator.name=Тестовый генератор
 
 container.berlit.molecular_transformer=Молекулярный трансформер
+
+berlit.gui.energy=Энергия: %s / %s EU
+berlit.gui.progress=Прогресс: %s%%

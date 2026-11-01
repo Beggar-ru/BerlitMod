@@ -14,11 +14,6 @@ public class GuiMolecularTransformer extends GuiContainer {
     private static final ResourceLocation TEXTURE = new ResourceLocation(
         "berlit:textures/gui/molecular_transformer.png");
 
-    private static final int ENERGY_BAR_X = 8;
-    private static final int ENERGY_BAR_Y = 17;
-    private static final int ENERGY_BAR_WIDTH = 12;
-    private static final int ENERGY_BAR_HEIGHT = 58;
-
     private final TileEntityMolecularTransformer tile;
 
     public GuiMolecularTransformer(InventoryPlayer playerInventory, TileEntityMolecularTransformer tile) {
@@ -32,8 +27,17 @@ public class GuiMolecularTransformer extends GuiContainer {
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         String title = StatCollector.translateToLocal("tile.berlit.molecular_transformer.name");
         fontRendererObj.drawString(title, 8, 6, 4210752);
-        fontRendererObj.drawString(tile.getEnergy() + " / " + tile.getMaxEnergy() + " EU", 28, 59, 4210752);
-        fontRendererObj.drawString(tile.getProgressScaled(100) + "%", 28, 71, 4210752);
+
+        fontRendererObj.drawString(
+            StatCollector.translateToLocalFormatted("berlit.gui.energy", tile.getEnergy(), tile.getMaxEnergy()),
+            28,
+            60,
+            4210752);
+        fontRendererObj.drawString(
+            StatCollector.translateToLocalFormatted("berlit.gui.progress", tile.getProgressScaled(100)),
+            28,
+            71,
+            4210752);
     }
 
     @Override
@@ -45,16 +49,5 @@ public class GuiMolecularTransformer extends GuiContainer {
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
-
-        int energyHeight = tile.getEnergyScaled(ENERGY_BAR_HEIGHT);
-        if (energyHeight > 0) {
-            drawTexturedModalRect(
-                x + ENERGY_BAR_X,
-                y + ENERGY_BAR_Y + ENERGY_BAR_HEIGHT - energyHeight,
-                176,
-                ENERGY_BAR_HEIGHT - energyHeight,
-                ENERGY_BAR_WIDTH,
-                energyHeight);
-        }
     }
 }

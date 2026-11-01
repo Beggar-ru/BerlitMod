@@ -39,4 +39,7 @@ dependencies {
     // IC2 (local jar, deobfuscated for the dev runtime). Only used for development/testing.
     devOnlyNonPublishable(rfg.deobf(files("libs/industrialcraft-2-2.2.828-experimental.jar")))
     devOnlyNonPublishable(files("libs/EJML-core-0.26.jar"))
+
+    // CraftTweaker API (also available in the dev runtime to test ZenScript recipes).
+    devOnlyNonPublishable(rfg.deobf(files("libs/CraftTweaker-1.7.10-3.0.11.jar")))
 }

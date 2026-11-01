@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -71,8 +72,20 @@ public class Berlit {
 
         MolecularRecipes.init();
         registerRecipes();
+        registerCraftTweaker();
 
         proxy.init(event);
+    }
+
+    private void registerCraftTweaker() {
+        if (!Loader.isModLoaded("MineTweaker3")) return;
+        try {
+            Class.forName("ru.beggar.berlit.compat.MolecularTransformerTweaker")
+                .getMethod("register")
+                .invoke(null);
+        } catch (Throwable t) {
+            LOG.warn("CraftTweaker integration is not available", t);
+        }
     }
 
     private void registerRecipes() {

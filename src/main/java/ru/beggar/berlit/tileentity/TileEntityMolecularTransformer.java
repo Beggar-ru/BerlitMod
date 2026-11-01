@@ -24,8 +24,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     public static final int SLOT_OUTPUT_COUNT = 6;
     public static final int SLOT_COUNT = SLOT_INPUT_COUNT + SLOT_OUTPUT_COUNT;
 
-    /** EU/t consumed while processing (same value as the Advanced Solar Panel produces). */
-    public static final int ENERGY_PER_TICK = 8;
+    /** Energy buffer size. The machine accepts and spends energy without a per-tick limit. */
     public static final int ENERGY_CAPACITY = 8000;
 
     private final ItemStack[] inventory = new ItemStack[SLOT_COUNT];
@@ -55,9 +54,10 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
             if (progress >= recipeEnergy) {
                 craft(slot, recipe);
                 progress = 0;
-            } else if (energy >= ENERGY_PER_TICK) {
-                energy -= ENERGY_PER_TICK;
-                progress += ENERGY_PER_TICK;
+            } else if (energy > 0) {
+                int used = Math.min(energy, recipeEnergy - progress);
+                energy -= used;
+                progress += used;
                 active = true;
             }
         } else {
@@ -129,10 +129,6 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         return Math.min(scale, progress * scale / recipeEnergy);
     }
 
-    public int getEnergyScaled(int scale) {
-        return Math.min(scale, energy * scale / ENERGY_CAPACITY);
-    }
-
     public boolean isActive() {
         return active;
     }
@@ -147,12 +143,12 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     @Override
     public double getDemandedEnergy() {
         if (!canProcess()) return 0;
-        return Math.min(ENERGY_PER_TICK, ENERGY_CAPACITY - energy);
+        return ENERGY_CAPACITY - energy;
     }
 
     @Override
     public int getSinkTier() {
-        return 2;
+        return 4;
     }
 
     @Override
