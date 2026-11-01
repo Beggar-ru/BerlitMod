@@ -1,4 +1,4 @@
-package com.myname.mymodid;
+package ru.beggar.berlit;
 
 public class ClientProxy extends CommonProxy {
 

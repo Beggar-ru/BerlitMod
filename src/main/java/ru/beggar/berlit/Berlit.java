@@ -1,4 +1,8 @@
-package com.myname.mymodid;
+package ru.beggar.berlit;
+
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,13 +14,23 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = MyMod.MODID, version = Tags.VERSION, name = "MyMod", acceptedMinecraftVersions = "[1.7.10]")
-public class MyMod {
+@Mod(modid = Berlit.MODID, name = Berlit.MOD_NAME, version = Tags.VERSION, acceptedMinecraftVersions = "[1.7.10]")
+public class Berlit {
 
-    public static final String MODID = "mymodid";
+    public static final String MODID = "berlit";
+    public static final String MOD_NAME = "Berlit";
     public static final Logger LOG = LogManager.getLogger(MODID);
 
-    @SidedProxy(clientSide = "com.myname.mymodid.ClientProxy", serverSide = "com.myname.mymodid.CommonProxy")
+    /** Creative inventory tab, redstone dust as the tab icon. */
+    public static final CreativeTabs TAB = new CreativeTabs(MODID) {
+
+        @Override
+        public Item getTabIconItem() {
+            return Items.redstone;
+        }
+    };
+
+    @SidedProxy(clientSide = "ru.beggar.berlit.ClientProxy", serverSide = "ru.beggar.berlit.CommonProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler

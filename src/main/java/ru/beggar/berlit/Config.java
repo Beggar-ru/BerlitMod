@@ -1,4 +1,4 @@
-package com.myname.mymodid;
+package ru.beggar.berlit;
 
 import java.io.File;
 
