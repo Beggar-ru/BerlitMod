@@ -5,5 +5,5 @@ tile.berlit.test_generator.name=Тестовый генератор
 
 container.berlit.molecular_transformer=Молекулярный трансформер
 
-berlit.gui.energy=Энергия: %s / %s EU
-berlit.gui.progress=Прогресс: %s%%
+berlit.gui.energy=Вход: %s EU/t
+berlit.gui.progress=Прогресс: %s%% (%s / %s EU)

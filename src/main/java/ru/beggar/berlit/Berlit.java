@@ -21,6 +21,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import ru.beggar.berlit.block.BlockMolecularTransformer;
 import ru.beggar.berlit.block.BlockTestGenerator;
 import ru.beggar.berlit.gui.GuiHandler;
+import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.recipe.MolecularRecipes;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
@@ -61,6 +62,8 @@ public class Berlit {
         testGenerator = new BlockTestGenerator();
         GameRegistry.registerBlock(testGenerator, "berlit.test_generator");
         GameRegistry.registerTileEntity(TileEntityTestGenerator.class, "berlit:test_generator");
+
+        ModNetwork.init();
 
         proxy.preInit(event);
     }

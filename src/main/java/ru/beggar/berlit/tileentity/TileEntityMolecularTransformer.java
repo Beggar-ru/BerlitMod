@@ -1,6 +1,7 @@
 package ru.beggar.berlit.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,6 +14,8 @@ import cpw.mods.fml.common.Loader;
 import ic2.api.energy.event.EnergyTileLoadEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergySink;
+import ru.beggar.berlit.network.ModNetwork;
+import ru.beggar.berlit.network.PacketMachineSync;
 import ru.beggar.berlit.recipe.MolecularRecipe;
 import ru.beggar.berlit.recipe.MolecularRecipes;
 
@@ -33,6 +36,9 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     private int recipeEnergy;
     private boolean active;
     private boolean addedToEnergyNet;
+    private int syncCounter;
+    private int lastInput;
+    private int inputThisTick;
 
     @Override
     public void updateEntity() {
@@ -43,6 +49,9 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
             MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
             addedToEnergyNet = true;
         }
+
+        lastInput = inputThisTick;
+        inputThisTick = 0;
 
         int slot = findRecipeSlot();
         active = false;
@@ -63,6 +72,22 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         } else {
             progress = 0;
             recipeEnergy = 0;
+        }
+
+        if (++syncCounter >= 10) {
+            syncCounter = 0;
+            syncToClients();
+        }
+    }
+
+    private void syncToClients() {
+        for (Object object : worldObj.playerEntities) {
+            EntityPlayerMP player = (EntityPlayerMP) object;
+            if (player.getDistanceSq(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D) <= 4096.0D) {
+                ModNetwork.INSTANCE.sendTo(
+                    new PacketMachineSync(xCoord, yCoord, zCoord, energy, progress, recipeEnergy, lastInput, active),
+                    player);
+            }
         }
     }
 
@@ -129,6 +154,28 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         return Math.min(scale, progress * scale / recipeEnergy);
     }
 
+    public int getProgress() {
+        return progress;
+    }
+
+    public int getRecipeEnergy() {
+        return recipeEnergy;
+    }
+
+    /** EU received during the last tick (server side, synced to the GUI). */
+    public int getLastInput() {
+        return lastInput;
+    }
+
+    /** Applies the data received from the server (client side). */
+    public void setClientData(int energy, int progress, int recipeEnergy, int lastInput, boolean active) {
+        this.energy = energy;
+        this.progress = progress;
+        this.recipeEnergy = recipeEnergy;
+        this.lastInput = lastInput;
+        this.active = active;
+    }
+
     public boolean isActive() {
         return active;
     }
@@ -155,6 +202,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     public double injectEnergy(ForgeDirection directionFrom, double amount, double voltage) {
         double accepted = Math.min(amount, getDemandedEnergy());
         energy += (int) accepted;
+        inputThisTick += (int) accepted;
         return amount - accepted;
     }
 
