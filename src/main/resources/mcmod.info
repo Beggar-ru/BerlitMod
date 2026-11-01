@@ -3,7 +3,7 @@
 	"modList": [{
 		"modid": "${modId}",
 		"name": "${modName}",
-		"description": "Berlit - a Minecraft 1.7.10 Forge mod.",
+		"description": "Berlit - Minecraft 1.7.10 mod: molecular transformer and test generator (IC2).",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
 		"url": "",
@@ -13,7 +13,7 @@
 		"logoFile": "",
 		"screenshots": [],
 		"parent": "",
-		"requiredMods": [],
+		"requiredMods": ["IC2"],
 		"dependencies": [],
 		"dependants": [],
 		"useDependencyInformation": false

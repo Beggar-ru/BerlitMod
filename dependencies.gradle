@@ -35,4 +35,8 @@
  */
 dependencies {
     //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
+
+    // IC2 (local jar, deobfuscated for the dev runtime). Only used for development/testing.
+    devOnlyNonPublishable(rfg.deobf(files("libs/industrialcraft-2-2.2.828-experimental.jar")))
+    devOnlyNonPublishable(files("libs/EJML-core-0.26.jar"))
 }

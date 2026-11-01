@@ -1,8 +1,10 @@
 package ru.beggar.berlit;
 
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +15,14 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.registry.GameRegistry;
+import ru.beggar.berlit.block.BlockMolecularTransformer;
+import ru.beggar.berlit.block.BlockTestGenerator;
+import ru.beggar.berlit.gui.GuiHandler;
+import ru.beggar.berlit.recipe.MolecularRecipes;
+import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
+import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
 
 @Mod(modid = Berlit.MODID, name = Berlit.MOD_NAME, version = Tags.VERSION, acceptedMinecraftVersions = "[1.7.10]")
 public class Berlit {
@@ -30,6 +40,12 @@ public class Berlit {
         }
     };
 
+    @Mod.Instance(MODID)
+    public static Berlit instance;
+
+    public static BlockMolecularTransformer molecularTransformer;
+    public static BlockTestGenerator testGenerator;
+
     @SidedProxy(clientSide = "ru.beggar.berlit.ClientProxy", serverSide = "ru.beggar.berlit.CommonProxy")
     public static CommonProxy proxy;
 
@@ -37,13 +53,52 @@ public class Berlit {
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
     public void preInit(FMLPreInitializationEvent event) {
+        molecularTransformer = new BlockMolecularTransformer();
+        GameRegistry.registerBlock(molecularTransformer, "berlit.molecular_transformer");
+        GameRegistry.registerTileEntity(TileEntityMolecularTransformer.class, "berlit:molecular_transformer");
+
+        testGenerator = new BlockTestGenerator();
+        GameRegistry.registerBlock(testGenerator, "berlit.test_generator");
+        GameRegistry.registerTileEntity(TileEntityTestGenerator.class, "berlit:test_generator");
+
         proxy.preInit(event);
     }
 
     @Mod.EventHandler
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
+        NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
+
+        MolecularRecipes.init();
+        registerRecipes();
+
         proxy.init(event);
+    }
+
+    private void registerRecipes() {
+        GameRegistry.addRecipe(
+            new ItemStack(molecularTransformer),
+            "IRI",
+            "RMR",
+            "IRI",
+            'I',
+            Items.iron_ingot,
+            'R',
+            Items.redstone,
+            'M',
+            Blocks.redstone_block);
+
+        GameRegistry.addRecipe(
+            new ItemStack(testGenerator),
+            "IRI",
+            "IFI",
+            "IRI",
+            'I',
+            Items.iron_ingot,
+            'R',
+            Items.redstone,
+            'F',
+            Blocks.furnace);
     }
 
     @Mod.EventHandler

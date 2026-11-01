@@ -1,1 +1,6 @@
 itemGroup.berlit=Берлит
+
+tile.berlit.molecular_transformer.name=Молекулярный трансформер
+tile.berlit.test_generator.name=Тестовый генератор
+
+container.berlit.molecular_transformer=Молекулярный трансформер
