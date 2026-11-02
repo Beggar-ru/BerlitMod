@@ -25,6 +25,7 @@ import ru.beggar.berlit.block.BlockTestGenerator;
 import ru.beggar.berlit.gui.GuiHandler;
 import ru.beggar.berlit.item.ItemAccelerator;
 import ru.beggar.berlit.item.ItemEntityCard;
+import ru.beggar.berlit.item.ItemSpawnerCore;
 import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.recipe.MolecularRecipes;
 import ru.beggar.berlit.spawner.EntityRegistry;
@@ -60,6 +61,9 @@ public class Berlit {
     public static ItemEntityCard entityCard;
     public static ItemAccelerator acceleratorT2;
     public static ItemAccelerator acceleratorT3;
+    public static ItemSpawnerCore spawnerCore1;
+    public static ItemSpawnerCore spawnerCore2;
+    public static ItemSpawnerCore spawnerCore3;
 
     @SidedProxy(clientSide = "ru.beggar.berlit.ClientProxy", serverSide = "ru.beggar.berlit.CommonProxy")
     public static CommonProxy proxy;
@@ -96,6 +100,15 @@ public class Berlit {
         acceleratorT3 = new ItemAccelerator(ItemAccelerator.TIER_3);
         GameRegistry.registerItem(acceleratorT3, "accelerator_t3");
 
+        spawnerCore1 = new ItemSpawnerCore(1);
+        GameRegistry.registerItem(spawnerCore1, "spawner_core_t1");
+
+        spawnerCore2 = new ItemSpawnerCore(2);
+        GameRegistry.registerItem(spawnerCore2, "spawner_core_t2");
+
+        spawnerCore3 = new ItemSpawnerCore(3);
+        GameRegistry.registerItem(spawnerCore3, "spawner_core_t3");
+
         ModNetwork.init();
 
         proxy.preInit(event);
@@ -107,6 +120,7 @@ public class Berlit {
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
 
         MolecularRecipes.init();
+        EntityRegistry.registerOptional();
         registerRecipes();
         registerCraftTweaker();
 
@@ -200,6 +214,11 @@ public class Berlit {
             Items.emerald,
             'T',
             acceleratorT2);
+
+        GameRegistry.addShapelessRecipe(new ItemStack(spawnerCore1), Items.diamond, Items.redstone, Items.gold_ingot);
+        GameRegistry.addShapelessRecipe(new ItemStack(spawnerCore2), spawnerCore1, Items.emerald, Items.diamond);
+        GameRegistry
+            .addShapelessRecipe(new ItemStack(spawnerCore3), spawnerCore2, Blocks.diamond_block, Items.nether_star);
 
         GameRegistry
             .addShapelessRecipe(ItemEntityCard.create("iron_golem"), Items.paper, Items.iron_ingot, Items.emerald);
