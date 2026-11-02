@@ -1,5 +1,8 @@
 package ru.beggar.berlit.tileentity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -39,6 +42,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     private int syncCounter;
     private int lastInput;
     private int inputThisTick;
+    private final List<ItemStack> batchOutputs = new ArrayList<ItemStack>();
 
     @Override
     public void updateEntity() {
@@ -53,16 +57,16 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         lastInput = inputThisTick;
         inputThisTick = 0;
 
-        int slot = findRecipeSlot();
+        refreshBatch();
         active = false;
 
-        if (slot >= 0) {
-            MolecularRecipe recipe = MolecularRecipes.find(inventory[slot]);
-            recipeEnergy = recipe.getEnergy();
-
+        if (recipeEnergy > 0) {
             if (progress >= recipeEnergy) {
-                craft(slot, recipe);
-                progress = 0;
+                if (canCraftAll()) {
+                    craftAll();
+                    progress = 0;
+                    refreshBatch();
+                }
             } else if (energy > 0) {
                 int used = Math.min(energy, recipeEnergy - progress);
                 energy -= used;
@@ -71,12 +75,92 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
             }
         } else {
             progress = 0;
-            recipeEnergy = 0;
         }
 
         if (++syncCounter >= 10) {
             syncCounter = 0;
             syncToClients();
+        }
+    }
+
+    /** Sums the energy of every valid input unit and builds the output batch. */
+    private void refreshBatch() {
+        batchOutputs.clear();
+        recipeEnergy = 0;
+
+        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT; i++) {
+            ItemStack stack = inventory[i];
+            if (stack == null) continue;
+
+            MolecularRecipe recipe = MolecularRecipes.find(stack);
+            if (recipe == null) continue;
+
+            for (int unit = 0; unit < stack.stackSize; unit++) {
+                recipeEnergy += recipe.getEnergy();
+                batchOutputs.add(
+                    recipe.getOutput()
+                        .copy());
+            }
+        }
+    }
+
+    private boolean canCraftAll() {
+        ItemStack[] simulated = new ItemStack[SLOT_OUTPUT_COUNT];
+        for (int i = 0; i < SLOT_OUTPUT_COUNT; i++) {
+            ItemStack stack = inventory[SLOT_OUTPUT_START + i];
+            simulated[i] = stack == null ? null : stack.copy();
+        }
+
+        for (ItemStack output : batchOutputs) {
+            int remaining = output.stackSize;
+            for (int i = 0; i < SLOT_OUTPUT_COUNT && remaining > 0; i++) {
+                ItemStack stack = simulated[i];
+                if (stack == null) {
+                    int added = Math.min(getInventoryStackLimit(), remaining);
+                    simulated[i] = output.copy();
+                    simulated[i].stackSize = added;
+                    remaining -= added;
+                } else if (stack.getItem() == output.getItem() && stack.getItemDamage() == output.getItemDamage()) {
+                    int space = getInventoryStackLimit() - stack.stackSize;
+                    int added = Math.min(space, remaining);
+                    stack.stackSize += added;
+                    remaining -= added;
+                }
+            }
+            if (remaining > 0) return false;
+        }
+        return true;
+    }
+
+    private void craftAll() {
+        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT; i++) {
+            ItemStack stack = inventory[i];
+            if (stack != null && MolecularRecipes.find(stack) != null) {
+                inventory[i] = null;
+            }
+        }
+
+        for (ItemStack output : batchOutputs) {
+            addOutput(output.copy());
+        }
+        markDirty();
+    }
+
+    private void addOutput(ItemStack output) {
+        for (int i = SLOT_OUTPUT_START; i < SLOT_OUTPUT_START + SLOT_OUTPUT_COUNT && output.stackSize > 0; i++) {
+            ItemStack stack = inventory[i];
+            if (stack == null) {
+                int added = Math.min(getInventoryStackLimit(), output.stackSize);
+                ItemStack copy = output.copy();
+                copy.stackSize = added;
+                inventory[i] = copy;
+                output.stackSize -= added;
+            } else if (stack.getItem() == output.getItem() && stack.getItemDamage() == output.getItemDamage()) {
+                int space = getInventoryStackLimit() - stack.stackSize;
+                int moved = Math.min(space, output.stackSize);
+                stack.stackSize += moved;
+                output.stackSize -= moved;
+            }
         }
     }
 
@@ -91,54 +175,9 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         }
     }
 
-    private int findRecipeSlot() {
-        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT; i++) {
-            MolecularRecipe recipe = MolecularRecipes.find(inventory[i]);
-            if (recipe != null && canOutput(recipe.getOutput())) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private boolean canOutput(ItemStack output) {
-        for (int i = SLOT_OUTPUT_START; i < SLOT_OUTPUT_START + SLOT_OUTPUT_COUNT; i++) {
-            ItemStack stack = inventory[i];
-            if (stack == null) return true;
-            if (stack.getItem() == output.getItem() && stack.getItemDamage() == output.getItemDamage()
-                && stack.stackSize + output.stackSize <= getInventoryStackLimit()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void craft(int slot, MolecularRecipe recipe) {
-        ItemStack input = inventory[slot];
-        input.stackSize--;
-        if (input.stackSize <= 0) {
-            inventory[slot] = null;
-        }
-
-        ItemStack output = recipe.getOutput()
-            .copy();
-        for (int i = SLOT_OUTPUT_START; i < SLOT_OUTPUT_START + SLOT_OUTPUT_COUNT && output.stackSize > 0; i++) {
-            ItemStack stack = inventory[i];
-            if (stack == null) {
-                inventory[i] = output.copy();
-                output.stackSize = 0;
-            } else if (stack.getItem() == output.getItem() && stack.getItemDamage() == output.getItemDamage()) {
-                int space = getInventoryStackLimit() - stack.stackSize;
-                int moved = Math.min(space, output.stackSize);
-                stack.stackSize += moved;
-                output.stackSize -= moved;
-            }
-        }
-        markDirty();
-    }
-
     public boolean canProcess() {
-        return findRecipeSlot() >= 0;
+        refreshBatch();
+        return recipeEnergy > 0 && canCraftAll();
     }
 
     public int getEnergy() {
