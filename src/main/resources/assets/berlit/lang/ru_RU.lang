@@ -13,7 +13,7 @@ item.berlit.entity_card.unknown=Неизвестная сущность
 item.berlit.entity_card.drops=Дроп:
 
 berlit.gui.energy=Вход: %s EU/t
-berlit.gui.progress=Прогресс: %s%% (%s / %s EU)
+berlit.gui.progress=Прогресс: %s%%
 berlit.gui.spawner.entity=Сущность: %s
 berlit.gui.spawner.cycle=Цикл: %s%%
 berlit.gui.spawner.upgrades=Улучшения: %s
@@ -22,3 +22,8 @@ nei.berlit.spawner=Спавнер сущностей
 
 tile.berlit.spawner_t2.name=Спавнер сущностей II
 berlit.gui.spawner.entities=Сущностей: %s
+
+item.berlit.accelerator_t2.name=Ускоритель MK II
+item.berlit.accelerator_t3.name=Ускоритель MK III
+item.berlit.accelerator.speed=Скорость: %s%%
+item.berlit.accelerator.energy=Потребление: %s%%

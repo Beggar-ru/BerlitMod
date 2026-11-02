@@ -23,6 +23,7 @@ import ru.beggar.berlit.block.BlockSpawner;
 import ru.beggar.berlit.block.BlockSpawnerT2;
 import ru.beggar.berlit.block.BlockTestGenerator;
 import ru.beggar.berlit.gui.GuiHandler;
+import ru.beggar.berlit.item.ItemAccelerator;
 import ru.beggar.berlit.item.ItemEntityCard;
 import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.recipe.MolecularRecipes;
@@ -57,6 +58,8 @@ public class Berlit {
     public static BlockSpawner spawner;
     public static BlockSpawnerT2 spawnerT2;
     public static ItemEntityCard entityCard;
+    public static ItemAccelerator acceleratorT2;
+    public static ItemAccelerator acceleratorT3;
 
     @SidedProxy(clientSide = "ru.beggar.berlit.ClientProxy", serverSide = "ru.beggar.berlit.CommonProxy")
     public static CommonProxy proxy;
@@ -86,6 +89,12 @@ public class Berlit {
 
         entityCard = new ItemEntityCard();
         GameRegistry.registerItem(entityCard, "entity_card");
+
+        acceleratorT2 = new ItemAccelerator(ItemAccelerator.TIER_2);
+        GameRegistry.registerItem(acceleratorT2, "accelerator_t2");
+
+        acceleratorT3 = new ItemAccelerator(ItemAccelerator.TIER_3);
+        GameRegistry.registerItem(acceleratorT3, "accelerator_t3");
 
         ModNetwork.init();
 
@@ -167,6 +176,30 @@ public class Berlit {
             Items.emerald,
             'S',
             spawner);
+
+        GameRegistry.addRecipe(
+            new ItemStack(acceleratorT2),
+            "DRD",
+            "RGR",
+            "DRD",
+            'D',
+            Items.diamond,
+            'R',
+            Items.redstone,
+            'G',
+            Items.gold_ingot);
+
+        GameRegistry.addRecipe(
+            new ItemStack(acceleratorT3),
+            "DED",
+            "ETE",
+            "DED",
+            'D',
+            Items.diamond,
+            'E',
+            Items.emerald,
+            'T',
+            acceleratorT2);
 
         GameRegistry
             .addShapelessRecipe(ItemEntityCard.create("iron_golem"), Items.paper, Items.iron_ingot, Items.emerald);

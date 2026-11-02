@@ -21,6 +21,7 @@ import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.network.PacketMachineSync;
 import ru.beggar.berlit.recipe.MolecularRecipe;
 import ru.beggar.berlit.recipe.MolecularRecipes;
+import ru.beggar.berlit.upgrade.UpgradeHelper;
 
 public class TileEntityMolecularTransformer extends TileEntity implements IEnergySink, IInventory {
 
@@ -28,21 +29,27 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     public static final int SLOT_INPUT_COUNT = 6;
     public static final int SLOT_OUTPUT_START = 6;
     public static final int SLOT_OUTPUT_COUNT = 6;
-    public static final int SLOT_COUNT = SLOT_INPUT_COUNT + SLOT_OUTPUT_COUNT;
+    public static final int SLOT_UPGRADE_START = 12;
+    public static final int SLOT_UPGRADE_COUNT = 4;
+    public static final int SLOT_COUNT = SLOT_UPGRADE_START + SLOT_UPGRADE_COUNT;
 
-    /** Energy buffer size. The machine accepts and spends energy without a per-tick limit. */
+    /** Base energy buffer size (energy storage upgrades increase it). */
     public static final int ENERGY_CAPACITY = 8000;
 
     private final ItemStack[] inventory = new ItemStack[SLOT_COUNT];
+    private final List<ItemStack> batchOutputs = new ArrayList<ItemStack>();
+
     private int energy;
     private int progress;
+    private double progressExact;
     private int recipeEnergy;
+    private double requiredEnergy;
+    private int baseEnergy;
     private boolean active;
     private boolean addedToEnergyNet;
     private int syncCounter;
     private int lastInput;
     private int inputThisTick;
-    private final List<ItemStack> batchOutputs = new ArrayList<ItemStack>();
 
     @Override
     public void updateEntity() {
@@ -57,24 +64,43 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         lastInput = inputThisTick;
         inputThisTick = 0;
 
+        UpgradeHelper.Stats stats = getUpgradeStats();
+
+        if (stats.puller) {
+            pullInputs();
+        }
+
         refreshBatch();
+        requiredEnergy = baseEnergy * stats.energyCost;
+        recipeEnergy = (int) Math.ceil(requiredEnergy);
         active = false;
 
-        if (recipeEnergy > 0) {
-            if (progress >= recipeEnergy) {
+        if (baseEnergy > 0) {
+            if (progressExact >= requiredEnergy) {
                 if (canCraftAll()) {
                     craftAll();
-                    progress = 0;
+                    progressExact = 0;
                     refreshBatch();
+                    requiredEnergy = baseEnergy * stats.energyCost;
+                    recipeEnergy = (int) Math.ceil(requiredEnergy);
                 }
             } else if (energy > 0) {
-                int used = Math.min(energy, recipeEnergy - progress);
-                energy -= used;
-                progress += used;
-                active = true;
+                double need = requiredEnergy - progressExact;
+                int use = (int) Math.min(energy, Math.ceil(need / stats.speed));
+                if (use > 0) {
+                    progressExact = Math.min(requiredEnergy, progressExact + use * stats.speed);
+                    energy -= use;
+                    active = true;
+                }
             }
         } else {
-            progress = 0;
+            progressExact = 0;
+        }
+
+        progress = (int) progressExact;
+
+        if (stats.ejector) {
+            ejectOutputs();
         }
 
         if (++syncCounter >= 10) {
@@ -83,10 +109,18 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         }
     }
 
+    private UpgradeHelper.Stats getUpgradeStats() {
+        List<ItemStack> stacks = new ArrayList<ItemStack>();
+        for (int i = SLOT_UPGRADE_START; i < SLOT_COUNT; i++) {
+            stacks.add(inventory[i]);
+        }
+        return UpgradeHelper.combine(stacks);
+    }
+
     /** Sums the energy of every valid input unit and builds the output batch. */
     private void refreshBatch() {
         batchOutputs.clear();
-        recipeEnergy = 0;
+        baseEnergy = 0;
 
         for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT; i++) {
             ItemStack stack = inventory[i];
@@ -96,7 +130,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
             if (recipe == null) continue;
 
             for (int unit = 0; unit < stack.stackSize; unit++) {
-                recipeEnergy += recipe.getEnergy();
+                baseEnergy += recipe.getEnergy();
                 batchOutputs.add(
                     recipe.getOutput()
                         .copy());
@@ -164,6 +198,106 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         }
     }
 
+    private void ejectOutputs() {
+        for (int i = SLOT_OUTPUT_START; i < SLOT_OUTPUT_START + SLOT_OUTPUT_COUNT; i++) {
+            ItemStack stack = inventory[i];
+            if (stack == null) continue;
+
+            ItemStack remaining = insertIntoNeighbours(stack.copy());
+            inventory[i] = remaining == null || remaining.stackSize <= 0 ? null : remaining;
+        }
+    }
+
+    private ItemStack insertIntoNeighbours(ItemStack stack) {
+        ItemStack remaining = stack.copy();
+
+        for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
+            TileEntity tile = worldObj
+                .getTileEntity(xCoord + direction.offsetX, yCoord + direction.offsetY, zCoord + direction.offsetZ);
+            if (tile instanceof IInventory && tile != this) {
+                remaining = insert((IInventory) tile, remaining);
+                if (remaining == null) return null;
+            }
+        }
+        return remaining;
+    }
+
+    private ItemStack insert(IInventory target, ItemStack stack) {
+        ItemStack remaining = stack.copy();
+
+        for (int i = 0; i < target.getSizeInventory(); i++) {
+            ItemStack slot = target.getStackInSlot(i);
+            if (slot == null) continue;
+            if (slot.getItem() != remaining.getItem() || slot.getItemDamage() != remaining.getItemDamage()) continue;
+
+            int limit = Math.min(target.getInventoryStackLimit(), slot.getMaxStackSize());
+            int space = limit - slot.stackSize;
+            if (space <= 0) continue;
+
+            int moved = Math.min(space, remaining.stackSize);
+            slot.stackSize += moved;
+            remaining.stackSize -= moved;
+            target.markDirty();
+            if (remaining.stackSize <= 0) return null;
+        }
+
+        for (int i = 0; i < target.getSizeInventory(); i++) {
+            if (target.getStackInSlot(i) != null) continue;
+            if (!target.isItemValidForSlot(i, remaining)) continue;
+
+            int limit = Math.min(target.getInventoryStackLimit(), remaining.getMaxStackSize());
+            ItemStack copy = remaining.copy();
+            copy.stackSize = Math.min(limit, remaining.stackSize);
+            target.setInventorySlotContents(i, copy);
+            remaining.stackSize -= copy.stackSize;
+            if (remaining.stackSize <= 0) return null;
+        }
+
+        return remaining.stackSize > 0 ? remaining : null;
+    }
+
+    private void pullInputs() {
+        for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
+            TileEntity tile = worldObj
+                .getTileEntity(xCoord + direction.offsetX, yCoord + direction.offsetY, zCoord + direction.offsetZ);
+            if (!(tile instanceof IInventory) || tile == this) continue;
+
+            IInventory source = (IInventory) tile;
+            for (int i = 0; i < source.getSizeInventory(); i++) {
+                ItemStack stack = source.getStackInSlot(i);
+                if (stack == null || MolecularRecipes.find(stack) == null) continue;
+
+                if (addInput(stack)) {
+                    source.decrStackSize(i, 1);
+                    return;
+                }
+            }
+        }
+    }
+
+    private boolean addInput(ItemStack stack) {
+        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT; i++) {
+            ItemStack slot = inventory[i];
+            if (slot != null && slot.getItem() == stack.getItem()
+                && slot.getItemDamage() == stack.getItemDamage()
+                && slot.stackSize < getInventoryStackLimit()) {
+                slot.stackSize++;
+                markDirty();
+                return true;
+            }
+        }
+        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT; i++) {
+            if (inventory[i] == null) {
+                ItemStack copy = stack.copy();
+                copy.stackSize = 1;
+                inventory[i] = copy;
+                markDirty();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void syncToClients() {
         for (Object object : worldObj.playerEntities) {
             EntityPlayerMP player = (EntityPlayerMP) object;
@@ -177,7 +311,11 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
 
     public boolean canProcess() {
         refreshBatch();
-        return recipeEnergy > 0 && canCraftAll();
+        if (baseEnergy <= 0) return false;
+
+        UpgradeHelper.Stats stats = getUpgradeStats();
+        double required = baseEnergy * stats.energyCost;
+        return progressExact < required && canCraftAll();
     }
 
     public int getEnergy() {
@@ -185,7 +323,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     }
 
     public int getMaxEnergy() {
-        return ENERGY_CAPACITY;
+        return ENERGY_CAPACITY + getUpgradeStats().storage;
     }
 
     public int getProgressScaled(int scale) {
@@ -229,12 +367,12 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     @Override
     public double getDemandedEnergy() {
         if (!canProcess()) return 0;
-        return ENERGY_CAPACITY - energy;
+        return getMaxEnergy() - energy;
     }
 
     @Override
     public int getSinkTier() {
-        return 4;
+        return Math.min(5, 4 + getUpgradeStats().tierBonus);
     }
 
     @Override
@@ -338,8 +476,11 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
 
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
-        return slot >= SLOT_INPUT_START && slot < SLOT_INPUT_START + SLOT_INPUT_COUNT
-            && MolecularRecipes.find(stack) != null;
+        if (stack == null) return false;
+        if (slot >= SLOT_INPUT_START && slot < SLOT_INPUT_START + SLOT_INPUT_COUNT) {
+            return MolecularRecipes.find(stack) != null;
+        }
+        return slot >= SLOT_UPGRADE_START && slot < SLOT_COUNT && UpgradeHelper.isMachineUpgrade(stack);
     }
 
     // ----- NBT -----
@@ -348,7 +489,8 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         energy = nbt.getInteger("Energy");
-        progress = nbt.getInteger("Progress");
+        progressExact = nbt.getDouble("ProgressExact");
+        progress = (int) progressExact;
         NBTTagList list = nbt.getTagList("Items", 10);
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound tag = list.getCompoundTagAt(i);
@@ -363,7 +505,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setInteger("Energy", energy);
-        nbt.setInteger("Progress", progress);
+        nbt.setDouble("ProgressExact", progressExact);
         NBTTagList list = new NBTTagList();
         for (int i = 0; i < inventory.length; i++) {
             if (inventory[i] != null) {

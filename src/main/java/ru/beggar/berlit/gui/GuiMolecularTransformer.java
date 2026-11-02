@@ -30,17 +30,13 @@ public class GuiMolecularTransformer extends GuiContainer {
 
         fontRendererObj.drawString(
             StatCollector.translateToLocalFormatted("berlit.gui.energy", tile.getLastInput()),
-            28,
+            8,
             60,
             4210752);
         fontRendererObj.drawString(
-            StatCollector.translateToLocalFormatted(
-                "berlit.gui.progress",
-                tile.getProgressScaled(100),
-                tile.getProgress(),
-                tile.getRecipeEnergy()),
-            28,
-            71,
+            StatCollector.translateToLocalFormatted("berlit.gui.progress", tile.getProgressScaled(100)),
+            8,
+            72,
             4210752);
     }
 

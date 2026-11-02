@@ -7,6 +7,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
+import ru.beggar.berlit.upgrade.UpgradeHelper;
 
 public class ContainerMolecularTransformer extends Container {
 
@@ -15,6 +16,8 @@ public class ContainerMolecularTransformer extends Container {
     private static final int INPUT_Y = 17;
     private static final int OUTPUT_X = 98;
     private static final int OUTPUT_Y = 17;
+    private static final int UPGRADE_X = 98;
+    private static final int UPGRADE_Y = 59;
 
     private final TileEntityMolecularTransformer tile;
 
@@ -38,6 +41,22 @@ public class ContainerMolecularTransformer extends Container {
                     @Override
                     public boolean isItemValid(ItemStack stack) {
                         return false;
+                    }
+                });
+        }
+
+        // Upgrade slots: 4 (IC2 upgrades + Berlit accelerators).
+        for (int i = 0; i < TileEntityMolecularTransformer.SLOT_UPGRADE_COUNT; i++) {
+            addSlotToContainer(
+                new Slot(
+                    tile,
+                    TileEntityMolecularTransformer.SLOT_UPGRADE_START + i,
+                    UPGRADE_X + i * SLOT_SIZE,
+                    UPGRADE_Y) {
+
+                    @Override
+                    public boolean isItemValid(ItemStack stack) {
+                        return UpgradeHelper.isMachineUpgrade(stack);
                     }
                 });
         }
@@ -73,6 +92,10 @@ public class ContainerMolecularTransformer extends Container {
             int machineSlots = TileEntityMolecularTransformer.SLOT_COUNT;
             if (index < machineSlots) {
                 if (!mergeItemStack(stack, machineSlots, inventorySlots.size(), true)) {
+                    return null;
+                }
+            } else if (UpgradeHelper.isMachineUpgrade(stack)) {
+                if (!mergeItemStack(stack, TileEntityMolecularTransformer.SLOT_UPGRADE_START, machineSlots, false)) {
                     return null;
                 }
             } else if (!mergeItemStack(stack, 0, TileEntityMolecularTransformer.SLOT_INPUT_COUNT, false)) {
