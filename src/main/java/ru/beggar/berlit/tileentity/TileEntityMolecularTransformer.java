@@ -70,7 +70,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
             pullInputs();
         }
 
-        refreshBatch();
+        refreshBatch(stats.batch);
         requiredEnergy = baseEnergy * stats.energyCost;
         recipeEnergy = (int) Math.ceil(requiredEnergy);
         active = false;
@@ -80,7 +80,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
                 if (canCraftAll()) {
                     craftAll();
                     progressExact = 0;
-                    refreshBatch();
+                    refreshBatch(stats.batch);
                     requiredEnergy = baseEnergy * stats.energyCost;
                     recipeEnergy = (int) Math.ceil(requiredEnergy);
                 }
@@ -117,8 +117,8 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
         return UpgradeHelper.combine(stacks);
     }
 
-    /** Sums the energy of every valid input unit and builds the output batch. */
-    private void refreshBatch() {
+    /** Builds the output batch: one item normally, or a whole stack with the Stack Upgrade. */
+    private void refreshBatch(boolean batch) {
         batchOutputs.clear();
         baseEnergy = 0;
 
@@ -129,12 +129,14 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
             MolecularRecipe recipe = MolecularRecipes.find(stack);
             if (recipe == null) continue;
 
-            for (int unit = 0; unit < stack.stackSize; unit++) {
+            int units = batch ? stack.stackSize : 1;
+            for (int unit = 0; unit < units; unit++) {
                 baseEnergy += recipe.getEnergy();
                 batchOutputs.add(
                     recipe.getOutput()
                         .copy());
             }
+            break;
         }
     }
 
@@ -167,9 +169,15 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     }
 
     private void craftAll() {
-        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT; i++) {
+        int remaining = batchOutputs.size();
+        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT && remaining > 0; i++) {
             ItemStack stack = inventory[i];
-            if (stack != null && MolecularRecipes.find(stack) != null) {
+            if (stack == null || MolecularRecipes.find(stack) == null) continue;
+
+            int consumed = Math.min(stack.stackSize, remaining);
+            stack.stackSize -= consumed;
+            remaining -= consumed;
+            if (stack.stackSize <= 0) {
                 inventory[i] = null;
             }
         }
@@ -310,10 +318,10 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
     }
 
     public boolean canProcess() {
-        refreshBatch();
+        UpgradeHelper.Stats stats = getUpgradeStats();
+        refreshBatch(stats.batch);
         if (baseEnergy <= 0) return false;
 
-        UpgradeHelper.Stats stats = getUpgradeStats();
         double required = baseEnergy * stats.energyCost;
         return progressExact < required && canCraftAll();
     }

@@ -19,6 +19,7 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import ru.beggar.berlit.block.BlockMolecularTransformer;
+import ru.beggar.berlit.block.BlockProcessingMachine;
 import ru.beggar.berlit.block.BlockSpawner;
 import ru.beggar.berlit.block.BlockSpawnerT2;
 import ru.beggar.berlit.block.BlockTestGenerator;
@@ -26,11 +27,15 @@ import ru.beggar.berlit.gui.GuiHandler;
 import ru.beggar.berlit.item.ItemAccelerator;
 import ru.beggar.berlit.item.ItemEntityCard;
 import ru.beggar.berlit.item.ItemSpawnerCore;
+import ru.beggar.berlit.item.ItemStackUpgrade;
+import ru.beggar.berlit.machine.MachineRecipes;
+import ru.beggar.berlit.machine.MachineType;
 import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.recipe.MolecularRecipes;
 import ru.beggar.berlit.spawner.EntityRegistry;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
+import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerT2;
 import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
@@ -64,6 +69,13 @@ public class Berlit {
     public static ItemSpawnerCore spawnerCore1;
     public static ItemSpawnerCore spawnerCore2;
     public static ItemSpawnerCore spawnerCore3;
+    public static BlockProcessingMachine macerator;
+    public static BlockProcessingMachine compressor;
+    public static BlockProcessingMachine metalFormer;
+    public static BlockProcessingMachine electricFurnace;
+    public static ItemStackUpgrade stackUpgrade;
+    public static final java.util.Map<MachineType, BlockProcessingMachine> machineBlocks = new java.util.EnumMap<MachineType, BlockProcessingMachine>(
+        MachineType.class);
 
     @SidedProxy(clientSide = "ru.beggar.berlit.ClientProxy", serverSide = "ru.beggar.berlit.CommonProxy")
     public static CommonProxy proxy;
@@ -109,6 +121,27 @@ public class Berlit {
         spawnerCore3 = new ItemSpawnerCore(3);
         GameRegistry.registerItem(spawnerCore3, "spawner_core_t3");
 
+        macerator = new BlockProcessingMachine(MachineType.MACERATOR);
+        GameRegistry.registerBlock(macerator, "berlit.machine_macerator");
+        machineBlocks.put(MachineType.MACERATOR, macerator);
+
+        compressor = new BlockProcessingMachine(MachineType.COMPRESSOR);
+        GameRegistry.registerBlock(compressor, "berlit.machine_compressor");
+        machineBlocks.put(MachineType.COMPRESSOR, compressor);
+
+        metalFormer = new BlockProcessingMachine(MachineType.METAL_FORMER);
+        GameRegistry.registerBlock(metalFormer, "berlit.machine_metal_former");
+        machineBlocks.put(MachineType.METAL_FORMER, metalFormer);
+
+        electricFurnace = new BlockProcessingMachine(MachineType.ELECTRIC_FURNACE);
+        GameRegistry.registerBlock(electricFurnace, "berlit.machine_electric_furnace");
+        machineBlocks.put(MachineType.ELECTRIC_FURNACE, electricFurnace);
+
+        GameRegistry.registerTileEntity(TileEntityProcessingMachine.class, "berlit:processing_machine");
+
+        stackUpgrade = new ItemStackUpgrade();
+        GameRegistry.registerItem(stackUpgrade, "stack_upgrade");
+
         ModNetwork.init();
 
         proxy.preInit(event);
@@ -120,6 +153,7 @@ public class Berlit {
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
 
         MolecularRecipes.init();
+        MachineRecipes.init();
         EntityRegistry.registerOptional();
         registerRecipes();
         registerCraftTweaker();
@@ -131,7 +165,7 @@ public class Berlit {
         if (!Loader.isModLoaded("MineTweaker3")) return;
 
         for (String className : new String[] { "ru.beggar.berlit.compat.MolecularTransformerTweaker",
-            "ru.beggar.berlit.compat.SpawnerTweaker" }) {
+            "ru.beggar.berlit.compat.SpawnerTweaker", "ru.beggar.berlit.compat.MachinesTweaker" }) {
             try {
                 Class.forName(className)
                     .getMethod("register")
@@ -219,6 +253,56 @@ public class Berlit {
         GameRegistry.addShapelessRecipe(new ItemStack(spawnerCore2), spawnerCore1, Items.emerald, Items.diamond);
         GameRegistry
             .addShapelessRecipe(new ItemStack(spawnerCore3), spawnerCore2, Blocks.diamond_block, Items.nether_star);
+
+        GameRegistry.addRecipe(
+            new ItemStack(macerator),
+            "IFI",
+            "IRI",
+            "IFI",
+            'I',
+            Items.iron_ingot,
+            'F',
+            Items.flint,
+            'R',
+            Items.redstone);
+
+        GameRegistry.addRecipe(
+            new ItemStack(compressor),
+            "IPI",
+            "IRI",
+            "IPI",
+            'I',
+            Items.iron_ingot,
+            'P',
+            Blocks.piston,
+            'R',
+            Items.redstone);
+
+        GameRegistry.addRecipe(
+            new ItemStack(metalFormer),
+            "IBI",
+            "IRI",
+            "IBI",
+            'I',
+            Items.iron_ingot,
+            'B',
+            Blocks.iron_block,
+            'R',
+            Items.redstone);
+
+        GameRegistry.addRecipe(
+            new ItemStack(electricFurnace),
+            "IFI",
+            "IRI",
+            "IFI",
+            'I',
+            Items.iron_ingot,
+            'F',
+            Blocks.furnace,
+            'R',
+            Items.redstone);
+
+        GameRegistry.addShapelessRecipe(new ItemStack(stackUpgrade), Items.paper, Blocks.chest, Items.redstone);
 
         GameRegistry
             .addShapelessRecipe(ItemEntityCard.create("iron_golem"), Items.paper, Items.iron_ingot, Items.emerald);

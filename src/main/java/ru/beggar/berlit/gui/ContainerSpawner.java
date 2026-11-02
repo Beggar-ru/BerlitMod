@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import ru.beggar.berlit.item.ItemEntityCard;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerBase;
-import ru.beggar.berlit.upgrade.UpgradeHelper;
 
 public class ContainerSpawner extends Container {
 
@@ -36,7 +35,7 @@ public class ContainerSpawner extends Container {
 
                 @Override
                 public boolean isItemValid(ItemStack stack) {
-                    return UpgradeRegistry.get(stack) != null || UpgradeHelper.isSpeedUpgrade(stack);
+                    return UpgradeRegistry.get(stack) != null;
                 }
             });
         }
@@ -80,7 +79,7 @@ public class ContainerSpawner extends Container {
                 if (!mergeItemStack(stack, 0, entityCount, false)) {
                     return null;
                 }
-            } else if (UpgradeRegistry.get(stack) != null || UpgradeHelper.isSpeedUpgrade(stack)) {
+            } else if (UpgradeRegistry.get(stack) != null) {
                 if (!mergeItemStack(stack, entityCount, machineSlots, false)) {
                     return null;
                 }

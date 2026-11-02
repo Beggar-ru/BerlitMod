@@ -14,6 +14,9 @@ public class ClientProxy extends CommonProxy {
                 Class.forName("ru.beggar.berlit.compat.nei.SpawnerNEI")
                     .getMethod("register")
                     .invoke(null);
+                Class.forName("ru.beggar.berlit.compat.nei.MachineNEI")
+                    .getMethod("register")
+                    .invoke(null);
             } catch (Throwable t) {
                 Berlit.LOG.warn("NEI integration is not available", t);
             }

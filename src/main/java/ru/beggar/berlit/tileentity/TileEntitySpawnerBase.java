@@ -18,7 +18,6 @@ import ru.beggar.berlit.spawner.EntityDrop;
 import ru.beggar.berlit.spawner.EntityRegistry;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.spawner.UpgradeStats;
-import ru.beggar.berlit.upgrade.UpgradeHelper;
 
 public abstract class TileEntitySpawnerBase extends TileEntity implements IInventory {
 
@@ -181,7 +180,7 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
     }
 
     public UpgradeStats getTotalUpgradeStats() {
-        float speed = 1.0F;
+        float speed = 0.0F;
         int amount = 0;
         for (int i = getUpgradeSlotStart(); i < getSlotCount(); i++) {
             UpgradeStats stats = UpgradeRegistry.get(inventory[i]);
@@ -189,13 +188,8 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
                 speed += stats.getSpeedBonus();
                 amount += stats.getAmountBonus();
             }
-
-            UpgradeHelper.Stats machine = UpgradeHelper.get(inventory[i]);
-            if (machine != null) {
-                speed *= machine.speed;
-            }
         }
-        return new UpgradeStats(speed - 1.0F, amount);
+        return new UpgradeStats(speed, amount);
     }
 
     public int getTotalEntityCount() {
@@ -340,8 +334,7 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
         if (slot < getEntitySlotCount()) {
             return stack.getItem() instanceof ItemEntityCard;
         }
-        return slot >= getUpgradeSlotStart() && slot < getSlotCount()
-            && (UpgradeRegistry.get(stack) != null || UpgradeHelper.isSpeedUpgrade(stack));
+        return slot >= getUpgradeSlotStart() && slot < getSlotCount() && UpgradeRegistry.get(stack) != null;
     }
 
     // ----- NBT -----

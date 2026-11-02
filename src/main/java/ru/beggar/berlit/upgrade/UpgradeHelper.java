@@ -3,9 +3,10 @@ package ru.beggar.berlit.upgrade;
 import net.minecraft.item.ItemStack;
 
 import ru.beggar.berlit.item.ItemAccelerator;
+import ru.beggar.berlit.item.ItemStackUpgrade;
 
 /**
- * Handles IC2 upgrade modules and the Berlit accelerators for the machines.
+ * Handles IC2 upgrade modules and the Berlit upgrades for the machines.
  */
 public final class UpgradeHelper {
 
@@ -15,11 +16,12 @@ public final class UpgradeHelper {
         public float energyCost = 1.0F;
         public boolean ejector;
         public boolean puller;
+        public boolean batch;
         public int storage;
         public int tierBonus;
 
         public boolean hasAny() {
-            return speed != 1.0F || energyCost != 1.0F || ejector || puller || storage != 0 || tierBonus != 0;
+            return speed != 1.0F || energyCost != 1.0F || ejector || puller || batch || storage != 0 || tierBonus != 0;
         }
     }
 
@@ -27,6 +29,12 @@ public final class UpgradeHelper {
 
     public static Stats get(ItemStack stack) {
         if (stack == null) return null;
+
+        if (stack.getItem() instanceof ItemStackUpgrade) {
+            Stats stats = new Stats();
+            stats.batch = true;
+            return stats;
+        }
 
         String name = stack.getItem()
             .getUnlocalizedName();
@@ -73,7 +81,7 @@ public final class UpgradeHelper {
         return get(stack) != null;
     }
 
-    /** True for overclockers and Berlit accelerators (used by the spawner). */
+    /** True for overclockers and Berlit accelerators. */
     public static boolean isSpeedUpgrade(ItemStack stack) {
         Stats stats = get(stack);
         return stats != null && stats.speed != 1.0F;
@@ -88,6 +96,7 @@ public final class UpgradeHelper {
             total.energyCost *= stats.energyCost;
             total.ejector |= stats.ejector;
             total.puller |= stats.puller;
+            total.batch |= stats.batch;
             total.storage += stats.storage;
             total.tierBonus += stats.tierBonus;
         }
