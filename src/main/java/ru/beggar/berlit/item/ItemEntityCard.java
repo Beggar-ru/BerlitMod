@@ -24,7 +24,7 @@ public class ItemEntityCard extends Item {
     public ItemEntityCard() {
         setUnlocalizedName("berlit.entity_card");
         setTextureName("berlit:entity_card");
-        setMaxStackSize(1);
+        setMaxStackSize(10);
         setCreativeTab(Berlit.TAB);
     }
 

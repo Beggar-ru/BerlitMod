@@ -20,6 +20,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import ru.beggar.berlit.block.BlockMolecularTransformer;
 import ru.beggar.berlit.block.BlockSpawner;
+import ru.beggar.berlit.block.BlockSpawnerT2;
 import ru.beggar.berlit.block.BlockTestGenerator;
 import ru.beggar.berlit.gui.GuiHandler;
 import ru.beggar.berlit.item.ItemEntityCard;
@@ -29,6 +30,7 @@ import ru.beggar.berlit.spawner.EntityRegistry;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
+import ru.beggar.berlit.tileentity.TileEntitySpawnerT2;
 import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
 
 @Mod(modid = Berlit.MODID, name = Berlit.MOD_NAME, version = Tags.VERSION, acceptedMinecraftVersions = "[1.7.10]")
@@ -53,6 +55,7 @@ public class Berlit {
     public static BlockMolecularTransformer molecularTransformer;
     public static BlockTestGenerator testGenerator;
     public static BlockSpawner spawner;
+    public static BlockSpawnerT2 spawnerT2;
     public static ItemEntityCard entityCard;
 
     @SidedProxy(clientSide = "ru.beggar.berlit.ClientProxy", serverSide = "ru.beggar.berlit.CommonProxy")
@@ -77,8 +80,12 @@ public class Berlit {
         GameRegistry.registerBlock(spawner, "berlit.spawner");
         GameRegistry.registerTileEntity(TileEntitySpawner.class, "berlit:spawner");
 
+        spawnerT2 = new BlockSpawnerT2();
+        GameRegistry.registerBlock(spawnerT2, "berlit.spawner_t2");
+        GameRegistry.registerTileEntity(TileEntitySpawnerT2.class, "berlit:spawner_t2");
+
         entityCard = new ItemEntityCard();
-        GameRegistry.registerItem(entityCard, "berlit.entity_card");
+        GameRegistry.registerItem(entityCard, "entity_card");
 
         ModNetwork.init();
 
@@ -148,6 +155,18 @@ public class Berlit {
             Items.redstone,
             'E',
             Items.emerald);
+
+        GameRegistry.addRecipe(
+            new ItemStack(spawnerT2),
+            "DED",
+            "ESE",
+            "DED",
+            'D',
+            Items.diamond,
+            'E',
+            Items.emerald,
+            'S',
+            spawner);
 
         GameRegistry
             .addShapelessRecipe(ItemEntityCard.create("iron_golem"), Items.paper, Items.iron_ingot, Items.emerald);

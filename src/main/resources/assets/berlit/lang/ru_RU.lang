@@ -19,3 +19,6 @@ berlit.gui.spawner.cycle=Цикл: %s%%
 berlit.gui.spawner.upgrades=Улучшения: %s
 
 nei.berlit.spawner=Спавнер сущностей
+
+tile.berlit.spawner_t2.name=Спавнер сущностей II
+berlit.gui.spawner.entities=Сущностей: %s

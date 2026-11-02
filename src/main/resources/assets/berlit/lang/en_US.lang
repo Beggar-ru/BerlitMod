@@ -19,3 +19,6 @@ berlit.gui.spawner.cycle=Cycle: %s%%
 berlit.gui.spawner.upgrades=Upgrades: %s
 
 nei.berlit.spawner=Entity Spawner
+
+tile.berlit.spawner_t2.name=Entity Spawner Tier 2
+berlit.gui.spawner.entities=Entities: %s

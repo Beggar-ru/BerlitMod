@@ -8,36 +8,36 @@ import net.minecraft.item.ItemStack;
 
 import ru.beggar.berlit.item.ItemEntityCard;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
-import ru.beggar.berlit.tileentity.TileEntitySpawner;
+import ru.beggar.berlit.tileentity.TileEntitySpawnerBase;
 
 public class ContainerSpawner extends Container {
 
     private static final int SLOT_SIZE = 18;
-    private static final int ENTITY_X = 26;
-    private static final int ENTITY_Y = 17;
-    private static final int UPGRADE_X = 62;
-    private static final int UPGRADE_Y = 17;
 
-    private final TileEntitySpawner tile;
+    private final TileEntitySpawnerBase tile;
 
-    public ContainerSpawner(InventoryPlayer playerInventory, TileEntitySpawner tile) {
+    public ContainerSpawner(InventoryPlayer playerInventory, TileEntitySpawnerBase tile) {
         this.tile = tile;
 
-        addSlotToContainer(new Slot(tile, TileEntitySpawner.SLOT_ENTITY, ENTITY_X, ENTITY_Y));
+        for (int i = 0; i < tile.getEntitySlotCount(); i++) {
+            addSlotToContainer(new Slot(tile, i, tile.getEntitySlotX(i), tile.getEntitySlotY(i)) {
 
-        for (int i = 0; i < TileEntitySpawner.SLOT_UPGRADE_COUNT; i++) {
-            addSlotToContainer(
-                new Slot(
-                    tile,
-                    TileEntitySpawner.SLOT_UPGRADE_START + i,
-                    UPGRADE_X + (i % 4) * SLOT_SIZE,
-                    UPGRADE_Y + (i / 4) * SLOT_SIZE) {
+                @Override
+                public int getSlotStackLimit() {
+                    return tile.getEntitySlotLimit();
+                }
+            });
+        }
 
-                    @Override
-                    public boolean isItemValid(ItemStack stack) {
-                        return UpgradeRegistry.get(stack) != null;
-                    }
-                });
+        for (int i = 0; i < TileEntitySpawnerBase.UPGRADE_SLOTS; i++) {
+            int index = tile.getUpgradeSlotStart() + i;
+            addSlotToContainer(new Slot(tile, index, tile.getUpgradeSlotX(i), tile.getUpgradeSlotY(i)) {
+
+                @Override
+                public boolean isItemValid(ItemStack stack) {
+                    return UpgradeRegistry.get(stack) != null;
+                }
+            });
         }
 
         bindPlayerInventory(playerInventory);
@@ -68,16 +68,19 @@ public class ContainerSpawner extends Container {
             ItemStack stack = slot.getStack();
             result = stack.copy();
 
-            if (index < TileEntitySpawner.SLOT_COUNT) {
-                if (!mergeItemStack(stack, TileEntitySpawner.SLOT_COUNT, inventorySlots.size(), true)) {
+            int entityCount = tile.getEntitySlotCount();
+            int machineSlots = tile.getSlotCount();
+
+            if (index < machineSlots) {
+                if (!mergeItemStack(stack, machineSlots, inventorySlots.size(), true)) {
                     return null;
                 }
             } else if (stack.getItem() instanceof ItemEntityCard) {
-                if (!mergeItemStack(stack, TileEntitySpawner.SLOT_ENTITY, TileEntitySpawner.SLOT_ENTITY + 1, false)) {
+                if (!mergeItemStack(stack, 0, entityCount, false)) {
                     return null;
                 }
             } else if (UpgradeRegistry.get(stack) != null) {
-                if (!mergeItemStack(stack, TileEntitySpawner.SLOT_UPGRADE_START, TileEntitySpawner.SLOT_COUNT, false)) {
+                if (!mergeItemStack(stack, entityCount, machineSlots, false)) {
                     return null;
                 }
             } else {

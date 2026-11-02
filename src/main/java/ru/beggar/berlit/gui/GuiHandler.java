@@ -6,7 +6,7 @@ import net.minecraft.world.World;
 
 import cpw.mods.fml.common.network.IGuiHandler;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
-import ru.beggar.berlit.tileentity.TileEntitySpawner;
+import ru.beggar.berlit.tileentity.TileEntitySpawnerBase;
 
 public class GuiHandler implements IGuiHandler {
 
@@ -17,8 +17,8 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityMolecularTransformer) {
             return new ContainerMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
         }
-        if (tile instanceof TileEntitySpawner) {
-            return new ContainerSpawner(player.inventory, (TileEntitySpawner) tile);
+        if (tile instanceof TileEntitySpawnerBase) {
+            return new ContainerSpawner(player.inventory, (TileEntitySpawnerBase) tile);
         }
         return null;
     }
@@ -30,8 +30,8 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityMolecularTransformer) {
             return new GuiMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
         }
-        if (tile instanceof TileEntitySpawner) {
-            return new GuiSpawner(player.inventory, (TileEntitySpawner) tile);
+        if (tile instanceof TileEntitySpawnerBase) {
+            return new GuiSpawner(player.inventory, (TileEntitySpawnerBase) tile);
         }
         return null;
     }
