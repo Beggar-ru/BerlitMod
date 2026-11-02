@@ -63,6 +63,16 @@ public class BlockProcessingMachine extends BlockContainer {
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX,
         float hitY, float hitZ) {
+        if (player.isSneaking() && type == MachineType.METAL_FORMER) {
+            if (!world.isRemote) {
+                TileEntity tile = world.getTileEntity(x, y, z);
+                if (tile instanceof TileEntityProcessingMachine) {
+                    ((TileEntityProcessingMachine) tile).cycleMode();
+                }
+            }
+            return true;
+        }
+
         if (!world.isRemote) {
             player.openGui(Berlit.instance, 3, world, x, y, z);
         }

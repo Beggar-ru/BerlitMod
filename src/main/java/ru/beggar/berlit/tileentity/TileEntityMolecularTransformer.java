@@ -311,7 +311,7 @@ public class TileEntityMolecularTransformer extends TileEntity implements IEnerg
             EntityPlayerMP player = (EntityPlayerMP) object;
             if (player.getDistanceSq(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D) <= 4096.0D) {
                 ModNetwork.INSTANCE.sendTo(
-                    new PacketMachineSync(xCoord, yCoord, zCoord, energy, progress, recipeEnergy, lastInput, active),
+                    new PacketMachineSync(xCoord, yCoord, zCoord, energy, progress, recipeEnergy, lastInput, 0, active),
                     player);
             }
         }

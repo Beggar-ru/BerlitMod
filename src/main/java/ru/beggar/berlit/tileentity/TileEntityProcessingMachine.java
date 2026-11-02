@@ -46,6 +46,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
     private int recipeEnergy;
     private double requiredEnergy;
     private int baseEnergy;
+    private int mode;
     private boolean active;
     private boolean addedToEnergyNet;
     private int syncCounter;
@@ -62,6 +63,17 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
 
     public MachineType getMachineType() {
         return type;
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
+    public void cycleMode() {
+        if (type != MachineType.METAL_FORMER) return;
+        mode = (mode + 1) % 3;
+        progressExact = 0;
+        markDirty();
     }
 
     @Override
@@ -138,7 +150,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
             ItemStack stack = inventory[i];
             if (stack == null) continue;
 
-            MachineRecipe recipe = MachineRecipes.find(type, stack);
+            MachineRecipe recipe = MachineRecipes.find(type, mode, stack);
             if (recipe == null) continue;
 
             int units = batch ? stack.stackSize : 1;
@@ -184,7 +196,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
         int remaining = batchOutputs.size();
         for (int i = SLOT_INPUT_START; i < SLOT_INPUT_START + SLOT_INPUT_COUNT && remaining > 0; i++) {
             ItemStack stack = inventory[i];
-            if (stack == null || MachineRecipes.find(type, stack) == null) continue;
+            if (stack == null || MachineRecipes.find(type, mode, stack) == null) continue;
 
             int consumed = Math.min(stack.stackSize, remaining);
             stack.stackSize -= consumed;
@@ -279,7 +291,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
             IInventory source = (IInventory) tile;
             for (int i = 0; i < source.getSizeInventory(); i++) {
                 ItemStack stack = source.getStackInSlot(i);
-                if (stack == null || MachineRecipes.find(type, stack) == null) continue;
+                if (stack == null || MachineRecipes.find(type, mode, stack) == null) continue;
                 if (addInput(stack)) {
                     source.decrStackSize(i, 1);
                     return;
@@ -316,7 +328,16 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
             EntityPlayerMP player = (EntityPlayerMP) object;
             if (player.getDistanceSq(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D) <= 4096.0D) {
                 ModNetwork.INSTANCE.sendTo(
-                    new PacketMachineSync(xCoord, yCoord, zCoord, energy, progress, recipeEnergy, lastInput, active),
+                    new PacketMachineSync(
+                        xCoord,
+                        yCoord,
+                        zCoord,
+                        energy,
+                        progress,
+                        recipeEnergy,
+                        lastInput,
+                        mode,
+                        active),
                     player);
             }
         }
@@ -355,7 +376,8 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
         return lastInput;
     }
 
-    public void setClientData(int energy, int progress, int recipeEnergy, int lastInput, boolean active) {
+    public void setClientData(int energy, int progress, int recipeEnergy, int lastInput, int mode, boolean active) {
+        this.mode = mode;
         this.energy = energy;
         this.progress = progress;
         this.recipeEnergy = recipeEnergy;
@@ -479,7 +501,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         if (stack == null) return false;
         if (slot < SLOT_INPUT_START + SLOT_INPUT_COUNT) {
-            return MachineRecipes.find(type, stack) != null;
+            return MachineRecipes.find(type, mode, stack) != null;
         }
         return slot >= SLOT_UPGRADE_START && slot < SLOT_COUNT && UpgradeHelper.isMachineUpgrade(stack);
     }
@@ -488,6 +510,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         energy = nbt.getInteger("Energy");
+        mode = nbt.getInteger("Mode");
         progressExact = nbt.getDouble("ProgressExact");
         progress = (int) progressExact;
         NBTTagList list = nbt.getTagList("Items", 10);
@@ -502,6 +525,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setInteger("Energy", energy);
+        nbt.setInteger("Mode", mode);
         nbt.setDouble("ProgressExact", progressExact);
         NBTTagList list = new NBTTagList();
         for (int i = 0; i < inventory.length; i++) {

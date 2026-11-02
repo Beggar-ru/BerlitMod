@@ -1,5 +1,6 @@
 package ru.beggar.berlit.gui;
 
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -7,6 +8,9 @@ import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
+import ru.beggar.berlit.machine.MachineType;
+import ru.beggar.berlit.network.ModNetwork;
+import ru.beggar.berlit.network.PacketCycleMode;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 
 public class GuiProcessingMachine extends GuiContainer {
@@ -15,12 +19,41 @@ public class GuiProcessingMachine extends GuiContainer {
         "berlit:textures/gui/molecular_transformer.png");
 
     private final TileEntityProcessingMachine tile;
+    private GuiButton modeButton;
 
     public GuiProcessingMachine(InventoryPlayer playerInventory, TileEntityProcessingMachine tile) {
         super(new ContainerProcessingMachine(playerInventory, tile));
         this.tile = tile;
         this.xSize = 176;
         this.ySize = 166;
+    }
+
+    @Override
+    public void initGui() {
+        super.initGui();
+        if (tile.getMachineType() == MachineType.METAL_FORMER) {
+            modeButton = new GuiButton(0, guiLeft + 98, guiTop + 4, 70, 14, modeLabel());
+            buttonList.add(modeButton);
+        }
+    }
+
+    private String modeLabel() {
+        return StatCollector.translateToLocal("berlit.gui.mode." + tile.getMode());
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) {
+        if (button.id == 0) {
+            ModNetwork.INSTANCE.sendToServer(new PacketCycleMode(tile.xCoord, tile.yCoord, tile.zCoord));
+        }
+    }
+
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        if (modeButton != null) {
+            modeButton.displayString = modeLabel();
+        }
     }
 
     @Override

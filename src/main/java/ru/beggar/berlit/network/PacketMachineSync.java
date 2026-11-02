@@ -12,11 +12,12 @@ public class PacketMachineSync implements IMessage {
     public int progress;
     public int recipeEnergy;
     public int lastInput;
+    public int mode;
     public boolean active;
 
     public PacketMachineSync() {}
 
-    public PacketMachineSync(int x, int y, int z, int energy, int progress, int recipeEnergy, int lastInput,
+    public PacketMachineSync(int x, int y, int z, int energy, int progress, int recipeEnergy, int lastInput, int mode,
         boolean active) {
         this.x = x;
         this.y = y;
@@ -25,6 +26,7 @@ public class PacketMachineSync implements IMessage {
         this.progress = progress;
         this.recipeEnergy = recipeEnergy;
         this.lastInput = lastInput;
+        this.mode = mode;
         this.active = active;
     }
 
@@ -37,6 +39,7 @@ public class PacketMachineSync implements IMessage {
         progress = buf.readInt();
         recipeEnergy = buf.readInt();
         lastInput = buf.readInt();
+        mode = buf.readInt();
         active = buf.readBoolean();
     }
 
@@ -49,6 +52,7 @@ public class PacketMachineSync implements IMessage {
         buf.writeInt(progress);
         buf.writeInt(recipeEnergy);
         buf.writeInt(lastInput);
+        buf.writeInt(mode);
         buf.writeBoolean(active);
     }
 }

@@ -41,3 +41,7 @@ tile.berlit.machine_electric_furnace.name=Электропечь
 item.berlit.stack_upgrade.name=Улучшение «Стакс»
 item.berlit.stack_upgrade.tooltip=Перерабатывает целый стак за операцию
 nei.berlit.machines=Механизмы Berlit
+
+berlit.gui.mode.0=Продавливание
+berlit.gui.mode.1=Резка
+berlit.gui.mode.2=Прокатка

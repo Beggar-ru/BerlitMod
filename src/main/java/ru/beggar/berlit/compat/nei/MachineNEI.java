@@ -28,12 +28,14 @@ public class MachineNEI extends TemplateRecipeHandler {
     public class CachedMachineRecipe extends CachedRecipe {
 
         private final MachineType type;
+        private final int mode;
         private final PositionedStack machine;
         private final PositionedStack input;
         private final PositionedStack output;
 
-        public CachedMachineRecipe(MachineType type, MachineRecipe recipe) {
+        public CachedMachineRecipe(MachineType type, int mode, MachineRecipe recipe) {
             this.type = type;
+            this.mode = mode;
             this.machine = new PositionedStack(new ItemStack(Berlit.machineBlocks.get(type)), 8, 20);
             this.input = new PositionedStack(recipe.getInput(), 50, 20);
             this.output = new PositionedStack(recipe.getOutput(), 110, 20);
@@ -57,6 +59,10 @@ public class MachineNEI extends TemplateRecipeHandler {
         public MachineType getMachineType() {
             return type;
         }
+
+        public int getMode() {
+            return mode;
+        }
     }
 
     @Override
@@ -67,6 +73,10 @@ public class MachineNEI extends TemplateRecipeHandler {
     @Override
     public String getGuiTexture() {
         return "berlit:textures/gui/nei_spawner.png";
+    }
+
+    private static int modes(MachineType type) {
+        return type == MachineType.METAL_FORMER ? 3 : 1;
     }
 
     @Override
@@ -81,12 +91,14 @@ public class MachineNEI extends TemplateRecipeHandler {
         if (result == null) return;
 
         for (MachineType type : MachineType.values()) {
-            for (MachineRecipe recipe : MachineRecipes.getRecipes(type)) {
-                if (recipe.getOutput()
-                    .getItem() == result.getItem()
-                    && recipe.getOutput()
-                        .getItemDamage() == result.getItemDamage()) {
-                    arecipes.add(new CachedMachineRecipe(type, recipe));
+            for (int mode = 0; mode < modes(type); mode++) {
+                for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
+                    if (recipe.getOutput()
+                        .getItem() == result.getItem()
+                        && recipe.getOutput()
+                            .getItemDamage() == result.getItemDamage()) {
+                        arecipes.add(new CachedMachineRecipe(type, mode, recipe));
+                    }
                 }
             }
         }
@@ -97,12 +109,14 @@ public class MachineNEI extends TemplateRecipeHandler {
         if (ingredient == null) return;
 
         for (MachineType type : MachineType.values()) {
-            for (MachineRecipe recipe : MachineRecipes.getRecipes(type)) {
-                if (recipe.getInput()
-                    .getItem() == ingredient.getItem()
-                    && recipe.getInput()
-                        .getItemDamage() == ingredient.getItemDamage()) {
-                    arecipes.add(new CachedMachineRecipe(type, recipe));
+            for (int mode = 0; mode < modes(type); mode++) {
+                for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
+                    if (recipe.getInput()
+                        .getItem() == ingredient.getItem()
+                        && recipe.getInput()
+                            .getItemDamage() == ingredient.getItemDamage()) {
+                        arecipes.add(new CachedMachineRecipe(type, mode, recipe));
+                    }
                 }
             }
         }
@@ -119,5 +133,10 @@ public class MachineNEI extends TemplateRecipeHandler {
             8,
             6,
             0x404040);
+
+        if (cached.getMachineType() == MachineType.METAL_FORMER) {
+            Minecraft.getMinecraft().fontRenderer
+                .drawString(StatCollector.translateToLocal("berlit.gui.mode." + cached.getMode()), 8, 150, 0x404040);
+        }
     }
 }
