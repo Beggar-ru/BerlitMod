@@ -19,11 +19,16 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import ru.beggar.berlit.block.BlockMolecularTransformer;
+import ru.beggar.berlit.block.BlockSpawner;
 import ru.beggar.berlit.block.BlockTestGenerator;
 import ru.beggar.berlit.gui.GuiHandler;
+import ru.beggar.berlit.item.ItemEntityCard;
 import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.recipe.MolecularRecipes;
+import ru.beggar.berlit.spawner.EntityRegistry;
+import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
+import ru.beggar.berlit.tileentity.TileEntitySpawner;
 import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
 
 @Mod(modid = Berlit.MODID, name = Berlit.MOD_NAME, version = Tags.VERSION, acceptedMinecraftVersions = "[1.7.10]")
@@ -47,6 +52,8 @@ public class Berlit {
 
     public static BlockMolecularTransformer molecularTransformer;
     public static BlockTestGenerator testGenerator;
+    public static BlockSpawner spawner;
+    public static ItemEntityCard entityCard;
 
     @SidedProxy(clientSide = "ru.beggar.berlit.ClientProxy", serverSide = "ru.beggar.berlit.CommonProxy")
     public static CommonProxy proxy;
@@ -55,6 +62,9 @@ public class Berlit {
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
     public void preInit(FMLPreInitializationEvent event) {
+        EntityRegistry.init();
+        UpgradeRegistry.init();
+
         molecularTransformer = new BlockMolecularTransformer();
         GameRegistry.registerBlock(molecularTransformer, "berlit.molecular_transformer");
         GameRegistry.registerTileEntity(TileEntityMolecularTransformer.class, "berlit:molecular_transformer");
@@ -62,6 +72,13 @@ public class Berlit {
         testGenerator = new BlockTestGenerator();
         GameRegistry.registerBlock(testGenerator, "berlit.test_generator");
         GameRegistry.registerTileEntity(TileEntityTestGenerator.class, "berlit:test_generator");
+
+        spawner = new BlockSpawner();
+        GameRegistry.registerBlock(spawner, "berlit.spawner");
+        GameRegistry.registerTileEntity(TileEntitySpawner.class, "berlit:spawner");
+
+        entityCard = new ItemEntityCard();
+        GameRegistry.registerItem(entityCard, "berlit.entity_card");
 
         ModNetwork.init();
 
@@ -82,12 +99,16 @@ public class Berlit {
 
     private void registerCraftTweaker() {
         if (!Loader.isModLoaded("MineTweaker3")) return;
-        try {
-            Class.forName("ru.beggar.berlit.compat.MolecularTransformerTweaker")
-                .getMethod("register")
-                .invoke(null);
-        } catch (Throwable t) {
-            LOG.warn("CraftTweaker integration is not available", t);
+
+        for (String className : new String[] { "ru.beggar.berlit.compat.MolecularTransformerTweaker",
+            "ru.beggar.berlit.compat.SpawnerTweaker" }) {
+            try {
+                Class.forName(className)
+                    .getMethod("register")
+                    .invoke(null);
+            } catch (Throwable t) {
+                LOG.warn("CraftTweaker integration " + className + " is not available", t);
+            }
         }
     }
 
@@ -115,6 +136,21 @@ public class Berlit {
             Items.redstone,
             'F',
             Blocks.furnace);
+
+        GameRegistry.addRecipe(
+            new ItemStack(spawner),
+            "IRI",
+            "RER",
+            "IRI",
+            'I',
+            Items.iron_ingot,
+            'R',
+            Items.redstone,
+            'E',
+            Items.emerald);
+
+        GameRegistry
+            .addShapelessRecipe(ItemEntityCard.create("iron_golem"), Items.paper, Items.iron_ingot, Items.emerald);
     }
 
     @Mod.EventHandler

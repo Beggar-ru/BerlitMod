@@ -1,8 +1,22 @@
 package ru.beggar.berlit;
 
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+
 public class ClientProxy extends CommonProxy {
 
-    // Override CommonProxy methods here, if you want a different behaviour on the client (e.g. registering renders).
-    // Don't forget to call the super methods as well.
+    @Override
+    public void init(FMLInitializationEvent event) {
+        super.init(event);
 
+        if (Loader.isModLoaded("NotEnoughItems")) {
+            try {
+                Class.forName("ru.beggar.berlit.compat.nei.SpawnerNEI")
+                    .getMethod("register")
+                    .invoke(null);
+            } catch (Throwable t) {
+                Berlit.LOG.warn("NEI integration is not available", t);
+            }
+        }
+    }
 }

@@ -42,4 +42,7 @@ dependencies {
 
     // CraftTweaker API (also available in the dev runtime to test ZenScript recipes).
     devOnlyNonPublishable(rfg.deobf(files("libs/CraftTweaker-1.7.10-3.0.11.jar")))
+
+    // NEI API (compile only; NEI is client-side and is present in GTNH).
+    compileOnly(files("libs/notenoughitems-2.8.98-gtnh.jar"))
 }

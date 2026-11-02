@@ -1,6 +1,21 @@
 itemGroup.berlit=Berlit
+
 tile.berlit.molecular_transformer.name=Molecular Transformer
 tile.berlit.test_generator.name=Test Generator
+tile.berlit.spawner.name=Entity Spawner
+
 container.berlit.molecular_transformer=Molecular Transformer
+container.berlit.spawner=Entity Spawner
+
+item.berlit.entity_card.name=%s
+item.berlit.entity_card.empty=Entity Card
+item.berlit.entity_card.unknown=Unknown entity
+item.berlit.entity_card.drops=Drops:
+
 berlit.gui.energy=Input: %s EU/t
 berlit.gui.progress=Progress: %s%% (%s / %s EU)
+berlit.gui.spawner.entity=Entity: %s
+berlit.gui.spawner.cycle=Cycle: %s%%
+berlit.gui.spawner.upgrades=Upgrades: %s
+
+nei.berlit.spawner=Entity Spawner

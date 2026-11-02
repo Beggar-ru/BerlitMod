@@ -2,8 +2,20 @@ itemGroup.berlit=Берлит
 
 tile.berlit.molecular_transformer.name=Молекулярный трансформер
 tile.berlit.test_generator.name=Тестовый генератор
+tile.berlit.spawner.name=Спавнер сущностей
 
 container.berlit.molecular_transformer=Молекулярный трансформер
+container.berlit.spawner=Спавнер сущностей
+
+item.berlit.entity_card.name=%s
+item.berlit.entity_card.empty=Карта сущности
+item.berlit.entity_card.unknown=Неизвестная сущность
+item.berlit.entity_card.drops=Дроп:
 
 berlit.gui.energy=Вход: %s EU/t
 berlit.gui.progress=Прогресс: %s%% (%s / %s EU)
+berlit.gui.spawner.entity=Сущность: %s
+berlit.gui.spawner.cycle=Цикл: %s%%
+berlit.gui.spawner.upgrades=Улучшения: %s
+
+nei.berlit.spawner=Спавнер сущностей
