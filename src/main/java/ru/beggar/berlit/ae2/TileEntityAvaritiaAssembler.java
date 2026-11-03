@@ -71,6 +71,14 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     public void securityBreak() {}
 
     @Override
+    public void validate() {
+        super.validate();
+        if (worldObj != null && !worldObj.isRemote) {
+            getNode().updateState();
+        }
+    }
+
+    @Override
     public void invalidate() {
         if (node != null) {
             node.destroy();
@@ -150,6 +158,25 @@ public class TileEntityAvaritiaAssembler extends TileEntity
         return true;
     }
 
+    /** Own grid, or the grid of an adjacent AE2 block (e.g. ME Interface) if no cable. */
+    private IGrid networkGrid() {
+        IGrid grid = getNode().getGrid();
+        if (grid != null && grid.getCache(IStorageGrid.class) != null) return grid;
+
+        for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
+            TileEntity adjacent = worldObj
+                .getTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
+            if (!(adjacent instanceof IGridHost)) continue;
+            IGridNode other = ((IGridHost) adjacent).getGridNode(dir.getOpposite());
+            if (other != null && other.getGrid() != null
+                && other.getGrid()
+                    .getCache(IStorageGrid.class) != null) {
+                return other.getGrid();
+            }
+        }
+        return grid;
+    }
+
     /** Pulls one recipe worth of ingredients from the ME network and crafts it. */
     public boolean craftOnce() {
         if (worldObj == null || worldObj.isRemote) return false;
@@ -167,7 +194,7 @@ public class TileEntityAvaritiaAssembler extends TileEntity
         }
         if (pattern == null) return false;
 
-        IGrid grid = getNode().getGrid();
+        IGrid grid = networkGrid();
         if (grid == null) return false;
         IStorageGrid storage = grid.getCache(IStorageGrid.class);
         if (storage == null) return false;
