@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.network.IGuiHandler;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
@@ -25,38 +26,25 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityProcessingMachine) {
             return new ContainerProcessingMachine(player.inventory, (TileEntityProcessingMachine) tile);
         }
-        if (tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
-            return new ru.beggar.berlit.machine.ContainerNeutronCompressor(
-                player.inventory,
-                (ru.beggar.berlit.machine.TileEntityNeutronCompressor) tile);
-        }
-        if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
-            return new ru.beggar.berlit.ae2.ContainerPatternEncoder(
-                player.inventory,
-                (ru.beggar.berlit.ae2.TileEntityPatternEncoder) tile);
-        }
-        if (tile instanceof ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) {
-            return new ru.beggar.berlit.ae2.ContainerAvaritiaAssembler(
-                player.inventory,
-                (ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) tile);
-        }
-        if (tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
-            return new ru.beggar.berlit.machine.ContainerNeutronCompressor(
-                player.inventory,
-                (ru.beggar.berlit.machine.TileEntityNeutronCompressor) tile);
-        }
-        if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
-            return new ru.beggar.berlit.ae2.ContainerPatternEncoder(
-                player.inventory,
-                (ru.beggar.berlit.ae2.TileEntityPatternEncoder) tile);
-        }
-        if (tile instanceof ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) {
-            return new ru.beggar.berlit.ae2.GuiAvaritiaAssembler(
-                player.inventory,
-                (ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) tile);
-        }
         if (tile instanceof TileEntitySuperChest) {
             return new ContainerSuperChest(player.inventory, (TileEntitySuperChest) tile);
+        }
+        if (Loader.isModLoaded("appliedenergistics2")) {
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
+                return new ru.beggar.berlit.ae2.ContainerPatternEncoder(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityPatternEncoder) tile);
+            }
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) {
+                return new ru.beggar.berlit.ae2.ContainerAvaritiaAssembler(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) tile);
+            }
+        }
+        if (Loader.isModLoaded("Avaritia") && tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
+            return new ru.beggar.berlit.machine.ContainerNeutronCompressor(
+                player.inventory,
+                (ru.beggar.berlit.machine.TileEntityNeutronCompressor) tile);
         }
         return null;
     }
@@ -74,23 +62,25 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityProcessingMachine) {
             return new GuiProcessingMachine(player.inventory, (TileEntityProcessingMachine) tile);
         }
-        if (tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
-            return new ru.beggar.berlit.machine.ContainerNeutronCompressor(
-                player.inventory,
-                (ru.beggar.berlit.machine.TileEntityNeutronCompressor) tile);
-        }
-        if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
-            return new ru.beggar.berlit.ae2.ContainerPatternEncoder(
-                player.inventory,
-                (ru.beggar.berlit.ae2.TileEntityPatternEncoder) tile);
-        }
-        if (tile instanceof ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) {
-            return new ru.beggar.berlit.ae2.ContainerAvaritiaAssembler(
-                player.inventory,
-                (ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) tile);
-        }
         if (tile instanceof TileEntitySuperChest) {
             return new GuiSuperChest(player.inventory, (TileEntitySuperChest) tile);
+        }
+        if (Loader.isModLoaded("appliedenergistics2")) {
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
+                return new ru.beggar.berlit.ae2.GuiPatternEncoder(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityPatternEncoder) tile);
+            }
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) {
+                return new ru.beggar.berlit.ae2.GuiAvaritiaAssembler(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) tile);
+            }
+        }
+        if (Loader.isModLoaded("Avaritia") && tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
+            return new ru.beggar.berlit.machine.GuiNeutronCompressor(
+                player.inventory,
+                (ru.beggar.berlit.machine.TileEntityNeutronCompressor) tile);
         }
         return null;
     }

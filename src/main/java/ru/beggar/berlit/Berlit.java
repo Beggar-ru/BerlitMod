@@ -36,7 +36,6 @@ import ru.beggar.berlit.recipe.MolecularRecipes;
 import ru.beggar.berlit.spawner.EntityRegistry;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
-import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerT2;
 import ru.beggar.berlit.tileentity.TileEntitySuperChest;
@@ -153,19 +152,32 @@ public class Berlit {
         GameRegistry.registerBlock(superChest, "berlit.super_chest");
         GameRegistry.registerTileEntity(TileEntitySuperChest.class, "berlit:super_chest");
 
-        avaritiaAssembler = new ru.beggar.berlit.ae2.BlockAvaritiaAssembler();
-        GameRegistry.registerBlock(avaritiaAssembler, "berlit.avaritia_assembler");
-        GameRegistry
-            .registerTileEntity(ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler.class, "berlit:avaritia_assembler");
+        boolean ae2 = cpw.mods.fml.common.Loader.isModLoaded("appliedenergistics2");
+        boolean avaritia = cpw.mods.fml.common.Loader.isModLoaded("Avaritia");
 
-        GameRegistry.registerTileEntity(TileEntityProcessingMachine.class, "berlit:processing_machine");
+        if (ae2) {
+            patternEncoder = new ru.beggar.berlit.ae2.BlockPatternEncoder();
+            GameRegistry.registerBlock(patternEncoder, "berlit.pattern_encoder");
+            GameRegistry
+                .registerTileEntity(ru.beggar.berlit.ae2.TileEntityPatternEncoder.class, "berlit:pattern_encoder");
 
-        stackUpgrade = new ItemStackUpgrade();
-        GameRegistry.registerItem(stackUpgrade, "stack_upgrade");
+            avaritiaAssembler = new ru.beggar.berlit.ae2.BlockAvaritiaAssembler();
+            GameRegistry.registerBlock(avaritiaAssembler, "berlit.avaritia_assembler");
+            GameRegistry.registerTileEntity(
+                ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler.class,
+                "berlit:avaritia_assembler");
 
-        avaritiaPattern = new ru.beggar.berlit.ae2.ItemAvaritiaPattern();
-        GameRegistry.registerItem(avaritiaPattern, "avaritia_pattern");
+            avaritiaPattern = new ru.beggar.berlit.ae2.ItemAvaritiaPattern();
+            GameRegistry.registerItem(avaritiaPattern, "avaritia_pattern");
+        }
 
+        if (avaritia) {
+            neutronCompressor = new ru.beggar.berlit.machine.BlockNeutronCompressor();
+            GameRegistry.registerBlock(neutronCompressor, "berlit.neutron_compressor");
+            GameRegistry.registerTileEntity(
+                ru.beggar.berlit.machine.TileEntityNeutronCompressor.class,
+                "berlit:neutron_compressor");
+        }
         ModNetwork.init();
 
         proxy.preInit(event);
@@ -330,18 +342,6 @@ public class Berlit {
             .addRecipe(new ItemStack(superChest), "III", "ICI", "III", 'I', Items.iron_ingot, 'C', Blocks.chest);
 
         GameRegistry.addRecipe(
-            new ItemStack(avaritiaAssembler),
-            "IQI",
-            "QPQ",
-            "IQI",
-            'I',
-            Items.iron_ingot,
-            'Q',
-            Items.quartz,
-            'P',
-            Blocks.piston);
-
-        GameRegistry.addRecipe(
             new ItemStack(electricFurnace),
             "IFI",
             "IRI",
@@ -352,6 +352,46 @@ public class Berlit {
             Blocks.furnace,
             'R',
             Items.redstone);
+
+        if (cpw.mods.fml.common.Loader.isModLoaded("appliedenergistics2")) {
+            GameRegistry.addRecipe(
+                new ItemStack(avaritiaAssembler),
+                "IQI",
+                "QPQ",
+                "IQI",
+                'I',
+                Items.iron_ingot,
+                'Q',
+                Items.quartz,
+                'P',
+                Blocks.piston);
+
+            GameRegistry.addRecipe(
+                new ItemStack(patternEncoder),
+                "IQI",
+                "QCQ",
+                "IQI",
+                'I',
+                Items.iron_ingot,
+                'Q',
+                Items.quartz,
+                'C',
+                Items.comparator);
+        }
+
+        if (cpw.mods.fml.common.Loader.isModLoaded("Avaritia")) {
+            GameRegistry.addRecipe(
+                new ItemStack(neutronCompressor),
+                "IQI",
+                "QCQ",
+                "IQI",
+                'I',
+                Items.iron_ingot,
+                'Q',
+                Items.quartz,
+                'C',
+                Blocks.piston);
+        }
 
         GameRegistry.addShapelessRecipe(new ItemStack(stackUpgrade), Items.paper, Blocks.chest, Items.redstone);
 
