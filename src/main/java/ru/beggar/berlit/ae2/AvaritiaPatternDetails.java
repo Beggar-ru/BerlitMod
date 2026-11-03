@@ -66,11 +66,17 @@ public class AvaritiaPatternDetails implements ICraftingPatternDetails {
 
     @Override
     public IAEItemStack[] getInputs() {
-        return inputs;
+        // AE2's crafting CPU only has 9 slots; it gets the condensed totals and the
+        // assembling machine reconstructs the real 9x9 grid from getGrid().
+        return condensed();
     }
 
     @Override
     public IAEItemStack[] getCondensedInputs() {
+        return condensed();
+    }
+
+    private IAEItemStack[] condensed() {
         List<IAEItemStack> result = new ArrayList<IAEItemStack>();
         for (IAEItemStack input : inputs) {
             if (input == null) continue;

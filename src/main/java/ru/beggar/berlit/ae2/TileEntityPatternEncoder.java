@@ -30,12 +30,27 @@ public class TileEntityPatternEncoder extends TileEntity implements IInventory {
             grid.setInventorySlotContents(i, inventory[i]);
         }
 
+        if (uniqueInputs() > 9) return;
+
         ItemStack result = ExtremeCraftingManager.getInstance()
             .findMatchingRecipe(grid, worldObj);
         if (result == null) return;
 
         inventory[OUTPUT] = ItemAvaritiaPattern.create(inventory, result);
         markDirty();
+    }
+
+    private int uniqueInputs() {
+        java.util.Set<String> types = new java.util.HashSet<String>();
+        for (int i = 0; i < GRID_SLOTS; i++) {
+            ItemStack stack = inventory[i];
+            if (stack == null) continue;
+            types.add(
+                stack.getItem()
+                    .getUnlocalizedName() + "|"
+                    + stack.getItemDamage());
+        }
+        return types.size();
     }
 
     @Override

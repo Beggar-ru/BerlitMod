@@ -90,3 +90,5 @@ tools/                   — генераторы текстур/GUI и прев
 - Avaritia: https://github.com/SpitefulFox/Avaritia/tree/1.7.10
 - AE2 (1.7.10): https://github.com/AppliedEnergistics/Applied-Energistics-2/tree/rv3-1.7.10
 - GTNH dev wiki: https://gtnh.miraheze.org/wiki/Development
+
+- AE2 CPU получает конденсированные входы (≤9 типов; кодировщик отказывает при большем числе), а сборщик восстанавливает полную сетку 9×9 из шаблона.

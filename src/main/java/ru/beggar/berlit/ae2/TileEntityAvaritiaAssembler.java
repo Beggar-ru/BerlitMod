@@ -102,7 +102,8 @@ public class TileEntityAvaritiaAssembler extends TileEntity
         if (!(details instanceof AvaritiaPatternDetails) || worldObj == null || worldObj.isRemote) return false;
 
         InventoryCrafting grid = new InventoryCrafting(new ContainerNull(), 9, 9);
-        IAEItemStack[] inputs = details.getInputs();
+        AvaritiaPatternDetails pattern = (AvaritiaPatternDetails) details;
+        IAEItemStack[] inputs = pattern.getGrid();
         for (int i = 0; i < 81; i++) {
             grid.setInventorySlotContents(i, inputs[i] == null ? null : inputs[i].getItemStack());
         }
