@@ -71,14 +71,6 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     public void securityBreak() {}
 
     @Override
-    public void validate() {
-        super.validate();
-        if (worldObj != null && !worldObj.isRemote) {
-            getNode().updateState();
-        }
-    }
-
-    @Override
     public void invalidate() {
         if (node != null) {
             node.destroy();
@@ -364,9 +356,7 @@ public class TileEntityAvaritiaAssembler extends TileEntity
         }
 
         @Override
-        public void gridChanged() {
-            markDirty();
-        }
+        public void gridChanged() {}
 
         @Override
         public ItemStack getMachineRepresentation() {
