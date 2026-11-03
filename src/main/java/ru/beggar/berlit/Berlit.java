@@ -221,6 +221,16 @@ public class Berlit {
                 LOG.warn("CraftTweaker integration " + className + " is not available", t);
             }
         }
+
+        if (Loader.isModLoaded("Avaritia")) {
+            try {
+                Class.forName("ru.beggar.berlit.compat.AvaritiaTweaker")
+                    .getMethod("register")
+                    .invoke(null);
+            } catch (Throwable t) {
+                LOG.warn("CraftTweaker Avaritia integration is not available", t);
+            }
+        }
     }
 
     private void registerRecipes() {

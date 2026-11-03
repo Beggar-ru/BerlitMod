@@ -100,3 +100,15 @@ tools/                   — генераторы текстур/GUI и прев
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
 BERLIT_SELFTEST compressor: cost=900 out=1xitem.avaritia_singularity@0 inputLeft=null
 `
+
+### Как кодировать 9×9 и запускать автокрафт
+
+- GUI `berlit.pattern_encoder` — это **сетка 9×9 (81 слот)**, а не 3×3. Кнопка `E` кодирует
+  текущую раскладку в `Avaritia Pattern` (81 вход + 1 выход). Предметы из сетки не расходуются.
+- 3×3 в `berlit.avaritia_assembler` — это **слоты для готовых шаблонов**, а не сетка крафта.
+- Автокрафт как в AE2: кодировщик → шаблон → **ME Interface** (положить шаблон туда) →
+  `Avaritia Assembler` вплотную к интерфейсу → заказ в терминале. Сборщик можно использовать
+  и автономно, положив шаблон в его собственные слоты.
+- CraftTweaker: `mods.berlit.Avaritia.addCompressor(<out>, cost, <in>)` /
+  `removeCompressor(<in>)`. NEI: страница нейтронного компрессора (input × cost → singularity),
+  рецепты 9×9 показывает штатный NEI-хендлер Avaritia.
