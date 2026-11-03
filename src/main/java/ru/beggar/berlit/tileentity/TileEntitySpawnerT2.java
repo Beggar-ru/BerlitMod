@@ -18,22 +18,22 @@ public class TileEntitySpawnerT2 extends TileEntitySpawnerBase {
 
     @Override
     public int getEntitySlotX(int index) {
-        return 8 + (index % 5) * 18;
+        return 20 + (index % 5) * 18;
     }
 
     @Override
     public int getEntitySlotY(int index) {
-        return 17 + (index / 5) * 18;
+        return 22 + (index / 5) * 18;
     }
 
     @Override
     public int getUpgradeSlotX(int index) {
-        return 98 + (index % 4) * 18;
+        return 64 + (index % 4) * 18;
     }
 
     @Override
     public int getUpgradeSlotY(int index) {
-        return 17 + (index / 4) * 18;
+        return 92 + (index / 4) * 18;
     }
 
     @Override

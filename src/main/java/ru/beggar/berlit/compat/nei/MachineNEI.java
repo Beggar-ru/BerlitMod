@@ -75,8 +75,9 @@ public class MachineNEI extends TemplateRecipeHandler {
         return "berlit:textures/gui/nei_spawner.png";
     }
 
+    /** One mode per machine: the metal former no longer switches between recipes. */
     private static int modes(MachineType type) {
-        return type == MachineType.METAL_FORMER ? 3 : 1;
+        return 1;
     }
 
     @Override
@@ -133,10 +134,5 @@ public class MachineNEI extends TemplateRecipeHandler {
             8,
             6,
             0x404040);
-
-        if (cached.getMachineType() == MachineType.METAL_FORMER) {
-            Minecraft.getMinecraft().fontRenderer
-                .drawString(StatCollector.translateToLocal("berlit.gui.mode." + cached.getMode()), 8, 150, 0x404040);
-        }
     }
 }

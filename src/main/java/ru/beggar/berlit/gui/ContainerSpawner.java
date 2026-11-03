@@ -46,11 +46,11 @@ public class ContainerSpawner extends Container {
     private void bindPlayerInventory(InventoryPlayer inventory) {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(inventory, col + row * 9 + 9, 8 + col * SLOT_SIZE, 84 + row * SLOT_SIZE));
+                addSlotToContainer(new Slot(inventory, col + row * 9 + 9, 20 + col * SLOT_SIZE, 166 + row * SLOT_SIZE));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(inventory, col, 8 + col * SLOT_SIZE, 142));
+            addSlotToContainer(new Slot(inventory, col, 20 + col * SLOT_SIZE, 222));
         }
     }
 

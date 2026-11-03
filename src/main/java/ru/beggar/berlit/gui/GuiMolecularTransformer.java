@@ -1,6 +1,7 @@
 package ru.beggar.berlit.gui;
 
-import net.minecraft.client.gui.inventory.GuiContainer;
+import java.util.Arrays;
+
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
@@ -9,7 +10,7 @@ import org.lwjgl.opengl.GL11;
 
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 
-public class GuiMolecularTransformer extends GuiContainer {
+public class GuiMolecularTransformer extends BerlitGui {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(
         "berlit:textures/gui/molecular_transformer.png");
@@ -19,25 +20,32 @@ public class GuiMolecularTransformer extends GuiContainer {
     public GuiMolecularTransformer(InventoryPlayer playerInventory, TileEntityMolecularTransformer tile) {
         super(new ContainerMolecularTransformer(playerInventory, tile));
         this.tile = tile;
-        this.xSize = 176;
-        this.ySize = 166;
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        String title = StatCollector.translateToLocal("tile.berlit.molecular_transformer.name");
-        fontRendererObj.drawString(title, 8, 6, 4210752);
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
+
+        fontRendererObj
+            .drawString(StatCollector.translateToLocal("tile.berlit.molecular_transformer.name"), 8, 6, GuiTheme.TITLE);
 
         fontRendererObj.drawString(
             StatCollector.translateToLocalFormatted("berlit.gui.energy", tile.getLastInput()),
-            8,
-            60,
-            4210752);
-        fontRendererObj.drawString(
-            StatCollector.translateToLocalFormatted("berlit.gui.progress", tile.getProgressScaled(100)),
-            8,
-            72,
-            4210752);
+            12,
+            78,
+            GuiTheme.TEXT);
+
+        // The bar shows the progress; the number is the precise value.
+        drawRightAligned(tile.getProgressScaled(100) + "%", 186, 78, GuiTheme.ACCENT);
+
+        drawInfoTooltip(
+            mouseX,
+            mouseY,
+            Arrays.asList(
+                StatCollector
+                    .translateToLocalFormatted("berlit.gui.info.energy", tile.getEnergy(), tile.getMaxEnergy()),
+                StatCollector.translateToLocalFormatted("berlit.gui.info.input", tile.getLastInput()),
+                StatCollector.translateToLocalFormatted("berlit.gui.info.recipe", tile.getRecipeEnergy())));
     }
 
     @Override
@@ -48,6 +56,7 @@ public class GuiMolecularTransformer extends GuiContainer {
 
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+        drawPanels(x, y);
+        drawProgressBar(x, y, tile.getProgressScaled(100));
     }
 }

@@ -42,6 +42,7 @@ item.berlit.stack_upgrade.name=Stack Upgrade
 item.berlit.stack_upgrade.tooltip=Processes a whole stack per operation
 nei.berlit.machines=Berlit Machines
 
-berlit.gui.mode.0=Extruding
-berlit.gui.mode.1=Cutting
-berlit.gui.mode.2=Rolling
+berlit.gui.info.energy=Energy: %s / %s EU
+berlit.gui.info.input=Consumption: %s EU/t
+berlit.gui.info.recipe=Per operation: %s EU
+berlit.gui.info.interval=Interval: %s ticks

@@ -13,6 +13,5 @@ public final class ModNetwork {
     public static void init() {
         INSTANCE.registerMessage(MachineSyncHandler.class, PacketMachineSync.class, 0, Side.CLIENT);
         INSTANCE.registerMessage(SpawnerSyncHandler.class, PacketSpawnerSync.class, 1, Side.CLIENT);
-        INSTANCE.registerMessage(PacketCycleMode.Handler.class, PacketCycleMode.class, 2, Side.SERVER);
     }
 }

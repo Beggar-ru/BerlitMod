@@ -21,8 +21,7 @@ import ic2.api.recipe.Recipes;
 public final class MachineRecipes {
 
     public static final int MODE_EXTRUDING = 0;
-    public static final int MODE_CUTTING = 1;
-    public static final int MODE_ROLLING = 2;
+    public static final int MODE_ROLLING = 1;
 
     private static final Map<MachineType, Map<String, MachineRecipe>> RECIPES = new EnumMap<MachineType, Map<String, MachineRecipe>>(
         MachineType.class);
@@ -193,7 +192,6 @@ public final class MachineRecipes {
             case COMPRESSOR:
                 return Recipes.compressor;
             case METAL_FORMER:
-                if (mode == MODE_CUTTING) return Recipes.metalformerCutting;
                 if (mode == MODE_ROLLING) return Recipes.metalformerRolling;
                 return Recipes.metalformerExtruding;
             default:

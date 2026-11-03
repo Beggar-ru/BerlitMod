@@ -12,12 +12,12 @@ import ru.beggar.berlit.upgrade.UpgradeHelper;
 public class ContainerMolecularTransformer extends Container {
 
     private static final int SLOT_SIZE = 18;
-    private static final int INPUT_X = 26;
-    private static final int INPUT_Y = 17;
-    private static final int OUTPUT_X = 98;
-    private static final int OUTPUT_Y = 17;
-    private static final int UPGRADE_X = 98;
-    private static final int UPGRADE_Y = 59;
+    private static final int INPUT_X = 38;
+    private static final int INPUT_Y = 22;
+    private static final int OUTPUT_X = 110;
+    private static final int OUTPUT_Y = 22;
+    private static final int UPGRADE_X = 64;
+    private static final int UPGRADE_Y = 92;
 
     private final TileEntityMolecularTransformer tile;
 
@@ -67,11 +67,11 @@ public class ContainerMolecularTransformer extends Container {
     private void bindPlayerInventory(InventoryPlayer inventory) {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(inventory, col + row * 9 + 9, 8 + col * SLOT_SIZE, 84 + row * SLOT_SIZE));
+                addSlotToContainer(new Slot(inventory, col + row * 9 + 9, 20 + col * SLOT_SIZE, 166 + row * SLOT_SIZE));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(inventory, col, 8 + col * SLOT_SIZE, 142));
+            addSlotToContainer(new Slot(inventory, col, 20 + col * SLOT_SIZE, 222));
         }
     }
 

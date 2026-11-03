@@ -1,16 +1,16 @@
 package ru.beggar.berlit.gui;
 
-import net.minecraft.client.gui.inventory.GuiContainer;
+import java.util.Arrays;
+
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
-import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerBase;
 
-public class GuiSpawner extends GuiContainer {
+public class GuiSpawner extends BerlitGui {
 
     private final TileEntitySpawnerBase tile;
     private final ResourceLocation texture;
@@ -19,34 +19,29 @@ public class GuiSpawner extends GuiContainer {
         super(new ContainerSpawner(playerInventory, tile));
         this.tile = tile;
         this.texture = new ResourceLocation(tile.getGuiTexture());
-        this.xSize = 176;
-        this.ySize = 166;
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        fontRendererObj.drawString(StatCollector.translateToLocal(tile.getTitleKey()), 8, 6, 4210752);
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
+
+        fontRendererObj.drawString(StatCollector.translateToLocal(tile.getTitleKey()), 8, 6, GuiTheme.TITLE);
 
         fontRendererObj.drawString(
             StatCollector.translateToLocalFormatted("berlit.gui.spawner.entities", tile.getTotalEntityCount()),
-            8,
-            60,
-            4210752);
-        fontRendererObj.drawString(
-            StatCollector.translateToLocalFormatted("berlit.gui.spawner.cycle", tile.getCycleScaled(100)),
-            8,
-            72,
-            4210752);
+            12,
+            78,
+            GuiTheme.TEXT);
 
-        int upgrades = 0;
-        for (int i = tile.getUpgradeSlotStart(); i < tile.getSlotCount(); i++) {
-            if (UpgradeRegistry.get(tile.getStackInSlot(i)) != null) upgrades++;
-        }
-        fontRendererObj.drawString(
-            StatCollector.translateToLocalFormatted("berlit.gui.spawner.upgrades", upgrades),
-            108,
-            60,
-            4210752);
+        // The cycle bar fills the trough, so the number sits at the right edge.
+        drawRightAligned(tile.getCycleScaled(100) + "%", 186, 78, GuiTheme.ACCENT);
+
+        drawInfoTooltip(
+            mouseX,
+            mouseY,
+            Arrays.asList(
+                StatCollector.translateToLocalFormatted("berlit.gui.spawner.entities", tile.getTotalEntityCount()),
+                StatCollector.translateToLocalFormatted("berlit.gui.info.interval", tile.getInterval())));
     }
 
     @Override
@@ -57,6 +52,7 @@ public class GuiSpawner extends GuiContainer {
 
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+        drawPanels(x, y);
+        drawProgressBar(x, y, tile.getCycleScaled(100));
     }
 }

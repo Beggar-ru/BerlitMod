@@ -52,11 +52,11 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
     }
 
     public int getUpgradeSlotX(int index) {
-        return 62 + (index % 4) * 18;
+        return 64 + (index % 4) * 18;
     }
 
     public int getUpgradeSlotY(int index) {
-        return 17 + (index / 4) * 18;
+        return 92 + (index / 4) * 18;
     }
 
     public int getSlotCount() {

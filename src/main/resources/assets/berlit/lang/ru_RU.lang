@@ -42,6 +42,7 @@ item.berlit.stack_upgrade.name=Улучшение «Стакс»
 item.berlit.stack_upgrade.tooltip=Перерабатывает целый стак за операцию
 nei.berlit.machines=Механизмы Berlit
 
-berlit.gui.mode.0=Продавливание
-berlit.gui.mode.1=Резка
-berlit.gui.mode.2=Прокатка
+berlit.gui.info.energy=Энергия: %s / %s EU
+berlit.gui.info.input=Потребление: %s EU/t
+berlit.gui.info.recipe=На операцию: %s EU
+berlit.gui.info.interval=Интервал: %s тиков

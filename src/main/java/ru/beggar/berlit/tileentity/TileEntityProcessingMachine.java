@@ -65,15 +65,9 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
         return type;
     }
 
+    /** Kept for the recipe lookup: the metal former now runs a single mode. */
     public int getMode() {
         return mode;
-    }
-
-    public void cycleMode() {
-        if (type != MachineType.METAL_FORMER) return;
-        mode = (mode + 1) % 3;
-        progressExact = 0;
-        markDirty();
     }
 
     @Override
