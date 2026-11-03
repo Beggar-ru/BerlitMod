@@ -1,19 +1,41 @@
 package ru.beggar.berlit.machine;
 
+import java.util.EnumSet;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ForgeDirection;
 
+import appeng.api.AEApi;
+import appeng.api.config.Actionable;
 import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.networking.GridFlags;
+import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridBlock;
+import appeng.api.networking.IGridHost;
+import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.api.networking.crafting.ICraftingProvider;
+import appeng.api.networking.crafting.ICraftingProviderHelper;
+import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.networking.storage.IStorageGrid;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.AECableType;
+import appeng.api.util.AEColor;
+import appeng.api.util.DimensionalCoord;
 import fox.spiteful.avaritia.crafting.CompressorManager;
 import ru.beggar.berlit.Berlit;
 import ru.beggar.berlit.ae2.SingularityPatternDetails;
 
 /** Compresses items into an Avaritia singularity, one item at a time. */
-public class TileEntityNeutronCompressor extends TileEntity implements IInventory {
+public class TileEntityNeutronCompressor extends TileEntity
+    implements IInventory, IGridHost, IActionHost, ICraftingProvider {
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
@@ -24,12 +46,106 @@ public class TileEntityNeutronCompressor extends TileEntity implements IInventor
     private int progress;
     private int cost;
     private ItemStack pendingOutput;
+    private IGridNode node;
+
+    private IGridNode getNode() {
+        if (node == null) {
+            node = AEApi.instance()
+                .createGridNode(new GridBlock());
+        }
+        return node;
+    }
+
+    @Override
+    public IGridNode getGridNode(ForgeDirection dir) {
+        return getNode();
+    }
+
+    @Override
+    public IGridNode getActionableNode() {
+        return getNode();
+    }
+
+    @Override
+    public AECableType getCableConnectionType(ForgeDirection dir) {
+        return AECableType.SMART;
+    }
+
+    @Override
+    public void securityBreak() {}
+
+    @Override
+    public void invalidate() {
+        if (node != null) {
+            node.destroy();
+            node = null;
+        }
+        super.invalidate();
+    }
+
+    @Override
+    public void onChunkUnload() {
+        if (node != null) {
+            node.destroy();
+            node = null;
+        }
+        super.onChunkUnload();
+    }
 
     private SingularityPatternDetails getPattern() {
         ItemStack stack = inventory[PATTERN];
         if (stack == null || !(stack.getItem() instanceof ICraftingPatternItem)) return null;
         ICraftingPatternDetails details = ((ICraftingPatternItem) stack.getItem()).getPatternForItem(stack, worldObj);
         return details instanceof SingularityPatternDetails ? (SingularityPatternDetails) details : null;
+    }
+
+    @Override
+    public void provideCrafting(ICraftingProviderHelper helper) {
+        SingularityPatternDetails pattern = getPattern();
+        if (pattern != null) helper.addCraftingOption(this, pattern);
+    }
+
+    @Override
+    public boolean pushPattern(ICraftingPatternDetails details, InventoryCrafting crafting) {
+        if (!(details instanceof SingularityPatternDetails) || worldObj == null || worldObj.isRemote) return false;
+
+        ItemStack result = details.getOutput(crafting, worldObj);
+        if (result == null) return false;
+
+        IGrid grid = getNode().getGrid();
+        if (grid != null) {
+            IStorageGrid storage = grid.getCache(IStorageGrid.class);
+            if (storage != null) {
+                IMEMonitor<IAEItemStack> items = storage.getItemInventory();
+                items.injectItems(
+                    AEApi.instance()
+                        .storage()
+                        .createItemStack(result),
+                    Actionable.MODULATE,
+                    new MachineSource(this));
+                return true;
+            }
+        }
+
+        for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
+            TileEntity adjacent = worldObj
+                .getTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
+            if (adjacent instanceof IInventory) {
+                IInventory inv = (IInventory) adjacent;
+                for (int i = 0; i < inv.getSizeInventory(); i++) {
+                    if (inv.getStackInSlot(i) == null) {
+                        inv.setInventorySlotContents(i, result);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isBusy() {
+        return false;
     }
 
     @Override
@@ -165,6 +281,60 @@ public class TileEntityNeutronCompressor extends TileEntity implements IInventor
                 inventory[i].writeToNBT(tag);
                 nbt.setTag("Item" + i, tag);
             }
+        }
+    }
+
+    private final class GridBlock implements IGridBlock {
+
+        @Override
+        public double getIdlePowerUsage() {
+            return 1.0;
+        }
+
+        @Override
+        public EnumSet<GridFlags> getFlags() {
+            return EnumSet.of(GridFlags.REQUIRE_CHANNEL);
+        }
+
+        @Override
+        public boolean isWorldAccessible() {
+            return true;
+        }
+
+        @Override
+        public DimensionalCoord getLocation() {
+            return new DimensionalCoord(TileEntityNeutronCompressor.this);
+        }
+
+        @Override
+        public AEColor getGridColor() {
+            return AEColor.Transparent;
+        }
+
+        @Override
+        public void onGridNotification(appeng.api.networking.GridNotification notification) {}
+
+        @Override
+        public void setNetworkStatus(IGrid grid, int channels) {}
+
+        @Override
+        public EnumSet<ForgeDirection> getConnectableSides() {
+            return EnumSet.allOf(ForgeDirection.class);
+        }
+
+        @Override
+        public IGridHost getMachine() {
+            return TileEntityNeutronCompressor.this;
+        }
+
+        @Override
+        public void gridChanged() {
+            markDirty();
+        }
+
+        @Override
+        public ItemStack getMachineRepresentation() {
+            return new ItemStack(Berlit.neutronCompressor);
         }
     }
 }

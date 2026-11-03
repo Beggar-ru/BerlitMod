@@ -95,7 +95,7 @@ tools/                   — генераторы текстур/GUI и прев
 
 ### Автотест машин
 
-`BERLIT_SELFTEST=1 ./gradlew runServer` (в PowerShell: `\='1'` + `\='-Dfml.queryResult=confirm'`) запускает Selftest: добавляет тестовый 9×9-рецепт (81 железо → алмаз), прогоняет `pushPattern` и компрессор. Ожидаемые строки в логе:
+Запуск: $env:BERLIT_SELFTEST='1'; $env:JAVA_TOOL_OPTIONS='-Dfml.queryResult=confirm'; ./gradlew runServer запускает Selftest: добавляет тестовый 9×9-рецепт (81 железо → алмаз), прогоняет `pushPattern` и компрессор. Ожидаемые строки в логе:
 `
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
 BERLIT_SELFTEST compressor: cost=900 out=1xitem.avaritia_singularity@0 inputLeft=null
