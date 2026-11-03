@@ -151,7 +151,7 @@ public class TileEntityNeutronCompressor extends TileEntity
 
     @Override
     public boolean acceptsPlans() {
-        return false;
+        return true;
     }
 
     @Override
