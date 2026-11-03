@@ -58,3 +58,6 @@ tile.berlit.avaritia_assembler.name=Сборщик Avaritia
 tile.berlit.pattern_encoder.name=Кодировщик шаблонов
 
 tile.berlit.neutron_compressor.name=Нейтронный компрессор
+
+item.berlit.singularity_pattern.name=Шаблон сингулярности
+tile.berlit.singularity_encoder.name=Кодировщик сингулярностей

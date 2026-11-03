@@ -45,6 +45,8 @@ public class PacketEncode implements IMessage {
             TileEntity tile = world.getTileEntity(message.x, message.y, message.z);
             if (tile instanceof TileEntityPatternEncoder) {
                 ((TileEntityPatternEncoder) tile).encode();
+            } else if (tile instanceof ru.beggar.berlit.ae2.TileEntitySingularityEncoder) {
+                ((ru.beggar.berlit.ae2.TileEntitySingularityEncoder) tile).encode();
             }
             return null;
         }

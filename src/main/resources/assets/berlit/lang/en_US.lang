@@ -58,3 +58,6 @@ tile.berlit.avaritia_assembler.name=Avaritia Assembler
 tile.berlit.pattern_encoder.name=Pattern Encoder
 
 tile.berlit.neutron_compressor.name=Neutron Compressor
+
+item.berlit.singularity_pattern.name=Singularity Pattern
+tile.berlit.singularity_encoder.name=Singularity Encoder

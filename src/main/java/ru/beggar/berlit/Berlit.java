@@ -81,6 +81,8 @@ public class Berlit {
     public static ru.beggar.berlit.machine.BlockNeutronCompressor neutronCompressor;
     public static ItemStackUpgrade stackUpgrade;
     public static ru.beggar.berlit.ae2.ItemAvaritiaPattern avaritiaPattern;
+    public static ru.beggar.berlit.ae2.ItemSingularityPattern singularityPattern;
+    public static ru.beggar.berlit.ae2.BlockSingularityEncoder singularityEncoder;
     public static final java.util.Map<MachineType, BlockProcessingMachine> machineBlocks = new java.util.EnumMap<MachineType, BlockProcessingMachine>(
         MachineType.class);
 
@@ -169,6 +171,15 @@ public class Berlit {
 
             avaritiaPattern = new ru.beggar.berlit.ae2.ItemAvaritiaPattern();
             GameRegistry.registerItem(avaritiaPattern, "avaritia_pattern");
+
+            singularityPattern = new ru.beggar.berlit.ae2.ItemSingularityPattern();
+            GameRegistry.registerItem(singularityPattern, "singularity_pattern");
+
+            singularityEncoder = new ru.beggar.berlit.ae2.BlockSingularityEncoder();
+            GameRegistry.registerBlock(singularityEncoder, "berlit.singularity_encoder");
+            GameRegistry.registerTileEntity(
+                ru.beggar.berlit.ae2.TileEntitySingularityEncoder.class,
+                "berlit:singularity_encoder");
         }
 
         if (avaritia) {

@@ -35,6 +35,11 @@ public class GuiHandler implements IGuiHandler {
                     player.inventory,
                     (ru.beggar.berlit.ae2.TileEntityPatternEncoder) tile);
             }
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntitySingularityEncoder) {
+                return new ru.beggar.berlit.ae2.ContainerSingularityEncoder(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntitySingularityEncoder) tile);
+            }
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) {
                 return new ru.beggar.berlit.ae2.ContainerAvaritiaAssembler(
                     player.inventory,
@@ -70,6 +75,11 @@ public class GuiHandler implements IGuiHandler {
                 return new ru.beggar.berlit.ae2.GuiPatternEncoder(
                     player.inventory,
                     (ru.beggar.berlit.ae2.TileEntityPatternEncoder) tile);
+            }
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntitySingularityEncoder) {
+                return new ru.beggar.berlit.ae2.GuiSingularityEncoder(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntitySingularityEncoder) tile);
             }
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) {
                 return new ru.beggar.berlit.ae2.GuiAvaritiaAssembler(
