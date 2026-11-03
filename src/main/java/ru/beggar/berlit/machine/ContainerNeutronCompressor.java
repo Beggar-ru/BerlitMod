@@ -19,6 +19,7 @@ public class ContainerNeutronCompressor extends Container {
                 return 4096;
             }
         });
+        addSlotToContainer(new Slot(tile, TileEntityNeutronCompressor.PATTERN, 80, 20));
         addSlotToContainer(new Slot(tile, TileEntityNeutronCompressor.OUTPUT, 116, 20) {
 
             @Override

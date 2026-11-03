@@ -182,7 +182,7 @@ public class Berlit {
                 "berlit:singularity_encoder");
         }
 
-        if (avaritia) {
+        if (ae2 && avaritia) {
             neutronCompressor = new ru.beggar.berlit.machine.BlockNeutronCompressor();
             GameRegistry.registerBlock(neutronCompressor, "berlit.neutron_compressor");
             GameRegistry.registerTileEntity(
@@ -390,7 +390,8 @@ public class Berlit {
                 Items.comparator);
         }
 
-        if (cpw.mods.fml.common.Loader.isModLoaded("Avaritia")) {
+        if (cpw.mods.fml.common.Loader.isModLoaded("Avaritia")
+            && cpw.mods.fml.common.Loader.isModLoaded("appliedenergistics2")) {
             GameRegistry.addRecipe(
                 new ItemStack(neutronCompressor),
                 "IQI",

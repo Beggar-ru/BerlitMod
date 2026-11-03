@@ -6,33 +6,54 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
+import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.networking.crafting.ICraftingPatternDetails;
 import fox.spiteful.avaritia.crafting.CompressorManager;
+import ru.beggar.berlit.Berlit;
+import ru.beggar.berlit.ae2.SingularityPatternDetails;
 
 /** Compresses items into an Avaritia singularity, one item at a time. */
 public class TileEntityNeutronCompressor extends TileEntity implements IInventory {
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
-    public static final int SIZE = 2;
+    public static final int PATTERN = 2;
+    public static final int SIZE = 3;
 
     private final ItemStack[] inventory = new ItemStack[SIZE];
-    private ItemStack pendingOutput;
     private int progress;
     private int cost;
+    private ItemStack pendingOutput;
+
+    private SingularityPatternDetails getPattern() {
+        ItemStack stack = inventory[PATTERN];
+        if (stack == null || !(stack.getItem() instanceof ICraftingPatternItem)) return null;
+        ICraftingPatternDetails details = ((ICraftingPatternItem) stack.getItem()).getPatternForItem(stack, worldObj);
+        return details instanceof SingularityPatternDetails ? (SingularityPatternDetails) details : null;
+    }
 
     @Override
     public void updateEntity() {
         if (worldObj == null || worldObj.isRemote) return;
         if (inventory[OUTPUT] != null) return;
 
+        SingularityPatternDetails pattern = getPattern();
         ItemStack input = inventory[INPUT];
         if (input == null) {
             progress = 0;
             cost = 0;
+            pendingOutput = null;
             return;
         }
 
-        if (cost <= 0) {
+        if (pattern != null) {
+            ItemStack target = pattern.getInputStack();
+            if (target == null || !input.isItemEqual(target)) return;
+            if (cost <= 0) {
+                cost = pattern.getCost();
+                pendingOutput = pattern.getOutput(null, worldObj);
+            }
+        } else if (cost <= 0) {
             ItemStack result = CompressorManager.getOutput(input);
             if (result == null) return;
             cost = Math.max(1, CompressorManager.getCost(input));
@@ -111,7 +132,15 @@ public class TileEntityNeutronCompressor extends TileEntity implements IInventor
 
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
-        return slot == INPUT && CompressorManager.getOutput(stack) != null;
+        if (slot == PATTERN) return stack != null && stack.getItem() == Berlit.singularityPattern;
+        if (slot != INPUT || stack == null) return false;
+
+        SingularityPatternDetails pattern = getPattern();
+        if (pattern != null) {
+            ItemStack target = pattern.getInputStack();
+            return target != null && stack.isItemEqual(target);
+        }
+        return CompressorManager.getOutput(stack) != null;
     }
 
     @Override

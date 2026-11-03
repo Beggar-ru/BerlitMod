@@ -74,11 +74,16 @@ tools/                   — генераторы текстур/GUI и прев
 2. **Standalone-сборщик** — свой шаблон с 81 входом, 9×9-сетка, без AE2-автокрафта.
 3. **Гибрид** — standalone сейчас, mixin позже.
 
-Статус: ждём подтверждения на mixin (вариант 1/3). После этого:
+Статус: **реализовано** (mixin выбран и внедрён):
 
-- `AvaritiaPattern` (ICraftingPatternItem, 9×9 details) + кодировщик.
-- `TileEntityAvaritiaAssembler` (grid node, ICraftingProvider, pushPattern).
-- `TileEntityNeutronCompressor` (cost→singularity, рецепты из `CompressorManager`).
+- `mixins.berlit.json` + `MixinCraftingTreeProcess` / `MixinCraftingCPUCluster` — N×N инвентарь.
+- `ItemAvaritiaPattern` / `AvaritiaPatternDetails` — 9×9 AE2-шаблон; кодировщик `berlit.pattern_encoder`.
+- `TileEntityAvaritiaAssembler` — `IGridHost` + `ICraftingProvider` + `pushPattern` (`berlit.avaritia_assembler`).
+- `ItemSingularityPattern` / `SingularityPatternDetails` + `berlit.singularity_encoder` — шаблоны компрессора.
+- `TileEntityNeutronCompressor` — `CompressorManager`, слот шаблона, cost→singularity.
+
+Проверено selftest'ом на сервере: 9×9-шаблон даёт 81 вход / 80 в конденсированном и алмаз на выходе;
+шаблон сингулярности — cost 2900. Осталось прогнать полный цикл в игровом мире (GUI/ME-сеть).
 
 ## Полезные ссылки
 
