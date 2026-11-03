@@ -48,3 +48,5 @@ berlit.gui.info.recipe=На операцию: %s EU
 berlit.gui.info.interval=Интервал: %s тиков
 
 tile.berlit.machine_metal_roller.name=Прокатный стан
+
+tile.berlit.super_chest.name=Супер-сундук

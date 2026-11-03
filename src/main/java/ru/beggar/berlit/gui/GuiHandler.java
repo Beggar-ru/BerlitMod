@@ -8,6 +8,7 @@ import cpw.mods.fml.common.network.IGuiHandler;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerBase;
+import ru.beggar.berlit.tileentity.TileEntitySuperChest;
 
 public class GuiHandler implements IGuiHandler {
 
@@ -24,6 +25,9 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityProcessingMachine) {
             return new ContainerProcessingMachine(player.inventory, (TileEntityProcessingMachine) tile);
         }
+        if (tile instanceof TileEntitySuperChest) {
+            return new ContainerSuperChest(player.inventory, (TileEntitySuperChest) tile);
+        }
         return null;
     }
 
@@ -39,6 +43,9 @@ public class GuiHandler implements IGuiHandler {
         }
         if (tile instanceof TileEntityProcessingMachine) {
             return new GuiProcessingMachine(player.inventory, (TileEntityProcessingMachine) tile);
+        }
+        if (tile instanceof TileEntitySuperChest) {
+            return new GuiSuperChest(player.inventory, (TileEntitySuperChest) tile);
         }
         return null;
     }

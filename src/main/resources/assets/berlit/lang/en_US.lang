@@ -48,3 +48,5 @@ berlit.gui.info.recipe=Per operation: %s EU
 berlit.gui.info.interval=Interval: %s ticks
 
 tile.berlit.machine_metal_roller.name=Metal Roller
+
+tile.berlit.super_chest.name=Super Chest

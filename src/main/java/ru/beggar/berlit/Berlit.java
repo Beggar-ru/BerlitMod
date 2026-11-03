@@ -22,6 +22,7 @@ import ru.beggar.berlit.block.BlockMolecularTransformer;
 import ru.beggar.berlit.block.BlockProcessingMachine;
 import ru.beggar.berlit.block.BlockSpawner;
 import ru.beggar.berlit.block.BlockSpawnerT2;
+import ru.beggar.berlit.block.BlockSuperChest;
 import ru.beggar.berlit.block.BlockTestGenerator;
 import ru.beggar.berlit.gui.GuiHandler;
 import ru.beggar.berlit.item.ItemAccelerator;
@@ -38,6 +39,7 @@ import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerT2;
+import ru.beggar.berlit.tileentity.TileEntitySuperChest;
 import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
 
 @Mod(modid = Berlit.MODID, name = Berlit.MOD_NAME, version = Tags.VERSION, acceptedMinecraftVersions = "[1.7.10]")
@@ -74,6 +76,7 @@ public class Berlit {
     public static BlockProcessingMachine metalFormer;
     public static BlockProcessingMachine metalRoller;
     public static BlockProcessingMachine electricFurnace;
+    public static BlockSuperChest superChest;
     public static ItemStackUpgrade stackUpgrade;
     public static final java.util.Map<MachineType, BlockProcessingMachine> machineBlocks = new java.util.EnumMap<MachineType, BlockProcessingMachine>(
         MachineType.class);
@@ -141,6 +144,10 @@ public class Berlit {
         electricFurnace = new BlockProcessingMachine(MachineType.ELECTRIC_FURNACE);
         GameRegistry.registerBlock(electricFurnace, "berlit.machine_electric_furnace");
         machineBlocks.put(MachineType.ELECTRIC_FURNACE, electricFurnace);
+
+        superChest = new BlockSuperChest();
+        GameRegistry.registerBlock(superChest, "berlit.super_chest");
+        GameRegistry.registerTileEntity(TileEntitySuperChest.class, "berlit:super_chest");
 
         GameRegistry.registerTileEntity(TileEntityProcessingMachine.class, "berlit:processing_machine");
 
@@ -306,6 +313,9 @@ public class Berlit {
             Blocks.piston,
             'R',
             Items.redstone);
+
+        GameRegistry
+            .addRecipe(new ItemStack(superChest), "III", "ICI", "III", 'I', Items.iron_ingot, 'C', Blocks.chest);
 
         GameRegistry.addRecipe(
             new ItemStack(electricFurnace),
