@@ -412,6 +412,16 @@ public class Berlit {
     }
 
     @Mod.EventHandler
+    public void serverStarted(cpw.mods.fml.common.event.FMLServerStartedEvent event) {
+        if (System.getenv("BERLIT_SELFTEST") != null && cpw.mods.fml.common.Loader.isModLoaded("appliedenergistics2")
+            && cpw.mods.fml.common.Loader.isModLoaded("Avaritia")) {
+            ru.beggar.berlit.ae2.Selftest.run(
+                net.minecraft.server.MinecraftServer.getServer()
+                    .worldServerForDimension(0));
+        }
+    }
+
+    @Mod.EventHandler
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);

@@ -127,8 +127,8 @@ public class TileEntityAvaritiaAssembler extends TileEntity
             }
         }
 
-        if (worldObj.getBlock(xCoord, yCoord + 1, zCoord) instanceof IInventory) {
-            IInventory up = (IInventory) worldObj.getBlock(xCoord, yCoord + 1, zCoord);
+        if (worldObj.getTileEntity(xCoord, yCoord + 1, zCoord) instanceof IInventory) {
+            IInventory up = (IInventory) worldObj.getTileEntity(xCoord, yCoord + 1, zCoord);
             for (int i = 0; i < up.getSizeInventory(); i++) {
                 if (up.getStackInSlot(i) == null) {
                     up.setInventorySlotContents(i, result);
