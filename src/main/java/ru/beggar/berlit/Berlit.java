@@ -78,6 +78,7 @@ public class Berlit {
     public static BlockProcessingMachine electricFurnace;
     public static BlockSuperChest superChest;
     public static ItemStackUpgrade stackUpgrade;
+    public static ru.beggar.berlit.ae2.ItemAvaritiaPattern avaritiaPattern;
     public static final java.util.Map<MachineType, BlockProcessingMachine> machineBlocks = new java.util.EnumMap<MachineType, BlockProcessingMachine>(
         MachineType.class);
 
@@ -153,6 +154,9 @@ public class Berlit {
 
         stackUpgrade = new ItemStackUpgrade();
         GameRegistry.registerItem(stackUpgrade, "stack_upgrade");
+
+        avaritiaPattern = new ru.beggar.berlit.ae2.ItemAvaritiaPattern();
+        GameRegistry.registerItem(avaritiaPattern, "avaritia_pattern");
 
         ModNetwork.init();
 
