@@ -59,6 +59,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
 
     public TileEntityProcessingMachine(MachineType type) {
         this.type = type;
+        this.mode = type.getDefaultMode();
     }
 
     public MachineType getMachineType() {

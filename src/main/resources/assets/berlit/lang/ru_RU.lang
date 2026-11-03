@@ -46,3 +46,5 @@ berlit.gui.info.energy=Энергия: %s / %s EU
 berlit.gui.info.input=Потребление: %s EU/t
 berlit.gui.info.recipe=На операцию: %s EU
 berlit.gui.info.interval=Интервал: %s тиков
+
+tile.berlit.machine_metal_roller.name=Прокатный стан

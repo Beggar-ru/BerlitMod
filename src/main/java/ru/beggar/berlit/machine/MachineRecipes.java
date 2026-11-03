@@ -192,8 +192,9 @@ public final class MachineRecipes {
             case COMPRESSOR:
                 return Recipes.compressor;
             case METAL_FORMER:
-                if (mode == MODE_ROLLING) return Recipes.metalformerRolling;
                 return Recipes.metalformerExtruding;
+            case METAL_ROLLER:
+                return Recipes.metalformerRolling;
             default:
                 return null;
         }

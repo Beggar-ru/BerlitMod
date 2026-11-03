@@ -72,6 +72,7 @@ public class Berlit {
     public static BlockProcessingMachine macerator;
     public static BlockProcessingMachine compressor;
     public static BlockProcessingMachine metalFormer;
+    public static BlockProcessingMachine metalRoller;
     public static BlockProcessingMachine electricFurnace;
     public static ItemStackUpgrade stackUpgrade;
     public static final java.util.Map<MachineType, BlockProcessingMachine> machineBlocks = new java.util.EnumMap<MachineType, BlockProcessingMachine>(
@@ -132,6 +133,10 @@ public class Berlit {
         metalFormer = new BlockProcessingMachine(MachineType.METAL_FORMER);
         GameRegistry.registerBlock(metalFormer, "berlit.machine_metal_former");
         machineBlocks.put(MachineType.METAL_FORMER, metalFormer);
+
+        metalRoller = new BlockProcessingMachine(MachineType.METAL_ROLLER);
+        GameRegistry.registerBlock(metalRoller, "berlit.machine_metal_roller");
+        machineBlocks.put(MachineType.METAL_ROLLER, metalRoller);
 
         electricFurnace = new BlockProcessingMachine(MachineType.ELECTRIC_FURNACE);
         GameRegistry.registerBlock(electricFurnace, "berlit.machine_electric_furnace");
@@ -287,6 +292,18 @@ public class Berlit {
             Items.iron_ingot,
             'B',
             Blocks.iron_block,
+            'R',
+            Items.redstone);
+
+        GameRegistry.addRecipe(
+            new ItemStack(metalRoller),
+            "IPI",
+            "IRI",
+            "IPI",
+            'I',
+            Items.iron_ingot,
+            'P',
+            Blocks.piston,
             'R',
             Items.redstone);
 

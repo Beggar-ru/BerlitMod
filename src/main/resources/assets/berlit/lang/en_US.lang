@@ -46,3 +46,5 @@ berlit.gui.info.energy=Energy: %s / %s EU
 berlit.gui.info.input=Consumption: %s EU/t
 berlit.gui.info.recipe=Per operation: %s EU
 berlit.gui.info.interval=Interval: %s ticks
+
+tile.berlit.machine_metal_roller.name=Metal Roller
