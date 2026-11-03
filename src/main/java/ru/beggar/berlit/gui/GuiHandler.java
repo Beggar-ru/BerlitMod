@@ -46,7 +46,8 @@ public class GuiHandler implements IGuiHandler {
                     (ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) tile);
             }
         }
-        if (Loader.isModLoaded("Avaritia") && tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
+        if (Loader.isModLoaded("Avaritia") && Loader.isModLoaded("appliedenergistics2")
+            && tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
             return new ru.beggar.berlit.machine.ContainerNeutronCompressor(
                 player.inventory,
                 (ru.beggar.berlit.machine.TileEntityNeutronCompressor) tile);
@@ -87,7 +88,8 @@ public class GuiHandler implements IGuiHandler {
                     (ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler) tile);
             }
         }
-        if (Loader.isModLoaded("Avaritia") && tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
+        if (Loader.isModLoaded("Avaritia") && Loader.isModLoaded("appliedenergistics2")
+            && tile instanceof ru.beggar.berlit.machine.TileEntityNeutronCompressor) {
             return new ru.beggar.berlit.machine.GuiNeutronCompressor(
                 player.inventory,
                 (ru.beggar.berlit.machine.TileEntityNeutronCompressor) tile);
