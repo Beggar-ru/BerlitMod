@@ -33,8 +33,21 @@
  *
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
+configurations.all {
+    // The GTNH Nexus throttles the UniMixins jar; a vendored copy is used instead.
+    exclude group: 'io.github.legacymoddingmc', module: 'unimixins'
+}
+
 dependencies {
     //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
+
+    // Vendored UniMixins (mixins for the AE2 9x9 patch).
+    compileOnly files("libs/m2/io/github/legacymoddingmc/unimixins/0.3.1/unimixins-0.3.1-dev.jar")
+    annotationProcessor files("libs/m2/io/github/legacymoddingmc/unimixins/0.3.1/unimixins-0.3.1-dev.jar")
+    devOnlyNonPublishable files("libs/m2/io/github/legacymoddingmc/unimixins/0.3.1/unimixins-0.3.1-dev.jar")
+
+    compileOnly files("libs/appliedenergistics2-rv3-beta-6.jar")
+    compileOnly files("libs/avaritia-1.13.jar")
 
     // IC2 (local jar, deobfuscated for the dev runtime). Only used for development/testing.
     devOnlyNonPublishable(rfg.deobf(files("libs/industrialcraft-2-2.2.828-experimental.jar")))
@@ -51,5 +64,6 @@ dependencies {
     devOnlyNonPublishable(rfg.deobf(files("libs/CodeChickenLib-1.3.0.jar")))
     devOnlyNonPublishable(rfg.deobf(files("libs/notenoughitems-2.8.98-gtnh.jar")))
 }
+
 
 
