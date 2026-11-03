@@ -154,6 +154,36 @@ public class TileEntityNeutronCompressor extends TileEntity
         return true;
     }
 
+    /** Pulls one singularity worth of items from the ME network. */
+    public boolean craftOnce() {
+        if (worldObj == null || worldObj.isRemote) return false;
+        SingularityPatternDetails pattern = getPattern();
+        if (pattern == null) return false;
+
+        IGrid grid = getNode().getGrid();
+        if (grid == null) return false;
+        IStorageGrid storage = grid.getCache(IStorageGrid.class);
+        if (storage == null) return false;
+        IMEMonitor<IAEItemStack> items = storage.getItemInventory();
+        MachineSource source = new MachineSource(this);
+
+        IAEItemStack input = pattern.getInputs()[0];
+        if (input == null) return false;
+        IAEItemStack found = items.extractItems(input.copy(), Actionable.SIMULATE, source);
+        if (found == null || found.getStackSize() < input.getStackSize()) return false;
+        items.extractItems(input.copy(), Actionable.MODULATE, source);
+
+        ItemStack result = pattern.getOutput(null, worldObj);
+        if (result == null) return false;
+        items.injectItems(
+            AEApi.instance()
+                .storage()
+                .createItemStack(result),
+            Actionable.MODULATE,
+            source);
+        return true;
+    }
+
     @Override
     public boolean isBusy() {
         return false;

@@ -1,5 +1,6 @@
 package ru.beggar.berlit.ae2;
 
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -7,14 +8,33 @@ import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
+import ru.beggar.berlit.network.ModNetwork;
+import ru.beggar.berlit.network.PacketCraft;
+
 public class GuiAvaritiaAssembler extends GuiContainer {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation("berlit:textures/gui/avaritia_assembler.png");
 
+    private final TileEntityAvaritiaAssembler tile;
+
     public GuiAvaritiaAssembler(InventoryPlayer playerInventory, TileEntityAvaritiaAssembler tile) {
         super(new ContainerAvaritiaAssembler(playerInventory, tile));
+        this.tile = tile;
         this.xSize = 176;
         this.ySize = 166;
+    }
+
+    @Override
+    public void initGui() {
+        super.initGui();
+        buttonList.add(new GuiButton(0, guiLeft + 148, guiTop + 18, 22, 20, "C"));
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) {
+        if (button.id == 0) {
+            ModNetwork.INSTANCE.sendToServer(new PacketCraft(tile.xCoord, tile.yCoord, tile.zCoord));
+        }
     }
 
     @Override

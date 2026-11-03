@@ -150,6 +150,61 @@ public class TileEntityAvaritiaAssembler extends TileEntity
         return true;
     }
 
+    /** Pulls one recipe worth of ingredients from the ME network and crafts it. */
+    public boolean craftOnce() {
+        if (worldObj == null || worldObj.isRemote) return false;
+
+        AvaritiaPatternDetails pattern = null;
+        for (ItemStack stack : patterns) {
+            if (stack != null && stack.getItem() instanceof ICraftingPatternItem) {
+                ICraftingPatternDetails details = ((ICraftingPatternItem) stack.getItem())
+                    .getPatternForItem(stack, worldObj);
+                if (details instanceof AvaritiaPatternDetails) {
+                    pattern = (AvaritiaPatternDetails) details;
+                    break;
+                }
+            }
+        }
+        if (pattern == null) return false;
+
+        IGrid grid = getNode().getGrid();
+        if (grid == null) return false;
+        IStorageGrid storage = grid.getCache(IStorageGrid.class);
+        if (storage == null) return false;
+        IMEMonitor<IAEItemStack> items = storage.getItemInventory();
+        MachineSource source = new MachineSource(this);
+
+        IAEItemStack[] required = pattern.getInputs();
+        for (IAEItemStack input : required) {
+            if (input == null) continue;
+            IAEItemStack found = items.extractItems(input.copy(), Actionable.SIMULATE, source);
+            if (found == null || found.getStackSize() < input.getStackSize()) return false;
+        }
+
+        for (IAEItemStack input : required) {
+            if (input == null) continue;
+            items.extractItems(input.copy(), Actionable.MODULATE, source);
+        }
+
+        InventoryCrafting gridInv = new InventoryCrafting(new ContainerNull(), 9, 9);
+        IAEItemStack[] cells = pattern.getGrid();
+        for (int i = 0; i < 81; i++) {
+            gridInv.setInventorySlotContents(i, cells[i] == null ? null : cells[i].getItemStack());
+        }
+
+        ItemStack result = ExtremeCraftingManager.getInstance()
+            .findMatchingRecipe(gridInv, worldObj);
+        if (result == null) return false;
+
+        items.injectItems(
+            AEApi.instance()
+                .storage()
+                .createItemStack(result),
+            Actionable.MODULATE,
+            source);
+        return true;
+    }
+
     @Override
     public boolean isBusy() {
         return false;

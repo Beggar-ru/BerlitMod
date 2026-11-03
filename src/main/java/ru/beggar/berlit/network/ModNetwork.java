@@ -14,5 +14,6 @@ public final class ModNetwork {
         INSTANCE.registerMessage(MachineSyncHandler.class, PacketMachineSync.class, 0, Side.CLIENT);
         INSTANCE.registerMessage(SpawnerSyncHandler.class, PacketSpawnerSync.class, 1, Side.CLIENT);
         INSTANCE.registerMessage(PacketEncode.Handler.class, PacketEncode.class, 3, Side.SERVER);
+        INSTANCE.registerMessage(PacketCraft.Handler.class, PacketCraft.class, 4, Side.SERVER);
     }
 }

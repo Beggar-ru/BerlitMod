@@ -113,3 +113,5 @@ BERLIT_SELFTEST compressor: cost=900 out=1xitem.avaritia_singularity@0 inputLeft
   `removeCompressor(<in>)`. NEI: страница нейтронного компрессора (input × cost → singularity),
   рецепты 9×9 показывает штатный NEI-хендлер Avaritia.
 - Сборщик и компрессор реализуют `ICraftingMachine` — именно этот интерфейс AE2 ME Interface ищет у соседнего блока и вызывает при pushPattern. Поэтому шаблон кладётся в ME Interface, а машина должна стоять вплотную к нему.
+
+- В GUI сборщика и компрессора есть кнопка `C`: машина сама вытягивает ингредиенты из ME-сети по шаблону и крафтит (без AE2 CPU/Interface). Машина должна быть подключена кабелем/каналом; шаблон — в её собственных слотах.
