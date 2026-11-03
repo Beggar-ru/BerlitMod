@@ -52,3 +52,9 @@ tile.berlit.machine_metal_roller.name=Прокатный стан
 tile.berlit.super_chest.name=Супер-сундук
 
 item.berlit.avaritia_pattern.name=Шаблон Avaritia
+
+tile.berlit.avaritia_assembler.name=Сборщик Avaritia
+
+tile.berlit.pattern_encoder.name=Кодировщик шаблонов
+
+tile.berlit.neutron_compressor.name=Нейтронный компрессор

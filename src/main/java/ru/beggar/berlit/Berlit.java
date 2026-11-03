@@ -77,6 +77,9 @@ public class Berlit {
     public static BlockProcessingMachine metalRoller;
     public static BlockProcessingMachine electricFurnace;
     public static BlockSuperChest superChest;
+    public static ru.beggar.berlit.ae2.BlockAvaritiaAssembler avaritiaAssembler;
+    public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
+    public static ru.beggar.berlit.machine.BlockNeutronCompressor neutronCompressor;
     public static ItemStackUpgrade stackUpgrade;
     public static ru.beggar.berlit.ae2.ItemAvaritiaPattern avaritiaPattern;
     public static final java.util.Map<MachineType, BlockProcessingMachine> machineBlocks = new java.util.EnumMap<MachineType, BlockProcessingMachine>(
@@ -149,6 +152,11 @@ public class Berlit {
         superChest = new BlockSuperChest();
         GameRegistry.registerBlock(superChest, "berlit.super_chest");
         GameRegistry.registerTileEntity(TileEntitySuperChest.class, "berlit:super_chest");
+
+        avaritiaAssembler = new ru.beggar.berlit.ae2.BlockAvaritiaAssembler();
+        GameRegistry.registerBlock(avaritiaAssembler, "berlit.avaritia_assembler");
+        GameRegistry
+            .registerTileEntity(ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler.class, "berlit:avaritia_assembler");
 
         GameRegistry.registerTileEntity(TileEntityProcessingMachine.class, "berlit:processing_machine");
 
@@ -320,6 +328,18 @@ public class Berlit {
 
         GameRegistry
             .addRecipe(new ItemStack(superChest), "III", "ICI", "III", 'I', Items.iron_ingot, 'C', Blocks.chest);
+
+        GameRegistry.addRecipe(
+            new ItemStack(avaritiaAssembler),
+            "IQI",
+            "QPQ",
+            "IQI",
+            'I',
+            Items.iron_ingot,
+            'Q',
+            Items.quartz,
+            'P',
+            Blocks.piston);
 
         GameRegistry.addRecipe(
             new ItemStack(electricFurnace),

@@ -52,3 +52,9 @@ tile.berlit.machine_metal_roller.name=Metal Roller
 tile.berlit.super_chest.name=Super Chest
 
 item.berlit.avaritia_pattern.name=Avaritia Pattern
+
+tile.berlit.avaritia_assembler.name=Avaritia Assembler
+
+tile.berlit.pattern_encoder.name=Pattern Encoder
+
+tile.berlit.neutron_compressor.name=Neutron Compressor
