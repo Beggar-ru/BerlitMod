@@ -52,3 +52,4 @@ dependencies {
     devOnlyNonPublishable(rfg.deobf(files("libs/notenoughitems-2.8.98-gtnh.jar")))
 }
 
+

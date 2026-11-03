@@ -1,5 +1,6 @@
 // Add any additional repositories for your dependencies here.
 
 repositories {
-
+    // Vendored UniMixins (mixins are required by the AE2 9x9 patch).
+    maven { url = uri("$projectDir/libs/m2") }
 }
