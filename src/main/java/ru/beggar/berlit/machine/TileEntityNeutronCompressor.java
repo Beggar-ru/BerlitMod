@@ -13,6 +13,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.implementations.tiles.ICraftingMachine;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridBlock;
@@ -35,7 +36,7 @@ import ru.beggar.berlit.ae2.SingularityPatternDetails;
 
 /** Compresses items into an Avaritia singularity, one item at a time. */
 public class TileEntityNeutronCompressor extends TileEntity
-    implements IInventory, IGridHost, IActionHost, ICraftingProvider {
+    implements IInventory, IGridHost, IActionHost, ICraftingProvider, ICraftingMachine {
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
@@ -140,6 +141,16 @@ public class TileEntityNeutronCompressor extends TileEntity
                 }
             }
         }
+        return false;
+    }
+
+    @Override
+    public boolean pushPattern(ICraftingPatternDetails details, InventoryCrafting crafting, ForgeDirection side) {
+        return pushPattern(details, crafting);
+    }
+
+    @Override
+    public boolean acceptsPlans() {
         return false;
     }
 

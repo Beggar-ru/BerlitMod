@@ -14,6 +14,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.implementations.tiles.ICraftingMachine;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridBlock;
@@ -36,7 +37,7 @@ import ru.beggar.berlit.Berlit;
 
 /** ME machine that executes 9x9 Avaritia patterns. */
 public class TileEntityAvaritiaAssembler extends TileEntity
-    implements IGridHost, IActionHost, ICraftingProvider, IInventory {
+    implements IGridHost, IActionHost, ICraftingProvider, ICraftingMachine, IInventory {
 
     public static final int PATTERNS = 9;
 
@@ -136,6 +137,16 @@ public class TileEntityAvaritiaAssembler extends TileEntity
                 }
             }
         }
+        return false;
+    }
+
+    @Override
+    public boolean pushPattern(ICraftingPatternDetails details, InventoryCrafting crafting, ForgeDirection side) {
+        return pushPattern(details, crafting);
+    }
+
+    @Override
+    public boolean acceptsPlans() {
         return false;
     }
 
