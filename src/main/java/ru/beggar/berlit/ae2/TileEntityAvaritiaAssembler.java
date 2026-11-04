@@ -43,6 +43,7 @@ public class TileEntityAvaritiaAssembler extends TileEntity
 
     private IGridNode node;
     private final ItemStack[] patterns = new ItemStack[PATTERNS];
+    private final java.util.List<ItemStack> pendingOutput = new java.util.ArrayList<ItemStack>();
 
     private IGridNode getNode() {
         if (node == null) {
@@ -71,6 +72,11 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     public void securityBreak() {}
 
     @Override
+    public void updateEntity() {
+        flushOutput();
+    }
+
+    @Override
     public void validate() {
         super.validate();
         if (worldObj != null && !worldObj.isRemote) {
@@ -94,6 +100,41 @@ public class TileEntityAvaritiaAssembler extends TileEntity
             node = null;
         }
         super.onChunkUnload();
+    }
+
+    private void queueOutput(ItemStack stack) {
+        pendingOutput.add(stack);
+        markDirty();
+    }
+
+    private void flushOutput() {
+        if (pendingOutput.isEmpty() || worldObj == null || worldObj.isRemote) return;
+        IGrid grid = networkGrid();
+        if (grid == null) return;
+        IStorageGrid storage = grid.getCache(IStorageGrid.class);
+        if (storage == null) return;
+        IMEMonitor<IAEItemStack> items = storage.getItemInventory();
+        MachineSource source = new MachineSource(this);
+        java.util.Iterator<ItemStack> iterator = pendingOutput.iterator();
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
+            items.injectItems(
+                AEApi.instance()
+                    .storage()
+                    .createItemStack(stack),
+                Actionable.MODULATE,
+                source);
+            iterator.remove();
+        }
+        markDirty();
+    }
+
+    private void notifyPatternChange() {
+        IGridNode node = getNode();
+        if (node != null && node.getGrid() != null) {
+            node.getGrid()
+                .postEvent(new appeng.api.networking.events.MENetworkCraftingPatternChange(this, node));
+        }
     }
 
     @Override
@@ -127,19 +168,10 @@ public class TileEntityAvaritiaAssembler extends TileEntity
             .findMatchingRecipe(grid, worldObj);
         if (result == null) return false;
 
-        IGrid g = getNode().getGrid();
-        if (g != null) {
-            IStorageGrid storage = g.getCache(IStorageGrid.class);
-            if (storage != null) {
-                IMEMonitor<IAEItemStack> itemInventory = storage.getItemInventory();
-                itemInventory.injectItems(
-                    AEApi.instance()
-                        .storage()
-                        .createItemStack(result),
-                    Actionable.MODULATE,
-                    new MachineSource(this));
-                return true;
-            }
+        IGrid g = networkGrid();
+        if (g != null && g.getCache(IStorageGrid.class) != null) {
+            queueOutput(result);
+            return true;
         }
 
         if (worldObj.getTileEntity(xCoord, yCoord + 1, zCoord) instanceof IInventory) {
@@ -229,12 +261,7 @@ public class TileEntityAvaritiaAssembler extends TileEntity
             .findMatchingRecipe(gridInv, worldObj);
         if (result == null) return false;
 
-        items.injectItems(
-            AEApi.instance()
-                .storage()
-                .createItemStack(result),
-            Actionable.MODULATE,
-            source);
+        queueOutput(result);
         return true;
     }
 
@@ -271,6 +298,7 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     public void setInventorySlotContents(int slot, ItemStack stack) {
         patterns[slot] = stack;
         markDirty();
+        if (slot >= 0 && slot < PATTERNS) notifyPatternChange();
     }
 
     @Override

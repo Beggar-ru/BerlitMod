@@ -122,18 +122,9 @@ public class TileEntityNeutronCompressor extends TileEntity
         if (result == null) return false;
 
         IGrid grid = networkGrid();
-        if (grid != null) {
-            IStorageGrid storage = grid.getCache(IStorageGrid.class);
-            if (storage != null) {
-                IMEMonitor<IAEItemStack> items = storage.getItemInventory();
-                items.injectItems(
-                    AEApi.instance()
-                        .storage()
-                        .createItemStack(result),
-                    Actionable.MODULATE,
-                    new MachineSource(this));
-                return true;
-            }
+        if (grid != null && grid.getCache(IStorageGrid.class) != null) {
+            queueOutput(result);
+            return true;
         }
 
         for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
@@ -202,12 +193,7 @@ public class TileEntityNeutronCompressor extends TileEntity
 
         ItemStack result = pattern.getOutput(null, worldObj);
         if (result == null) return false;
-        items.injectItems(
-            AEApi.instance()
-                .storage()
-                .createItemStack(result),
-            Actionable.MODULATE,
-            source);
+        queueOutput(result);
         return true;
     }
 
@@ -216,8 +202,46 @@ public class TileEntityNeutronCompressor extends TileEntity
         return false;
     }
 
+    private final java.util.List<ItemStack> pendingCraftOutput = new java.util.ArrayList<ItemStack>();
+
+    private void queueOutput(ItemStack stack) {
+        pendingCraftOutput.add(stack);
+        markDirty();
+    }
+
+    private void flushOutput() {
+        if (pendingCraftOutput.isEmpty() || worldObj == null || worldObj.isRemote) return;
+        IGrid grid = networkGrid();
+        if (grid == null) return;
+        IStorageGrid storage = grid.getCache(IStorageGrid.class);
+        if (storage == null) return;
+        IMEMonitor<IAEItemStack> items = storage.getItemInventory();
+        MachineSource source = new MachineSource(this);
+        java.util.Iterator<ItemStack> iterator = pendingCraftOutput.iterator();
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
+            items.injectItems(
+                AEApi.instance()
+                    .storage()
+                    .createItemStack(stack),
+                Actionable.MODULATE,
+                source);
+            iterator.remove();
+        }
+        markDirty();
+    }
+
+    private void notifyPatternChange() {
+        IGridNode node = getNode();
+        if (node != null && node.getGrid() != null) {
+            node.getGrid()
+                .postEvent(new appeng.api.networking.events.MENetworkCraftingPatternChange(this, node));
+        }
+    }
+
     @Override
     public void updateEntity() {
+        flushOutput();
         if (worldObj == null || worldObj.isRemote) return;
         if (inventory[OUTPUT] != null) return;
 
@@ -285,6 +309,7 @@ public class TileEntityNeutronCompressor extends TileEntity
     public void setInventorySlotContents(int slot, ItemStack stack) {
         inventory[slot] = stack;
         markDirty();
+        if (slot == PATTERN) notifyPatternChange();
     }
 
     @Override
