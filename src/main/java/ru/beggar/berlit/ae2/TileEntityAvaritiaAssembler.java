@@ -90,16 +90,22 @@ public class TileEntityAvaritiaAssembler extends TileEntity
 
     @Override
     public void provideCrafting(ICraftingProviderHelper helper) {
+        int berlitCount = 0;
         for (ItemStack pattern : patterns) {
             if (pattern == null || !(pattern.getItem() instanceof ICraftingPatternItem)) continue;
             ICraftingPatternDetails details = ((ICraftingPatternItem) pattern.getItem())
                 .getPatternForItem(pattern, worldObj);
-            if (details != null) helper.addCraftingOption(this, details);
+            if (details != null) {
+                helper.addCraftingOption(this, details);
+                berlitCount++;
+            }
         }
+        cpw.mods.fml.common.FMLLog.info("[berlit] assembler provideCrafting: " + berlitCount + " patterns");
     }
 
     @Override
     public boolean pushPattern(ICraftingPatternDetails details, InventoryCrafting crafting) {
+        cpw.mods.fml.common.FMLLog.info("[berlit] assembler pushPattern: " + details);
         if (!(details instanceof AvaritiaPatternDetails) || worldObj == null || worldObj.isRemote) return false;
 
         InventoryCrafting grid = new InventoryCrafting(new ContainerNull(), 9, 9);
