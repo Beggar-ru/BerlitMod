@@ -84,6 +84,14 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     }
 
     @Override
+    public void validate() {
+        super.validate();
+        if (worldObj != null && !worldObj.isRemote) {
+            getNode().updateState();
+        }
+    }
+
+    @Override
     public void invalidate() {
         if (node != null) {
             node.destroy();
