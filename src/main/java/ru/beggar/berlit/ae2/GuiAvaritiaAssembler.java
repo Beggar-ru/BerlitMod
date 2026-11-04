@@ -28,12 +28,15 @@ public class GuiAvaritiaAssembler extends GuiContainer {
     public void initGui() {
         super.initGui();
         buttonList.add(new GuiButton(0, guiLeft + 148, guiTop + 18, 22, 20, "C"));
+        buttonList.add(new GuiButton(1, guiLeft + 148, guiTop + 40, 22, 20, "64"));
     }
 
     @Override
     protected void actionPerformed(GuiButton button) {
         if (button.id == 0) {
-            ModNetwork.INSTANCE.sendToServer(new PacketCraft(tile.xCoord, tile.yCoord, tile.zCoord));
+            ModNetwork.INSTANCE.sendToServer(new PacketCraft(tile.xCoord, tile.yCoord, tile.zCoord, 1));
+        } else if (button.id == 1) {
+            ModNetwork.INSTANCE.sendToServer(new PacketCraft(tile.xCoord, tile.yCoord, tile.zCoord, 64));
         }
     }
 
