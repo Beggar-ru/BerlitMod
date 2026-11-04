@@ -220,9 +220,6 @@ public class TileEntityNeutronCompressor extends TileEntity
     public void updateEntity() {
         if (worldObj == null || worldObj.isRemote) return;
         if (inventory[OUTPUT] != null) return;
-        if (worldObj.getTotalWorldTime() % 20 == 0) {
-            craftOnce();
-        }
 
         SingularityPatternDetails pattern = getPattern();
         ItemStack input = inventory[INPUT];

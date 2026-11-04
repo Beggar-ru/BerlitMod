@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.oredict.OreDictionary;
 
 import codechicken.nei.PositionedStack;
 import codechicken.nei.api.API;
@@ -24,6 +25,21 @@ public class CompressorNEI extends TemplateRecipeHandler {
         API.registerUsageHandler(new CompressorNEI());
     }
 
+    private static ItemStack ingredientStack(CompressorRecipe recipe) {
+        Object ingredient = recipe.getIngredient();
+        if (ingredient instanceof ItemStack) return ((ItemStack) ingredient).copy();
+        if (ingredient instanceof String) {
+            List<ItemStack> ores = OreDictionary.getOres((String) ingredient);
+            if (!ores.isEmpty()) return ores.get(0)
+                .copy();
+        }
+        return null;
+    }
+
+    private static boolean isValid(CompressorRecipe recipe) {
+        return ingredientStack(recipe) != null && recipe.getOutput() != null;
+    }
+
     public class CachedCompressor extends CachedRecipe {
 
         private final PositionedStack machine;
@@ -33,8 +49,7 @@ public class CompressorNEI extends TemplateRecipeHandler {
         public CachedCompressor(CompressorRecipe recipe) {
             this.machine = new PositionedStack(new ItemStack(Berlit.neutronCompressor), 8, 20);
 
-            Object ingredient = recipe.getIngredient();
-            ItemStack stack = ingredient instanceof ItemStack ? ((ItemStack) ingredient).copy() : null;
+            ItemStack stack = ingredientStack(recipe);
             if (stack != null) stack.stackSize = Math.max(1, recipe.getCost());
             this.input = new PositionedStack(stack, 50, 20);
             this.output = new PositionedStack(recipe.getOutput(), 116, 20);
@@ -69,18 +84,14 @@ public class CompressorNEI extends TemplateRecipeHandler {
         if (!"item".equals(outputId)) return;
         for (Object result : results) {
             if (!(result instanceof ItemStack)) continue;
-            for (CompressorRecipe recipe : CompressorManager.getRecipes()) {
-                if (recipe.getOutput()
-                    .isItemEqual((ItemStack) result)) {
-                    arecipes.add(new CachedCompressor(recipe));
-                }
-            }
+            loadCraftingRecipes((ItemStack) result);
         }
     }
 
     @Override
     public void loadCraftingRecipes(ItemStack result) {
         for (CompressorRecipe recipe : CompressorManager.getRecipes()) {
+            if (!isValid(recipe)) continue;
             if (recipe.getOutput()
                 .isItemEqual(result)) {
                 arecipes.add(new CachedCompressor(recipe));
@@ -91,8 +102,8 @@ public class CompressorNEI extends TemplateRecipeHandler {
     @Override
     public void loadUsageRecipes(ItemStack ingredient) {
         for (CompressorRecipe recipe : CompressorManager.getRecipes()) {
-            Object input = recipe.getIngredient();
-            if (input instanceof ItemStack && ((ItemStack) input).isItemEqual(ingredient)) {
+            if (!isValid(recipe)) continue;
+            if (recipe.validInput(ingredient)) {
                 arecipes.add(new CachedCompressor(recipe));
             }
         }
