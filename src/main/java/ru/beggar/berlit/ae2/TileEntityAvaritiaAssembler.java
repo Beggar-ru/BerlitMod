@@ -71,6 +71,19 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     public void securityBreak() {}
 
     @Override
+    public void updateEntity() {
+        if (worldObj == null || worldObj.isRemote) return;
+        if (worldObj.getTotalWorldTime() % 20 != 0) return;
+
+        for (ItemStack stack : patterns) {
+            if (stack != null && stack.getItem() instanceof ICraftingPatternItem) {
+                craftOnce();
+                return;
+            }
+        }
+    }
+
+    @Override
     public void invalidate() {
         if (node != null) {
             node.destroy();
