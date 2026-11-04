@@ -23,14 +23,14 @@ public class MixinCraftingTreeProcess {
     private static final ThreadLocal<ICraftingPatternDetails> BERLIT_PATTERN = new ThreadLocal<ICraftingPatternDetails>();
 
     @Inject(method = "<init>", at = @At("HEAD"))
-    private void berlit$head(ICraftingGrid cc, CraftingJob job, ICraftingPatternDetails details, CraftingTreeNode node,
-        int depth, CallbackInfo ci) {
+    private static void berlit$head(ICraftingGrid cc, CraftingJob job, ICraftingPatternDetails details,
+        CraftingTreeNode node, int depth, CallbackInfo ci) {
         BERLIT_PATTERN.set(details);
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void berlit$tail(ICraftingGrid cc, CraftingJob job, ICraftingPatternDetails details, CraftingTreeNode node,
-        int depth, CallbackInfo ci) {
+    private static void berlit$tail(ICraftingGrid cc, CraftingJob job, ICraftingPatternDetails details,
+        CraftingTreeNode node, int depth, CallbackInfo ci) {
         BERLIT_PATTERN.remove();
     }
 
