@@ -61,3 +61,9 @@ tile.berlit.neutron_compressor.name=Neutron Compressor
 
 item.berlit.singularity_pattern.name=Singularity Pattern
 tile.berlit.singularity_encoder.name=Singularity Encoder
+
+item.berlit.easter_coin.name=Negative Coin
+item.berlit.garlic.name=Garlic
+item.berlit.green_jacket.name=Green Jacket
+tile.berlit.garlic_crop.name=Garlic Crop
+tooltip.berlit.easter_coin=Value: -1 (negative)
