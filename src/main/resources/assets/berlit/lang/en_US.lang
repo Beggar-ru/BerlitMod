@@ -70,6 +70,9 @@ tooltip.berlit.easter_coin=Value: -1 (negative)
 
 item.berlit.infinity_cell.name=Infinity Item Cell (63 types)
 item.berlit.infinity_fluid_cell.name=Infinity Fluid Cell (5 types)
+tile.berlit.cobble_generator.name=Cobblestone Generator
+tile.berlit.cobble_generator_mk2.name=Cobblestone Generator MK II
+tile.berlit.cobble_generator_mk3.name=Cobblestone Generator MK III
 
 tile.berlit.nether_star_block.name=Block of Nether Stars
 

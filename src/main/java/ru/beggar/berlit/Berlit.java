@@ -80,6 +80,9 @@ public class Berlit {
     public static ru.beggar.berlit.ae2.BlockFastAssembler fastAssembler;
     public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
     public static ru.beggar.berlit.machine.BlockNeutronCompressor neutronCompressor;
+    public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGenerator;
+    public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGeneratorMk2;
+    public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGeneratorMk3;
     public static ru.beggar.berlit.item.ItemEasterCoin easterCoin;
     public static ru.beggar.berlit.item.ItemGarlic garlic;
     public static ru.beggar.berlit.item.ItemGreenJacket greenJacket;
@@ -212,6 +215,15 @@ public class Berlit {
                 ru.beggar.berlit.machine.TileEntityNeutronCompressor.class,
                 "berlit:neutron_compressor");
         }
+
+        cobbleGenerator = new ru.beggar.berlit.machine.BlockCobbleGenerator(0);
+        GameRegistry.registerBlock(cobbleGenerator, "berlit.cobble_generator");
+        GameRegistry
+            .registerTileEntity(ru.beggar.berlit.tileentity.TileEntityCobbleGenerator.class, "berlit:cobble_generator");
+        cobbleGeneratorMk2 = new ru.beggar.berlit.machine.BlockCobbleGenerator(1);
+        GameRegistry.registerBlock(cobbleGeneratorMk2, "berlit.cobble_generator_mk2");
+        cobbleGeneratorMk3 = new ru.beggar.berlit.machine.BlockCobbleGenerator(2);
+        GameRegistry.registerBlock(cobbleGeneratorMk3, "berlit.cobble_generator_mk3");
         stackUpgrade = new ItemStackUpgrade();
         GameRegistry.registerItem(stackUpgrade, "stack_upgrade");
 
@@ -285,6 +297,42 @@ public class Berlit {
             Items.redstone,
             'M',
             Blocks.redstone_block);
+
+        GameRegistry.addRecipe(
+            new ItemStack(cobbleGenerator),
+            "IRI",
+            "RFR",
+            "IRI",
+            'I',
+            Items.iron_ingot,
+            'R',
+            Items.redstone,
+            'F',
+            Blocks.furnace);
+
+        GameRegistry.addRecipe(
+            new ItemStack(cobbleGeneratorMk2),
+            "GDG",
+            "DMD",
+            "GDG",
+            'G',
+            Items.gold_ingot,
+            'D',
+            Items.diamond,
+            'M',
+            cobbleGenerator);
+
+        GameRegistry.addRecipe(
+            new ItemStack(cobbleGeneratorMk3),
+            "GEG",
+            "EME",
+            "GEG",
+            'G',
+            Items.gold_ingot,
+            'E',
+            Items.emerald,
+            'M',
+            cobbleGeneratorMk2);
 
         GameRegistry.addRecipe(
             new ItemStack(testGenerator),

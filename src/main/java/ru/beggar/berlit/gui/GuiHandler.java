@@ -29,6 +29,11 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntitySuperChest) {
             return new ContainerSuperChest(player.inventory, (TileEntitySuperChest) tile);
         }
+        if (tile instanceof ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) {
+            return new ContainerCobbleGenerator(
+                player.inventory,
+                (ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) tile);
+        }
         if (Loader.isModLoaded("appliedenergistics2")) {
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
                 return new ru.beggar.berlit.ae2.ContainerPatternEncoder(
@@ -70,6 +75,11 @@ public class GuiHandler implements IGuiHandler {
         }
         if (tile instanceof TileEntitySuperChest) {
             return new GuiSuperChest(player.inventory, (TileEntitySuperChest) tile);
+        }
+        if (tile instanceof ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) {
+            return new GuiCobbleGenerator(
+                player.inventory,
+                (ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) tile);
         }
         if (Loader.isModLoaded("appliedenergistics2")) {
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
