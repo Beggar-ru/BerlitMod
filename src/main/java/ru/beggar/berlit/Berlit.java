@@ -83,6 +83,8 @@ public class Berlit {
     public static ru.beggar.berlit.item.ItemGarlic garlic;
     public static ru.beggar.berlit.item.ItemGreenJacket greenJacket;
     public static ru.beggar.berlit.block.BlockGarlicCrop garlicCrop;
+    public static ru.beggar.berlit.ae2.ItemInfinityCell infinityCell;
+    public static ru.beggar.berlit.ae2.ItemInfinityFluidCell infinityFluidCell;
     public static ItemStackUpgrade stackUpgrade;
     public static ru.beggar.berlit.ae2.ItemAvaritiaPattern avaritiaPattern;
     public static ru.beggar.berlit.ae2.ItemSingularityPattern singularityPattern;
@@ -178,6 +180,12 @@ public class Berlit {
 
             singularityPattern = new ru.beggar.berlit.ae2.ItemSingularityPattern();
             GameRegistry.registerItem(singularityPattern, "singularity_pattern");
+
+            infinityCell = new ru.beggar.berlit.ae2.ItemInfinityCell();
+            GameRegistry.registerItem(infinityCell, "infinity_cell");
+
+            infinityFluidCell = new ru.beggar.berlit.ae2.ItemInfinityFluidCell();
+            GameRegistry.registerItem(infinityFluidCell, "infinity_fluid_cell");
 
             singularityEncoder = new ru.beggar.berlit.ae2.BlockSingularityEncoder();
             GameRegistry.registerBlock(singularityEncoder, "berlit.singularity_encoder");
@@ -442,6 +450,29 @@ public class Berlit {
             Items.leather,
             Items.leather,
             new ItemStack(Items.dye, 1, 2));
+        GameRegistry.addRecipe(
+            new ItemStack(infinityCell),
+            "DND",
+            "NIN",
+            "DND",
+            'D',
+            Blocks.diamond_block,
+            'N',
+            Items.nether_star,
+            'I',
+            Items.iron_ingot);
+
+        GameRegistry.addRecipe(
+            new ItemStack(infinityFluidCell),
+            "GNG",
+            "NIN",
+            "GNG",
+            'G',
+            Blocks.glass,
+            'N',
+            Items.nether_star,
+            'I',
+            Items.iron_ingot);
         GameRegistry.addShapelessRecipe(new ItemStack(stackUpgrade), Items.paper, Blocks.chest, Items.redstone);
 
         GameRegistry
@@ -461,6 +492,12 @@ public class Berlit {
     @Mod.EventHandler
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {
+        if (cpw.mods.fml.common.Loader.isModLoaded("appliedenergistics2")) {
+            appeng.api.AEApi.instance()
+                .registries()
+                .cell()
+                .addCellHandler(new ru.beggar.berlit.ae2.InfinityCellHandler());
+        }
         proxy.postInit(event);
     }
 

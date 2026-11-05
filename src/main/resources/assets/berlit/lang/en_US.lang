@@ -67,3 +67,6 @@ item.berlit.garlic.name=Garlic
 item.berlit.green_jacket.name=Green Jacket
 tile.berlit.garlic_crop.name=Garlic Crop
 tooltip.berlit.easter_coin=Value: -1 (negative)
+
+item.berlit.infinity_cell.name=Infinity Item Cell (63 types)
+item.berlit.infinity_fluid_cell.name=Infinity Fluid Cell (5 types)
