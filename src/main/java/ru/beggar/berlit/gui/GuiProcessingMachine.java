@@ -5,6 +5,7 @@ import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
+import ru.beggar.berlit.Berlit;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 
 public class GuiProcessingMachine extends BerlitGui {
@@ -36,6 +37,22 @@ public class GuiProcessingMachine extends BerlitGui {
 
         drawRightAligned(tile.getProgressScaled(100) + "%", 186, 78, GuiTheme.ACCENT);
 
+    }
+
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int button) {
+        super.mouseClicked(mouseX, mouseY, button);
+        if (button != 0) return;
+
+        int x = (width - xSize) / 2 + MachineLayout.ARROW_X;
+        int y = (height - ySize) / 2 + MachineLayout.ARROW_Y;
+        if (mouseX >= x && mouseX < x + 12 && mouseY >= y && mouseY < y + 12) {
+            if (cpw.mods.fml.common.Loader.isModLoaded("NotEnoughItems")) {
+                codechicken.nei.recipe.GuiCraftingRecipe.openRecipeGui(
+                    "item",
+                    new net.minecraft.item.ItemStack(Berlit.machineBlocks.get(tile.getMachineType())));
+            }
+        }
     }
 
     @Override

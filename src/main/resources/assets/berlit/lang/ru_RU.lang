@@ -70,3 +70,5 @@ tooltip.berlit.easter_coin=Стоимость: -1 (отрицательная)
 
 item.berlit.infinity_cell.name=Бесконечная ячейка предметов (63 типа)
 item.berlit.infinity_fluid_cell.name=Бесконечная ячейка жидкостей (5 типов)
+
+tile.berlit.nether_star_block.name=Блок звёзд Нижнего мира

@@ -83,6 +83,7 @@ public class Berlit {
     public static ru.beggar.berlit.item.ItemGarlic garlic;
     public static ru.beggar.berlit.item.ItemGreenJacket greenJacket;
     public static ru.beggar.berlit.block.BlockGarlicCrop garlicCrop;
+    public static ru.beggar.berlit.block.BlockNetherStar netherStarBlock;
     public static ru.beggar.berlit.ae2.ItemInfinityCell infinityCell;
     public static net.minecraft.item.Item infinityFluidCell;
     public static ItemStackUpgrade stackUpgrade;
@@ -156,6 +157,8 @@ public class Berlit {
         GameRegistry.registerBlock(electricFurnace, "berlit.machine_electric_furnace");
         machineBlocks.put(MachineType.ELECTRIC_FURNACE, electricFurnace);
 
+        netherStarBlock = new ru.beggar.berlit.block.BlockNetherStar();
+        GameRegistry.registerBlock(netherStarBlock, "berlit.nether_star_block");
         superChest = new BlockSuperChest();
         GameRegistry.registerBlock(superChest, "berlit.super_chest");
         GameRegistry.registerTileEntity(TileEntitySuperChest.class, "berlit:super_chest");
@@ -477,6 +480,7 @@ public class Berlit {
                 'I',
                 Items.iron_ingot);
         }
+        GameRegistry.addRecipe(new ItemStack(netherStarBlock), "SSS", "SSS", "SSS", 'S', Items.nether_star);
         GameRegistry.addShapelessRecipe(new ItemStack(stackUpgrade), Items.paper, Blocks.chest, Items.redstone);
 
         GameRegistry
