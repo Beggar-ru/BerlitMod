@@ -68,9 +68,9 @@ public class NineSliceButton extends GuiButton {
         } else if ("one".equals(icon)) {
             drawCube(iconX + 1, iconY + 1, 8);
         } else if ("stack".equals(icon)) {
-            drawCube(iconX, iconY + 4, 6);
-            drawCube(iconX + 1, iconY + 2, 6);
-            drawCube(iconX + 2, iconY, 6);
+            drawCube(iconX + 1, iconY + 4, 6);
+            drawCube(iconX + 2, iconY + 2, 6);
+            drawCube(iconX + 3, iconY, 6);
         }
 
         if (hovered) {

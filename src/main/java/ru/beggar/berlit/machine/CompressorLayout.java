@@ -23,13 +23,13 @@ public final class CompressorLayout {
     public static final int HOTBAR_Y = 172;
 
     public static final int BUTTON_X = 140;
-    public static final int BUTTON_CRAFT_Y = 28;
-    public static final int BUTTON_CRAFT64_Y = 50;
+    public static final int BUTTON_CRAFT_Y = 27;
+    public static final int BUTTON_CRAFT64_Y = 49;
     public static final int BUTTON_WIDTH = 22;
     public static final int BUTTON_HEIGHT = 20;
 
     /** Chevron between two neighbouring slots, centred on the slot row. */
-    public static final int ARROW_Y = SLOT_Y + 9;
+    public static final int ARROW_Y = SLOT_Y + 8; // centre of the 18px slot tile
 
     /** Left edge of the two chevrons, in the gaps between slots. */
     public static final int ARROW_X1 = 63;

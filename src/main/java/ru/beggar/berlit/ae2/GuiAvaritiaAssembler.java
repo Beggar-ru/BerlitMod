@@ -39,8 +39,9 @@ public class GuiAvaritiaAssembler extends BerlitGui {
                 guiTop + AssemblerLayout.BUTTON_CRAFT_Y,
                 AssemblerLayout.BUTTON_WIDTH,
                 AssemblerLayout.BUTTON_HEIGHT,
-                "C",
-                GuiKit.BUTTON));
+                "",
+                GuiKit.BUTTON,
+                "one"));
         buttonList.add(
             new NineSliceButton(
                 1,
@@ -48,8 +49,9 @@ public class GuiAvaritiaAssembler extends BerlitGui {
                 guiTop + AssemblerLayout.BUTTON_CRAFT64_Y,
                 AssemblerLayout.BUTTON_WIDTH,
                 AssemblerLayout.BUTTON_HEIGHT,
-                "64",
-                GuiKit.BUTTON));
+                "",
+                GuiKit.BUTTON,
+                "stack"));
     }
 
     @Override

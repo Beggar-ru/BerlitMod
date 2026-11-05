@@ -139,10 +139,14 @@ public abstract class BerlitGui extends GuiContainer {
         drawRect(cx, y + 7, cx + 2, y + size - 3, GuiTheme.FRAME_LIGHT);
     }
 
-    /** Whole machine screen: both panels, every cell, the arrow, the bar trough and the info badge. */
-    protected void drawMachineFrame(int x, int y) {
+    /** Whole machine screen: both panels, every cell, the arrow and the bar trough. */
+    protected void drawMachineFrame(int x, int y, boolean infoBadge) {
         drawKitPanel(x, y, MachineLayout.WIDTH, MachineLayout.CONTENT_HEIGHT);
-        drawKitPanel(x, y + MachineLayout.INVENTORY_TOP, MachineLayout.INVENTORY_WIDTH, MachineLayout.INVENTORY_HEIGHT);
+        drawKitPanel(
+            x + MachineLayout.INVENTORY_X,
+            y + MachineLayout.INVENTORY_TOP,
+            MachineLayout.INVENTORY_WIDTH,
+            MachineLayout.INVENTORY_HEIGHT);
 
         drawRect(x + 8, y + 15, x + MachineLayout.WIDTH - 9, y + 16, GuiTheme.FRAME_BORDER);
         drawRect(x + 8, y + 16, x + MachineLayout.WIDTH - 9, y + 17, GuiTheme.FRAME_RULE);
@@ -179,7 +183,9 @@ public abstract class BerlitGui extends GuiContainer {
 
         drawKitArrow(x + MachineLayout.ARROW_X, y + MachineLayout.ARROW_Y);
         drawProgressTrough(x, y);
-        drawInfoBadge(x + MachineLayout.INFO_X, y + MachineLayout.INFO_Y);
+        if (infoBadge) {
+            drawInfoBadge(x + MachineLayout.INFO_X, y + MachineLayout.INFO_Y);
+        }
     }
 
     /** Draws both panels; the gap between them stays transparent. */

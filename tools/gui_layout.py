@@ -266,8 +266,8 @@ SCREENS = {
             ("title", 8, 6, 160, "tile.berlit.neutron_compressor.name"),
             inv_player(176, 90)[1],
         ],
-        buttons=[(140, 28, 22, 20, "one"), (140, 50, 22, 20, "stack")],
-        arrows=[(69, 49), (105, 49)],
+        buttons=[(140, 27, 22, 20, "one"), (140, 49, 22, 20, "stack")],
+        arrows=[(69, 48), (105, 48)],
     ),
     "super_chest": panel_screen(
         "gui/super_chest.png",

@@ -52,7 +52,7 @@ public class GuiMolecularTransformer extends BerlitGui {
 
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        drawMachineFrame(x, y);
+        drawMachineFrame(x, y, true);
         drawProgressBar(x, y, tile.getProgressScaled(100));
     }
 }

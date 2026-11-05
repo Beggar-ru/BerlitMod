@@ -1,7 +1,5 @@
 package ru.beggar.berlit.gui;
 
-import java.util.Arrays;
-
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.StatCollector;
 
@@ -38,14 +36,6 @@ public class GuiProcessingMachine extends BerlitGui {
 
         drawRightAligned(tile.getProgressScaled(100) + "%", 186, 78, GuiTheme.ACCENT);
 
-        drawInfoTooltip(
-            mouseX,
-            mouseY,
-            Arrays.asList(
-                StatCollector
-                    .translateToLocalFormatted("berlit.gui.info.energy", tile.getEnergy(), tile.getMaxEnergy()),
-                StatCollector.translateToLocalFormatted("berlit.gui.info.input", tile.getLastInput()),
-                StatCollector.translateToLocalFormatted("berlit.gui.info.recipe", tile.getRecipeEnergy())));
     }
 
     @Override
@@ -56,7 +46,7 @@ public class GuiProcessingMachine extends BerlitGui {
 
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        drawMachineFrame(x, y);
+        drawMachineFrame(x, y, false);
         drawProgressBar(x, y, tile.getProgressScaled(100));
     }
 }
