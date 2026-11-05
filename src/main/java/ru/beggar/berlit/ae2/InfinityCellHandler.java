@@ -16,16 +16,12 @@ public class InfinityCellHandler implements ICellHandler {
 
     @Override
     public boolean isCell(ItemStack stack) {
-        return stack != null
-            && (stack.getItem() instanceof ItemInfinityCell || stack.getItem() instanceof ItemInfinityFluidCell);
+        return stack != null && stack.getItem() instanceof ItemInfinityFluidCell;
     }
 
     @Override
     public IMEInventoryHandler getCellInventory(ItemStack stack, ISaveProvider saver, StorageChannel channel) {
         if (stack == null) return null;
-        if (channel == StorageChannel.ITEMS && stack.getItem() instanceof ItemInfinityCell) {
-            return new InfinityItemInventory(stack, saver);
-        }
         if (channel == StorageChannel.FLUIDS && stack.getItem() instanceof ItemInfinityFluidCell) {
             return new InfinityFluidInventory(stack, saver);
         }

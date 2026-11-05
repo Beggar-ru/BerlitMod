@@ -1,15 +1,16 @@
 package ru.beggar.berlit.ae2;
 
-import java.util.List;
-
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import appeng.api.config.FuzzyMode;
+import appeng.api.implementations.items.IStorageCell;
+import appeng.api.storage.data.IAEItemStack;
 import ru.beggar.berlit.Berlit;
 
-/** Infinity storage cell: 63 item types, unlimited bytes. */
-public class ItemInfinityCell extends Item {
+/** Infinity item cell: standard AE2 cell with 63 types and a very large byte capacity. */
+public class ItemInfinityCell extends Item implements IStorageCell {
 
     public ItemInfinityCell() {
         setUnlocalizedName("berlit.infinity_cell");
@@ -19,11 +20,65 @@ public class ItemInfinityCell extends Item {
     }
 
     @Override
-    public void addInformation(ItemStack cell, EntityPlayer player, List list, boolean advanced) {
-        int types = cell.hasTagCompound() ? cell.getTagCompound()
-            .getTagList("berlitTypes", 10)
-            .tagCount() : 0;
-        list.add("Types: " + types + " / 63");
-        list.add("Bytes: infinity");
+    public int getBytes(ItemStack cell) {
+        return Integer.MAX_VALUE;
     }
+
+    @Override
+    public int BytePerType(ItemStack cell) {
+        return 1;
+    }
+
+    @Override
+    public int getBytesPerType(ItemStack cell) {
+        return 1;
+    }
+
+    @Override
+    public int getTotalTypes(ItemStack cell) {
+        return 63;
+    }
+
+    @Override
+    public boolean isBlackListed(ItemStack cell, IAEItemStack requestedAddition) {
+        return false;
+    }
+
+    @Override
+    public boolean storableInStorageCell() {
+        return false;
+    }
+
+    @Override
+    public boolean isStorageCell(ItemStack cell) {
+        return true;
+    }
+
+    @Override
+    public double getIdleDrain() {
+        return 0;
+    }
+
+    @Override
+    public boolean isEditable(ItemStack cell) {
+        return false;
+    }
+
+    @Override
+    public IInventory getUpgradesInventory(ItemStack cell) {
+        return null;
+    }
+
+    @Override
+    public IInventory getConfigInventory(ItemStack cell) {
+        return null;
+    }
+
+    @Override
+    public FuzzyMode getFuzzyMode(ItemStack cell) {
+        return FuzzyMode.IGNORE_ALL;
+    }
+
+    @Override
+    public void setFuzzyMode(ItemStack cell, FuzzyMode mode) {}
 }
