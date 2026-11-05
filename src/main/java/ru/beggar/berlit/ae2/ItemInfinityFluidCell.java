@@ -1,12 +1,16 @@
 package ru.beggar.berlit.ae2;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 
 import appeng.api.config.FuzzyMode;
 import extracells.api.IFluidStorageCell;
@@ -26,7 +30,13 @@ public class ItemInfinityFluidCell extends Item implements IFluidStorageCell {
 
     @Override
     public ArrayList<Fluid> getFilter(ItemStack cell) {
-        return new ArrayList<Fluid>();
+        ArrayList<Fluid> fluids = new ArrayList<Fluid>();
+        Map<String, Integer> ids = FluidRegistry.getRegisteredFluidIDs();
+        for (String name : ids.keySet()) {
+            Fluid fluid = FluidRegistry.getFluid(name);
+            if (fluid != null) fluids.add(fluid);
+        }
+        return fluids;
     }
 
     @Override
@@ -37,6 +47,12 @@ public class ItemInfinityFluidCell extends Item implements IFluidStorageCell {
     @Override
     public int getMaxTypes(ItemStack cell) {
         return 5;
+    }
+
+    @Override
+    public void addInformation(ItemStack cell, EntityPlayer player, List list, boolean advanced) {
+        list.add("Types: max 5");
+        list.add("Bytes: 100000000");
     }
 
     @Override

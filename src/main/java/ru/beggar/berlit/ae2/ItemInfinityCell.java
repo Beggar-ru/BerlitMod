@@ -1,5 +1,7 @@
 package ru.beggar.berlit.ae2;
 
+import java.util.List;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
@@ -25,6 +27,25 @@ public class ItemInfinityCell extends Item implements IStorageCell {
     @Override
     public int getBytes(ItemStack cell) {
         return 100000000;
+    }
+
+    @Override
+    public void addInformation(ItemStack cell, net.minecraft.entity.player.EntityPlayer player, List list,
+        boolean advanced) {
+        appeng.api.storage.IMEInventoryHandler handler = appeng.api.AEApi.instance()
+            .registries()
+            .cell()
+            .getCellInventory(cell, null, appeng.api.storage.StorageChannel.ITEMS);
+        if (handler instanceof appeng.api.storage.ICellInventoryHandler) {
+            appeng.api.storage.ICellInventory inv = ((appeng.api.storage.ICellInventoryHandler) handler).getCellInv();
+            if (inv != null) {
+                list.add(inv.getUsedBytes() + " / " + inv.getTotalBytes() + " bytes");
+                list.add(inv.getStoredItemTypes() + " / " + inv.getTotalItemTypes() + " types");
+                return;
+            }
+        }
+        list.add("0 / 100000000 bytes");
+        list.add("0 / 63 types");
     }
 
     @Override
