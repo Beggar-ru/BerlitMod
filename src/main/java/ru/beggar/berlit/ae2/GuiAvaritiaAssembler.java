@@ -113,9 +113,23 @@ public class GuiAvaritiaAssembler extends BerlitGui {
         GuiKit.CELL.drawSprite(zLevel, slotX - 1, slotY - 1, AssemblerLayout.SLOT, AssemblerLayout.SLOT);
     }
 
-    /** 9-slice panel plus a subtle top-to-bottom darkening, matching the machine panels. */
+    /**
+     * Same recipe as the machine panels: the gradient background, the 9-slice frame ring on top of it and
+     * the bright corner brackets. The kit tile is ring-only so the gradient survives.
+     */
     private void drawPanel(int x, int y, int width, int height) {
+        drawGradientRect(x, y, x + width, y + height, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
         GuiKit.PANEL.draw(zLevel, x, y, width, height);
-        drawGradientRect(x + 6, y + 6, x + width - 6, y + height - 6, 0x00000000, 0x3C000000);
+        drawBracket(x + 4, y + 4, 1, 1);
+        drawBracket(x + width - 5, y + 4, -1, 1);
+        drawBracket(x + 4, y + height - 5, 1, -1);
+        drawBracket(x + width - 5, y + height - 5, -1, -1);
+    }
+
+    /** 14px L-shaped accent, identical to the one baked into the machine panel textures. */
+    private void drawBracket(int x, int y, int dx, int dy) {
+        int arm = 14;
+        drawRect(Math.min(x, x + dx * arm), y, Math.max(x, x + dx * arm) + 1, y + 1, GuiTheme.FRAME_LIGHT);
+        drawRect(x, Math.min(y, y + dy * arm), x + 1, Math.max(y, y + dy * arm) + 1, GuiTheme.FRAME_LIGHT);
     }
 }

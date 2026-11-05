@@ -223,16 +223,37 @@ def render_widget_screen(screen, scale):
     panel_tile = panel_tile.resize((panel_size * scale, panel_size * scale), Image.NEAREST)
 
     for x, y, width, height in screen["panels"]:
-        canvas.alpha_composite(
-            nine_slice(panel_tile, width * scale, height * scale, panel_inset * scale), (x * scale, y * scale))
-        # the Gui lays a gradient over the flat 9-slice interior
-        inner = Image.new("RGBA", ((width - 12) * scale, (height - 12) * scale), (0, 0, 0, 0))
-        inner_draw = ImageDraw.Draw(inner)
-        rows = inner.size[1]
-        for row in range(rows):
-            alpha = int(60 * row / max(1, rows - 1))
-            inner_draw.line([(0, row), (inner.size[0], row)], fill=(0, 0, 0, alpha))
-        canvas.alpha_composite(inner, ((x + 6) * scale, (y + 6) * scale))
+        panel = Image.new("RGBA", (width * scale, height * scale), (0, 0, 0, 0))
+        panel_draw = ImageDraw.Draw(panel)
+        top = (54, 59, 72)
+        bottom = (38, 42, 52)
+        for row in range(height * scale):
+            mix = row / max(1, height * scale - 1)
+            colour = tuple(round(top[i] + (bottom[i] - top[i]) * mix) for i in range(3))
+            panel_draw.line([(0, row), (width * scale, row)], fill=colour + (255,))
+
+        panel.alpha_composite(
+            nine_slice(panel_tile, width * scale, height * scale, panel_inset * scale))
+        canvas.alpha_composite(panel, (x * scale, y * scale))
+
+        # bright L brackets, 14px arms at inset 4 like the machine panels
+        bracket = ImageDraw.Draw(canvas)
+        arm = 14 * scale
+        thickness = scale
+        for cx, cy, dx, dy in (
+            (4, 4, 1, 1),
+            (width - 5, 4, -1, 1),
+            (4, height - 5, 1, -1),
+            (width - 5, height - 5, -1, -1),
+        ):
+            px = (x + cx) * scale
+            py = (y + cy) * scale
+            bracket.rectangle(
+                [min(px, px + dx * arm), py, max(px, px + dx * arm) + thickness - 1, py + thickness - 1],
+                fill=(111, 233, 224, 255))
+            bracket.rectangle(
+                [px, min(py, py + dy * arm), px + thickness - 1, max(py, py + dy * arm) + thickness - 1],
+                fill=(111, 233, 224, 255))
 
     cell_x, cell_y, cell_size, _cell_inset = screen["kit"]["cell"]
     cell = kit.crop((cell_x, cell_y, cell_x + cell_size, cell_y + cell_size))

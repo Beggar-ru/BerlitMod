@@ -18,5 +18,12 @@ public final class GuiTheme {
     /** Cyan accent, matches the frame highlight in the texture. */
     public static final int ACCENT = 0x6FE9E0;
 
+    /** Panel gradient, identical to the machine textures (gui_theme.BG_TOP / BG_BOTTOM). */
+    public static final int PANEL_TOP = 0xFF363B48;
+    public static final int PANEL_BOTTOM = 0xFF262A34;
+
+    /** Frame highlight, matches gui_theme.FRAME_LIGHT. */
+    public static final int FRAME_LIGHT = 0xFF6FE9E0;
+
     private GuiTheme() {}
 }

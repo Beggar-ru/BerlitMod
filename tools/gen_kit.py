@@ -40,32 +40,27 @@ TOOLTIP_FILL = (28, 32, 40)
 
 
 def draw_panel(image, x0, y0, size):
-    """24x24 panel ring: rim, cyan band, dark bite, two shadow rows, then fill."""
+    """24x24 panel *ring* only: the middle stays transparent.
+
+    A 9-slice stretches one patch, so a filled tile would flatten the gradient the
+    machine panels have. The Gui paints the gradient first and then lays this ring
+    on top, which keeps the frame identical to gui_theme's machine panels.
+    """
     draw = ImageDraw.Draw(image)
-    draw.rectangle([x0, y0, x0 + size - 1, y0 + size - 1], fill=FILL + (255,))
+    top_colours = (DARK_RIM, CYAN, CYAN, DARK_RIM, SHADOW_1, SHADOW_2)
+    bottom_colours = (DARK_RIM, CYAN, CYAN, DARK_RIM, (70, 77, 92), (58, 64, 78))
 
-    # border ring, 8px thick
-    for offset, colour in ((0, DARK_RIM), (1, CYAN), (2, CYAN), (3, DARK_RIM), (4, SHADOW_1), (5, SHADOW_2)):
-        draw.line([(x0 + offset, y0 + offset), (x0 + size - 1 - offset, y0 + offset)], fill=colour + (255,))
-        draw.line([(x0 + offset, y0 + offset), (x0 + offset, y0 + size - 1 - offset)], fill=colour + (255,))
-
-    # bottom and right get the light side of the bevel
-    for offset, colour in ((4, (70, 77, 92)), (5, (58, 64, 78))):
-        y = y0 + size - 1 - offset
-        draw.line([(x0 + offset, y), (x0 + size - 1 - offset, y)], fill=colour + (255,))
-        x = x0 + size - 1 - offset
-        draw.line([(x, y0 + offset), (x, y0 + size - 1 - offset)], fill=colour + (255,))
-
-    # short bright brackets in the corners, inside the 8px corner patch
-    arm = 5
-    for cx, cy, dx, dy in (
-        (x0 + 1, y0 + 1, 1, 1),
-        (x0 + size - 2, y0 + 1, -1, 1),
-        (x0 + 1, y0 + size - 2, 1, -1),
-        (x0 + size - 2, y0 + size - 2, -1, -1),
-    ):
-        draw.line([(cx, cy), (cx + dx * arm, cy)], fill=CYAN_LIGHT + (255,))
-        draw.line([(cx, cy), (cx, cy + dy * arm)], fill=CYAN_LIGHT + (255,))
+    for offset in range(6):
+        top = top_colours[offset]
+        bottom = bottom_colours[offset]
+        draw.line([(x0 + offset, y0 + offset), (x0 + size - 1 - offset, y0 + offset)], fill=top + (255,))
+        draw.line([(x0 + offset, y0 + offset), (x0 + offset, y0 + size - 1 - offset)], fill=top + (255,))
+        draw.line(
+            [(x0 + offset, y0 + size - 1 - offset), (x0 + size - 1 - offset, y0 + size - 1 - offset)],
+            fill=bottom + (255,))
+        draw.line(
+            [(x0 + size - 1 - offset, y0 + offset), (x0 + size - 1 - offset, y0 + size - 1 - offset)],
+            fill=bottom + (255,))
 
 
 def draw_button(image, x0, y0, size):
