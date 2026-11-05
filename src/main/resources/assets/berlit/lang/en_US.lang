@@ -28,9 +28,9 @@ item.berlit.accelerator_t3.name=Accelerator MK III
 item.berlit.accelerator.speed=Speed: %s%%
 item.berlit.accelerator.energy=Energy use: %s%%
 
-item.berlit.spawner_core_t1.name=Spawner Core I
-item.berlit.spawner_core_t2.name=Spawner Core II
-item.berlit.spawner_core_t3.name=Spawner Core III
+item.berlit.spawner_core_t1.name=Nuclear Core
+item.berlit.spawner_core_t2.name=Technological Core
+item.berlit.spawner_core_t3.name=Holy Core
 item.berlit.spawner_core.speed=Cycle speed: +%s%%
 item.berlit.spawner_core.amount=Drop amount: +%s
 
