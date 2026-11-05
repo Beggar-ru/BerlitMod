@@ -135,6 +135,9 @@ def build(screen):
 
 def main():
     for name, screen in layout.SCREENS.items():
+        if screen.get("style") == "widget":
+            print(f"skip {name}: drawn from the kit at runtime")
+            continue
         out = os.path.join(TEXTURES, *screen["texture"].split("/"))
         os.makedirs(os.path.dirname(out), exist_ok=True)
         build(screen).save(out)

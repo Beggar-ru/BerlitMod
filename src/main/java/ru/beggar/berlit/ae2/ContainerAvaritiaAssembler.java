@@ -15,17 +15,32 @@ public class ContainerAvaritiaAssembler extends Container {
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
-                addSlotToContainer(new Slot(tile, col + row * 3, 44 + col * 18, 20 + row * 18));
+                addSlotToContainer(
+                    new Slot(
+                        tile,
+                        col + row * 3,
+                        AssemblerLayout.CRAFT_X + col * AssemblerLayout.SLOT,
+                        AssemblerLayout.CRAFT_Y + row * AssemblerLayout.SLOT));
             }
         }
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 116 + row * 18));
+                addSlotToContainer(
+                    new Slot(
+                        playerInventory,
+                        col + row * 9 + 9,
+                        AssemblerLayout.PLAYER_X + col * AssemblerLayout.SLOT,
+                        AssemblerLayout.PLAYER_TOP + row * AssemblerLayout.SLOT));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(playerInventory, col, 8 + col * 18, 172));
+            addSlotToContainer(
+                new Slot(
+                    playerInventory,
+                    col,
+                    AssemblerLayout.PLAYER_X + col * AssemblerLayout.SLOT,
+                    AssemblerLayout.HOTBAR_Y));
         }
     }
 

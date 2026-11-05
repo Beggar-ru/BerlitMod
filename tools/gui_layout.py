@@ -107,6 +107,24 @@ def inv_player(width, height):
     return slots, label
 
 
+def widget_screen(width, height, groups, text, buttons=()):
+    """Screen drawn at runtime from the 9-slice kit: no per-screen texture at all."""
+    return {
+        "style": "widget",
+        "canvas": (width, height + INV_GAP + INV_H),
+        "panels": [(0, 0, width, height), ((width - INV_W) // 2, height + INV_GAP, INV_W, INV_H)],
+        "groups": groups,
+        "text": text,
+        "buttons": buttons,
+        "kit": {
+            "texture": "gui/kit.png",
+            "panel": (0, 0, 24, 8),
+            "cell": (0, 24, 18, 1),
+            "button": (24, 0, 16, 4),
+        },
+    }
+
+
 def machine_screen(texture, groups, text):
     return {
         "style": "machine",
@@ -166,9 +184,9 @@ SCREENS = {
         ],
     ),
     # --- AE2 / Avaritia screens -------------------------------------------
-    "avaritia_assembler": panel_screen(
-        "gui/avaritia_assembler.png",
-        (176, 90),
+    "avaritia_assembler": widget_screen(
+        176,
+        90,
         [
             ("craft", grid(44, 20, 3, 3)),
             ("player", inv_player(176, 90)[0]),
@@ -177,8 +195,6 @@ SCREENS = {
             ("title", 8, 6, 160, "tile.berlit.avaritia_assembler.name"),
             inv_player(176, 90)[1],
         ],
-        recesses=[(42, 18, 98, 74)],
-        variant="flat",
         buttons=[(148, 18, 22, 20, "C"), (148, 40, 22, 20, "64")],
     ),
     "pattern_encoder": panel_screen(

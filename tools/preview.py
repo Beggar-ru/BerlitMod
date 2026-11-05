@@ -188,7 +188,66 @@ def draw_button(canvas, x, y, width, height, label, scale):
             font=glyph)
 
 
+def nine_slice(image, target_w, target_h, inset):
+    """Classic 9-slice: corners 1:1, edges stretched in one axis, middle in both."""
+    source = image.convert("RGBA")
+    width, height = source.size
+    out = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
+
+    xs_src = (0, inset, width - inset, width)
+    ys_src = (0, inset, height - inset, height)
+    xs_dst = (0, inset, target_w - inset, target_w)
+    ys_dst = (0, inset, target_h - inset, target_h)
+
+    for row in range(3):
+        for col in range(3):
+            sx0, sx1 = xs_src[col], xs_src[col + 1]
+            sy0, sy1 = ys_src[row], ys_src[row + 1]
+            dx0, dx1 = xs_dst[col], xs_dst[col + 1]
+            dy0, dy1 = ys_dst[row], ys_dst[row + 1]
+            if sx1 <= sx0 or sy1 <= sy0 or dx1 <= dx0 or dy1 <= dy0:
+                continue
+            out.paste(source.crop((sx0, sy0, sx1, sy1)).resize((dx1 - dx0, dy1 - dy0), Image.NEAREST), (dx0, dy0))
+    return out
+
+
+def render_widget_screen(screen, scale):
+    """Screens drawn at runtime: compose the kit the way the Gui does."""
+    canvas_w, canvas_h = screen["canvas"]
+    canvas = checkerboard(canvas_w * scale, canvas_h * scale)
+    kit = Image.open(texture_path(screen["kit"]["texture"])).convert("RGBA")
+
+    panel_x, panel_y, panel_size, panel_inset = screen["kit"]["panel"]
+    panel_tile = kit.crop((panel_x, panel_y, panel_x + panel_size, panel_y + panel_size))
+    # scale the tile first: the inset must be in the same pixel space as the target
+    panel_tile = panel_tile.resize((panel_size * scale, panel_size * scale), Image.NEAREST)
+
+    for x, y, width, height in screen["panels"]:
+        canvas.alpha_composite(
+            nine_slice(panel_tile, width * scale, height * scale, panel_inset * scale), (x * scale, y * scale))
+
+    cell_x, cell_y, cell_size, _cell_inset = screen["kit"]["cell"]
+    cell = kit.crop((cell_x, cell_y, cell_x + cell_size, cell_y + cell_size))
+    cell = cell.resize((cell_size * scale, cell_size * scale), Image.NEAREST)
+    for _group, slots in screen["groups"]:
+        for slot_x, slot_y in slots:
+            canvas.alpha_composite(cell, ((slot_x - 1) * scale, (slot_y - 1) * scale))
+
+    from PIL import ImageDraw as _ImageDraw
+    draw = _ImageDraw.Draw(canvas)
+    draw.line([(8 * scale, 16 * scale), ((screen["panels"][0][2] - 9) * scale, 16 * scale)],
+              fill=(108, 110, 124, 255))
+
+    for button_x, button_y, button_w, button_h, label in screen.get("buttons", ()):
+        draw_button(canvas, button_x, button_y, button_w, button_h, label, scale)
+
+    return canvas
+
+
 def render_screen(name, screen, scale=4, overlay=True):
+    if screen.get("style") == "widget":
+        return render_widget_screen(screen, scale)
+
     path = texture_path(screen["texture"])
     if not os.path.isfile(path):
         raise SystemExit(f"missing texture: {path}")
@@ -265,7 +324,7 @@ def save_sheet(name, screen, scale=4, overlay=True):
     sheet.alpha_composite(canvas, (0, bar))
     ImageDraw.Draw(sheet).text(
         (6, 5),
-        f"{name}  <-  textures/{screen['texture']}  ({scale}x)",
+        f"{name}  <-  {screen.get('texture', 'drawn from the kit')}  ({scale}x)",
         fill=(230, 230, 235, 255),
         font=header,
     )
@@ -395,8 +454,54 @@ def modal_colour(image):
     return colour, count / (image.size[0] * image.size[1])
 
 
+def check_text_lines(where, screen, occupied, report, langs):
+    for label, tx, ty, width, key in screen["text"]:
+        band = (tx, ty, tx + width, ty + 8)
+        for tag, x0, y0, x1, y1 in occupied:
+            if band[0] <= x1 and x0 <= band[2] and band[1] <= y1 and y0 <= band[3]:
+                report.error(where, f"text line '{label}' overlaps slot {tag}")
+
+        # key is None for lines the Gui builds without a lang string (e.g. "42%").
+        if key is None:
+            candidates = [(label, TEXT_SAMPLES.get(label, ""))]
+        else:
+            candidates = []
+            for lang_name, values in langs.items():
+                template = values.get(key)
+                if template is None:
+                    continue
+                sample = TEXT_SAMPLES.get(key, "")
+                try:
+                    candidates.append((lang_name, template % sample if "%" in template else template))
+                except (TypeError, ValueError):
+                    candidates.append((lang_name, template))
+
+        for source, rendered in candidates:
+            measured = mc_text_width(rendered)
+            if measured > width:
+                report.warn(
+                    where,
+                    f"{source} '{key or label}' is ~{measured}px wide, text line '{label}' has {width}px: "
+                    f"\"{rendered}\"",
+                )
+
+
+
+
 def check_screen(name, screen, report, langs):
     where = name
+    if screen.get("style") == "widget":
+        occupied = []
+        for group, slots in screen["groups"]:
+            for index, (sx, sy) in enumerate(slots):
+                x0, y0, x1, y1 = slot_rect(sx, sy)
+                occupied.append((f"{group}{index} @({sx},{sy})", x0, y0, x1, y1))
+                for button in screen.get("buttons", ()):
+                    bx, by, bw, bh = button[0], button[1], button[2], button[3]
+                    if x0 <= bx + bw and bx <= x1 and y0 <= by + bh and by <= y1:
+                        report.error(where, f"button {button[4]} at ({bx},{by}) overlaps {group}{index}")
+        check_text_lines(where, screen, occupied, report, langs)
+        return
     path = texture_path(screen["texture"])
     if not os.path.isfile(path):
         report.error(where, f"texture missing: textures/{screen['texture']}")
@@ -466,35 +571,7 @@ def check_screen(name, screen, report, langs):
             if ax0 <= bx1 and bx0 <= ax1 and ay0 <= by1 and by0 <= ay1:
                 report.error(where, f"slots overlap: {tag_a} and {tag_b}")
 
-    for label, tx, ty, width, key in screen["text"]:
-        band = (tx, ty, tx + width, ty + 8)
-        for tag, x0, y0, x1, y1 in occupied:
-            if band[0] <= x1 and x0 <= band[2] and band[1] <= y1 and y0 <= band[3]:
-                report.error(where, f"text line '{label}' overlaps slot {tag}")
-
-        # key is None for lines the Gui builds without a lang string (e.g. "42%").
-        if key is None:
-            candidates = [(label, TEXT_SAMPLES.get(label, ""))]
-        else:
-            candidates = []
-            for lang_name, values in langs.items():
-                template = values.get(key)
-                if template is None:
-                    continue
-                sample = TEXT_SAMPLES.get(key, "")
-                try:
-                    candidates.append((lang_name, template % sample if "%" in template else template))
-                except (TypeError, ValueError):
-                    candidates.append((lang_name, template))
-
-        for source, rendered in candidates:
-            measured = mc_text_width(rendered)
-            if measured > width:
-                report.warn(
-                    where,
-                    f"{source} '{key or label}' is ~{measured}px wide, text line '{label}' has {width}px: "
-                    f"\"{rendered}\"",
-                )
+    check_text_lines(where, screen, occupied, report, langs)
 
 
 def check_lang(report):
