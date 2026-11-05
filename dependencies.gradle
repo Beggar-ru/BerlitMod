@@ -48,6 +48,7 @@ dependencies {
 
     compileOnly files("libs/appliedenergistics2-rv3-beta-6.jar")
     compileOnly files("libs/avaritia-1.13.jar")
+    compileOnly files("libs/extracells-1.7.10-2.3.14b200.jar")
     devOnlyNonPublishable(rfg.deobf(files("libs/appliedenergistics2-rv3-beta-6.jar")))
     devOnlyNonPublishable(rfg.deobf(files("libs/avaritia-1.13.jar")))
 

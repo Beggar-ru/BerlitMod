@@ -184,8 +184,10 @@ public class Berlit {
             infinityCell = new ru.beggar.berlit.ae2.ItemInfinityCell();
             GameRegistry.registerItem(infinityCell, "infinity_cell");
 
-            infinityFluidCell = new ru.beggar.berlit.ae2.ItemInfinityFluidCell();
-            GameRegistry.registerItem(infinityFluidCell, "infinity_fluid_cell");
+            if (cpw.mods.fml.common.Loader.isModLoaded("extracells")) {
+                infinityFluidCell = new ru.beggar.berlit.ae2.ItemInfinityFluidCell();
+                GameRegistry.registerItem(infinityFluidCell, "infinity_fluid_cell");
+            }
 
             singularityEncoder = new ru.beggar.berlit.ae2.BlockSingularityEncoder();
             GameRegistry.registerBlock(singularityEncoder, "berlit.singularity_encoder");
@@ -462,17 +464,19 @@ public class Berlit {
             'I',
             Items.iron_ingot);
 
-        GameRegistry.addRecipe(
-            new ItemStack(infinityFluidCell),
-            "GNG",
-            "NIN",
-            "GNG",
-            'G',
-            Blocks.glass,
-            'N',
-            Items.nether_star,
-            'I',
-            Items.iron_ingot);
+        if (cpw.mods.fml.common.Loader.isModLoaded("extracells")) {
+            GameRegistry.addRecipe(
+                new ItemStack(infinityFluidCell),
+                "GNG",
+                "NIN",
+                "GNG",
+                'G',
+                Blocks.glass,
+                'N',
+                Items.nether_star,
+                'I',
+                Items.iron_ingot);
+        }
         GameRegistry.addShapelessRecipe(new ItemStack(stackUpgrade), Items.paper, Blocks.chest, Items.redstone);
 
         GameRegistry
@@ -492,12 +496,6 @@ public class Berlit {
     @Mod.EventHandler
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {
-        if (cpw.mods.fml.common.Loader.isModLoaded("appliedenergistics2")) {
-            appeng.api.AEApi.instance()
-                .registries()
-                .cell()
-                .addCellHandler(new ru.beggar.berlit.ae2.InfinityCellHandler());
-        }
         proxy.postInit(event);
     }
 

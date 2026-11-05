@@ -24,7 +24,7 @@ public class ItemInfinityCell extends Item implements IStorageCell {
 
     @Override
     public int getBytes(ItemStack cell) {
-        return Integer.MAX_VALUE;
+        return 100000000;
     }
 
     @Override
