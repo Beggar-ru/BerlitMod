@@ -79,6 +79,10 @@ public class Berlit {
     public static ru.beggar.berlit.ae2.BlockAvaritiaAssembler avaritiaAssembler;
     public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
     public static ru.beggar.berlit.machine.BlockNeutronCompressor neutronCompressor;
+    public static ru.beggar.berlit.item.ItemEasterCoin easterCoin;
+    public static ru.beggar.berlit.item.ItemGarlic garlic;
+    public static ru.beggar.berlit.item.ItemGreenJacket greenJacket;
+    public static ru.beggar.berlit.block.BlockGarlicCrop garlicCrop;
     public static ItemStackUpgrade stackUpgrade;
     public static ru.beggar.berlit.ae2.ItemAvaritiaPattern avaritiaPattern;
     public static ru.beggar.berlit.ae2.ItemSingularityPattern singularityPattern;
@@ -189,6 +193,23 @@ public class Berlit {
                 ru.beggar.berlit.machine.TileEntityNeutronCompressor.class,
                 "berlit:neutron_compressor");
         }
+        stackUpgrade = new ItemStackUpgrade();
+        GameRegistry.registerItem(stackUpgrade, "stack_upgrade");
+
+        easterCoin = new ru.beggar.berlit.item.ItemEasterCoin();
+        GameRegistry.registerItem(easterCoin, "easter_coin");
+
+        garlic = new ru.beggar.berlit.item.ItemGarlic();
+        GameRegistry.registerItem(garlic, "garlic");
+
+        net.minecraft.item.ItemArmor.ArmorMaterial jacketMaterial = net.minecraftforge.common.util.EnumHelper
+            .addArmorMaterial("BERLIT_JACKET", 33, new int[] { 0, 0, 20, 0 }, 10);
+        greenJacket = new ru.beggar.berlit.item.ItemGreenJacket(jacketMaterial);
+        GameRegistry.registerItem(greenJacket, "green_jacket");
+
+        garlicCrop = new ru.beggar.berlit.block.BlockGarlicCrop();
+        GameRegistry.registerBlock(garlicCrop, "berlit.garlic_crop");
+
         ModNetwork.init();
 
         proxy.preInit(event);
@@ -415,6 +436,12 @@ public class Berlit {
                 Blocks.piston);
         }
 
+        GameRegistry.addShapelessRecipe(new ItemStack(easterCoin), Items.gold_ingot, Items.redstone);
+        GameRegistry.addShapelessRecipe(
+            new ItemStack(greenJacket),
+            Items.leather,
+            Items.leather,
+            new ItemStack(Items.dye, 1, 2));
         GameRegistry.addShapelessRecipe(new ItemStack(stackUpgrade), Items.paper, Blocks.chest, Items.redstone);
 
         GameRegistry
