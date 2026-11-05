@@ -11,18 +11,33 @@ import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.ISaveProvider;
 import appeng.api.storage.StorageChannel;
 
-/** Registers the two infinite cells with AE2. */
+/** Registers the infinite fluid cell with AE2. */
 public class InfinityCellHandler implements ICellHandler {
+
+    /**
+     * The fluid cell implements the ExtraCells API, so referencing its class directly makes the whole mod fail to load
+     * on packs without ExtraCells (NoClassDefFoundError during constructMod). Compare the class name instead: nothing
+     * is resolved unless an actual fluid cell is seen.
+     */
+    private static final String FLUID_CELL_CLASS = "ru.beggar.berlit.ae2.ItemInfinityFluidCell";
+
+    private static boolean isFluidCell(ItemStack stack) {
+        if (stack == null || stack.getItem() == null) return false;
+        return FLUID_CELL_CLASS.equals(
+            stack.getItem()
+                .getClass()
+                .getName());
+    }
 
     @Override
     public boolean isCell(ItemStack stack) {
-        return stack != null && stack.getItem() instanceof ItemInfinityFluidCell;
+        return isFluidCell(stack);
     }
 
     @Override
     public IMEInventoryHandler getCellInventory(ItemStack stack, ISaveProvider saver, StorageChannel channel) {
         if (stack == null) return null;
-        if (channel == StorageChannel.FLUIDS && stack.getItem() instanceof ItemInfinityFluidCell) {
+        if (channel == StorageChannel.FLUIDS && isFluidCell(stack)) {
             return new InfinityFluidInventory(stack, saver);
         }
         return null;

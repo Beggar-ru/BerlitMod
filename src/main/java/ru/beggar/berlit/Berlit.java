@@ -197,8 +197,15 @@ public class Berlit {
             GameRegistry.registerItem(infinityCell, "infinity_cell");
 
             if (cpw.mods.fml.common.Loader.isModLoaded("extracells")) {
-                infinityFluidCell = new ru.beggar.berlit.ae2.ItemInfinityFluidCell();
-                GameRegistry.registerItem(infinityFluidCell, "infinity_fluid_cell");
+                // Build the fluid cell reflectively: a direct reference to the class would pull in the
+                // ExtraCells API while Berlit itself is verified, crashing every pack without ExtraCells.
+                try {
+                    Class<?> cellClass = Class.forName("ru.beggar.berlit.ae2.ItemInfinityFluidCell");
+                    infinityFluidCell = (net.minecraft.item.Item) cellClass.newInstance();
+                    GameRegistry.registerItem(infinityFluidCell, "infinity_fluid_cell");
+                } catch (Throwable throwable) {
+                    LOG.warn("ExtraCells is present but the infinity fluid cell could not be created", throwable);
+                }
             }
 
             singularityEncoder = new ru.beggar.berlit.ae2.BlockSingularityEncoder();
