@@ -1,6 +1,7 @@
 package ru.beggar.berlit.ae2;
 
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -11,6 +12,8 @@ import ru.beggar.berlit.Berlit;
 
 /** Infinity item cell: standard AE2 cell with 63 types and a very large byte capacity. */
 public class ItemInfinityCell extends Item implements IStorageCell {
+
+    private static final IInventory EMPTY = new InventoryBasic("berlit_cell", false, 1);
 
     public ItemInfinityCell() {
         setUnlocalizedName("berlit.infinity_cell");
@@ -66,12 +69,12 @@ public class ItemInfinityCell extends Item implements IStorageCell {
 
     @Override
     public IInventory getUpgradesInventory(ItemStack cell) {
-        return null;
+        return EMPTY;
     }
 
     @Override
     public IInventory getConfigInventory(ItemStack cell) {
-        return null;
+        return EMPTY;
     }
 
     @Override
