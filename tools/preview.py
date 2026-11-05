@@ -225,6 +225,14 @@ def render_widget_screen(screen, scale):
     for x, y, width, height in screen["panels"]:
         canvas.alpha_composite(
             nine_slice(panel_tile, width * scale, height * scale, panel_inset * scale), (x * scale, y * scale))
+        # the Gui lays a gradient over the flat 9-slice interior
+        inner = Image.new("RGBA", ((width - 12) * scale, (height - 12) * scale), (0, 0, 0, 0))
+        inner_draw = ImageDraw.Draw(inner)
+        rows = inner.size[1]
+        for row in range(rows):
+            alpha = int(60 * row / max(1, rows - 1))
+            inner_draw.line([(0, row), (inner.size[0], row)], fill=(0, 0, 0, alpha))
+        canvas.alpha_composite(inner, ((x + 6) * scale, (y + 6) * scale))
 
     cell_x, cell_y, cell_size, _cell_inset = screen["kit"]["cell"]
     cell = kit.crop((cell_x, cell_y, cell_x + cell_size, cell_y + cell_size))
@@ -235,8 +243,10 @@ def render_widget_screen(screen, scale):
 
     from PIL import ImageDraw as _ImageDraw
     draw = _ImageDraw.Draw(canvas)
+    draw.line([(8 * scale, 15 * scale), ((screen["panels"][0][2] - 9) * scale, 15 * scale)],
+              fill=(44, 140, 138, 255))
     draw.line([(8 * scale, 16 * scale), ((screen["panels"][0][2] - 9) * scale, 16 * scale)],
-              fill=(108, 110, 124, 255))
+              fill=(56, 104, 104, 255))
 
     for button_x, button_y, button_w, button_h, label in screen.get("buttons", ()):
         draw_button(canvas, button_x, button_y, button_w, button_h, label, scale)

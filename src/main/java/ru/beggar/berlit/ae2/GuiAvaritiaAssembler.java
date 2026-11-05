@@ -81,15 +81,12 @@ public class GuiAvaritiaAssembler extends BerlitGui {
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
 
-        GuiKit.PANEL.draw(zLevel, x, y, AssemblerLayout.WIDTH, AssemblerLayout.CONTENT_HEIGHT);
-        GuiKit.PANEL.draw(
-            zLevel,
-            x,
-            y + AssemblerLayout.INVENTORY_TOP,
-            AssemblerLayout.WIDTH,
-            AssemblerLayout.INVENTORY_HEIGHT);
+        drawPanel(x, y, AssemblerLayout.WIDTH, AssemblerLayout.CONTENT_HEIGHT);
+        drawPanel(x, y + AssemblerLayout.INVENTORY_TOP, AssemblerLayout.WIDTH, AssemblerLayout.INVENTORY_HEIGHT);
 
-        drawHairline(x + 8, y + 16, AssemblerLayout.WIDTH - 17);
+        // cyan rule under the title, like the machine panels
+        drawRect(x + 8, y + 15, x + AssemblerLayout.WIDTH - 9, y + 16, 0xFF2C8C8A);
+        drawRect(x + 8, y + 16, x + AssemblerLayout.WIDTH - 9, y + 17, 0xFF386868);
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
@@ -116,7 +113,9 @@ public class GuiAvaritiaAssembler extends BerlitGui {
         GuiKit.CELL.drawSprite(zLevel, slotX - 1, slotY - 1, AssemblerLayout.SLOT, AssemblerLayout.SLOT);
     }
 
-    private void drawHairline(int x, int y, int width) {
-        drawRect(x, y, x + width, y + 1, 0xFF6C6E7C);
+    /** 9-slice panel plus a subtle top-to-bottom darkening, matching the machine panels. */
+    private void drawPanel(int x, int y, int width, int height) {
+        GuiKit.PANEL.draw(zLevel, x, y, width, height);
+        drawGradientRect(x + 6, y + 6, x + width - 6, y + height - 6, 0x00000000, 0x3C000000);
     }
 }
