@@ -46,7 +46,7 @@ public class NineSliceButton extends GuiButton {
         }
 
         if (icon != null) {
-            drawDisk(mc, hovered);
+            drawIcon(hovered);
             return;
         }
 
@@ -58,27 +58,53 @@ public class NineSliceButton extends GuiButton {
             enabled ? TEXT : TEXT_DISABLED);
     }
 
-    /** 10x10 floppy glyph, kept pixel-sized so it stays crisp. */
-    private void drawDisk(Minecraft mc, boolean hovered) {
-        int iconSize = 10;
-        int iconX = xPosition + (width - iconSize) / 2;
-        int iconY = yPosition + (height - iconSize) / 2;
+    private void drawIcon(boolean hovered) {
+        int size = 10;
+        int iconX = xPosition + (width - size) / 2;
+        int iconY = yPosition + (height - size) / 2;
 
+        if ("disk".equals(icon)) {
+            drawDisk(iconX, iconY, size);
+        } else if ("one".equals(icon)) {
+            drawCube(iconX + 1, iconY + 1, 8);
+        } else if ("stack".equals(icon)) {
+            drawCube(iconX, iconY + 4, 6);
+            drawCube(iconX + 1, iconY + 2, 6);
+            drawCube(iconX + 2, iconY, 6);
+        }
+
+        if (hovered) {
+            drawRect(iconX, iconY, iconX + size, iconY + 1, 0xFFFFFFFF);
+        }
+    }
+
+    /** 10x10 floppy glyph, kept pixel-sized so it stays crisp. */
+    private void drawDisk(int iconX, int iconY, int size) {
         int body = enabled ? 0xFFC8CDD8 : 0xFF707885;
         int edge = 0xFF8A92A2;
         int shutter = 0xFF3A4050;
         int label = 0xFF6E7688;
 
-        drawRect(iconX, iconY, iconX + iconSize, iconY + iconSize, body);
-        drawRect(iconX, iconY, iconX + iconSize, iconY + 1, edge);
-        drawRect(iconX, iconY + iconSize - 1, iconX + iconSize, iconY + iconSize, edge);
-        drawRect(iconX, iconY, iconX + 1, iconY + iconSize, edge);
-        drawRect(iconX + iconSize - 1, iconY, iconX + iconSize, iconY + iconSize, edge);
+        drawRect(iconX, iconY, iconX + size, iconY + size, body);
+        drawRect(iconX, iconY, iconX + size, iconY + 1, edge);
+        drawRect(iconX, iconY + size - 1, iconX + size, iconY + size, edge);
+        drawRect(iconX, iconY, iconX + 1, iconY + size, edge);
+        drawRect(iconX + size - 1, iconY, iconX + size, iconY + size, edge);
         drawRect(iconX + 2, iconY + 1, iconX + 7, iconY + 4, shutter);
-        drawRect(iconX + 2, iconY + 6, iconX + iconSize - 2, iconY + iconSize - 2, label);
+        drawRect(iconX + 2, iconY + 6, iconX + 7, iconY + size - 2, label);
+    }
 
-        if (hovered) {
-            drawRect(iconX, iconY, iconX + iconSize, iconY + 1, 0xFFFFFFFF);
-        }
+    /** Small isometric cube; several of them read as a stack. */
+    private void drawCube(int x, int y, int size) {
+        int face = enabled ? 0xFFC8CDD8 : 0xFF707885;
+        int shade = enabled ? 0xFF8A92A2 : 0xFF5C6472;
+        int edge = enabled ? 0xFF5A6272 : 0xFF474E5A;
+
+        drawRect(x, y, x + size, y + size, face);
+        drawRect(x, y, x + size, y + size / 2, shade);
+        drawRect(x, y, x + size, y + 1, edge);
+        drawRect(x, y + size - 1, x + size, y + size, edge);
+        drawRect(x, y, x + 1, y + size, edge);
+        drawRect(x + size - 1, y, x + size, y + size, edge);
     }
 }

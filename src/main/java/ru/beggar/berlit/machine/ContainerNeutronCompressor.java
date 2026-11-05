@@ -12,29 +12,38 @@ public class ContainerNeutronCompressor extends Container {
 
     public ContainerNeutronCompressor(InventoryPlayer playerInventory, TileEntityNeutronCompressor tile) {
         this.tile = tile;
-        addSlotToContainer(new Slot(tile, TileEntityNeutronCompressor.INPUT, 44, 20) {
+        addSlotToContainer(
+            new Slot(tile, TileEntityNeutronCompressor.INPUT, CompressorLayout.INPUT_X, CompressorLayout.SLOT_Y) {
 
-            @Override
-            public int getSlotStackLimit() {
-                return 4096;
-            }
-        });
-        addSlotToContainer(new Slot(tile, TileEntityNeutronCompressor.PATTERN, 80, 20));
-        addSlotToContainer(new Slot(tile, TileEntityNeutronCompressor.OUTPUT, 116, 20) {
+                @Override
+                public int getSlotStackLimit() {
+                    return 4096;
+                }
+            });
+        addSlotToContainer(
+            new Slot(tile, TileEntityNeutronCompressor.PATTERN, CompressorLayout.PATTERN_X, CompressorLayout.SLOT_Y));
+        addSlotToContainer(
+            new Slot(tile, TileEntityNeutronCompressor.OUTPUT, CompressorLayout.OUTPUT_X, CompressorLayout.SLOT_Y) {
 
-            @Override
-            public boolean isItemValid(ItemStack stack) {
-                return false;
-            }
-        });
+                @Override
+                public boolean isItemValid(ItemStack stack) {
+                    return false;
+                }
+            });
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 116 + row * 18));
+                addSlotToContainer(
+                    new Slot(
+                        playerInventory,
+                        col + row * 9 + 9,
+                        CompressorLayout.PLAYER_X + col * 18,
+                        CompressorLayout.PLAYER_TOP + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(playerInventory, col, 8 + col * 18, 172));
+            addSlotToContainer(
+                new Slot(playerInventory, col, CompressorLayout.PLAYER_X + col * 18, CompressorLayout.HOTBAR_Y));
         }
     }
 

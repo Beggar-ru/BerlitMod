@@ -40,7 +40,7 @@ from gui_layout import NEI_PAGES, SCREENS, SLOT  # noqa: E402
 
 # Vanilla ships these; they are not expected in the mod's own lang files.
 VANILLA_KEYS = {"container.inventory"}
-from gui_theme import TILE as SLOT_TILE, TILE_CELL  # noqa: E402
+from gui_theme import TILE as SLOT_TILE  # noqa: E402
 
 
 # Placeholder substituted into lang strings before measuring their width.
@@ -159,6 +159,26 @@ def draw_disk(canvas, origin_x, origin_y, scale):
             put(ix, iy, label)
 
 
+def draw_cube(canvas, x, y, size, scale):
+    """Same cube the NineSliceButton draws: lighter top half, darker bottom, 1px edge."""
+    from PIL import ImageDraw as _ImageDraw
+
+    draw = _ImageDraw.Draw(canvas)
+    face = (200, 205, 214, 255)
+    shade = (138, 146, 162, 255)
+    edge = (90, 98, 114, 255)
+
+    def rect(x0, y0, x1, y1, colour):
+        draw.rectangle([x0 * scale, y0 * scale, x1 * scale - 1, y1 * scale - 1], fill=colour)
+
+    rect(x, y, x + size, y + size, face)
+    rect(x, y, x + size, y + size // 2, shade)
+    rect(x, y, x + size, y + 1, edge)
+    rect(x, y + size - 1, x + size, y + size, edge)
+    rect(x, y, x + 1, y + size, edge)
+    rect(x + size - 1, y, x + size, y + size, edge)
+
+
 def draw_button(canvas, x, y, width, height, label, scale):
     """Same look as ThemedButton: dark plate, cyan border, glyph or text."""
     from PIL import ImageDraw as _ImageDraw
@@ -178,6 +198,14 @@ def draw_button(canvas, x, y, width, height, label, scale):
 
     if label == "disk":
         draw_disk(canvas, x + (width - 10) // 2, y + (height - 10) // 2, scale)
+    elif label == "one":
+        draw_cube(canvas, x + (width - 8) // 2, y + (height - 8) // 2, 8, scale)
+    elif label == "stack":
+        base_x = x + (width - 8) // 2
+        base_y = y + (height - 8) // 2
+        draw_cube(canvas, base_x, base_y + 4, 6, scale)
+        draw_cube(canvas, base_x + 1, base_y + 2, 6, scale)
+        draw_cube(canvas, base_x + 2, base_y, 6, scale)
     else:
         glyph = font(max(8, scale * 4))
         width_px = draw.textlength(label, font=glyph)
@@ -577,7 +605,7 @@ def check_screen(name, screen, report, langs):
 
             # Compare the whole 18x18 slot area with the tile the generator pastes.
             # Any mismatch means the texture and the Container coordinates disagree.
-            expected = TILE_CELL if screen.get("variant") == "flat" else SLOT_TILE
+            expected = SLOT_TILE
             region = rgba.crop((x0, y0, x0 + SLOT, y0 + SLOT))
             mismatched = sum(
                 1

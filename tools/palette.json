@@ -1,0 +1,59 @@
+{
+  "_comment": "Berlit UI palette. Single source of truth: tools/gui_theme.py and tools/gen_kit.py read it, tools/gen_theme_java.py regenerates src/main/java/ru/beggar/berlit/gui/GuiTheme.java. Run: python tools/gen_theme_java.py",
+  "panel": {
+    "top": "#363B48",
+    "bottom": "#262A34"
+  },
+  "frame": {
+    "outer": "#0C0E12",
+    "cyan": "#2C8C8A",
+    "light": "#6FE9E0",
+    "shadow_top": "#242832",
+    "shadow_bottom": "#2C303C",
+    "glow_bottom": "#464D5C",
+    "glow_right": "#3A404E",
+    "rule": "#386868"
+  },
+  "slot": {
+    "fill": "#23272F",
+    "edge_dark": "#12151A",
+    "edge_light": "#3C4352"
+  },
+  "cell": {
+    "fill": "#3A3F4B",
+    "edge_dark": "#1E222A",
+    "edge_light": "#566074"
+  },
+  "button": {
+    "fill": "#323A48",
+    "fill_hover": "#3F4A5C",
+    "fill_disabled": "#23272F",
+    "highlight": "#4A5568",
+    "border": "#2C8C8A",
+    "border_hover": "#6FE9E0"
+  },
+  "progress": {
+    "trough": "#12151B",
+    "trough_edge": "#0C0E12",
+    "fill": "#4FD6CD",
+    "fill_edge": "#8CF6EE"
+  },
+  "text": {
+    "base": "#C8D2DE",
+    "title": "#E8F1F5",
+    "accent": "#6FE9E0",
+    "disabled": "#6B7382"
+  },
+  "tooltip": {
+    "fill": "#1C2028",
+    "edge": "#484F5E"
+  },
+  "edge": {
+    "dark": "#14171D",
+    "light": "#3D4454"
+  },
+  "plate": {
+    "base": "#21252E",
+    "dark": "#1C2028"
+  }
+}

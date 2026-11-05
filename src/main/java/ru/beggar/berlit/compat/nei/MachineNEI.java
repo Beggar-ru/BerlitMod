@@ -72,7 +72,7 @@ public class MachineNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/nei_spawner.png";
+        return "berlit:textures/gui/nei_page.png";
     }
 
     /** One mode per machine: the metal former no longer switches between recipes. */

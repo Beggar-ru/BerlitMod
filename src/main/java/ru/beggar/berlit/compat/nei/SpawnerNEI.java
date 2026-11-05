@@ -69,7 +69,7 @@ public class SpawnerNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/nei_spawner.png";
+        return "berlit:textures/gui/nei_page.png";
     }
 
     @Override

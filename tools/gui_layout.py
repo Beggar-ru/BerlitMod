@@ -188,14 +188,14 @@ SCREENS = {
         176,
         90,
         [
-            ("craft", grid(44, 20, 3, 3)),
+            ("craft", grid(44, 18, 3, 3)),
             ("player", inv_player(176, 90)[0]),
         ],
         [
             ("title", 8, 6, 160, "tile.berlit.avaritia_assembler.name"),
             inv_player(176, 90)[1],
         ],
-        buttons=[(148, 18, 22, 20, "C"), (148, 40, 22, 20, "64")],
+        buttons=[(140, 18, 22, 20, "one"), (140, 40, 22, 20, "stack")],
     ),
     "pattern_encoder": panel_screen(
         "gui/pattern_encoder.png",
@@ -230,9 +230,9 @@ SCREENS = {
         arrows=[(86, 28)],
         buttons=[(76, 40, 24, 20, "disk")],
     ),
-    "neutron_compressor": panel_screen(
-        "gui/neutron_compressor.png",
-        (176, 90),
+    "neutron_compressor": widget_screen(
+        176,
+        90,
         [
             ("input", [(44, 20)]),
             ("pattern", [(80, 20)]),
@@ -243,9 +243,7 @@ SCREENS = {
             ("title", 8, 6, 160, "tile.berlit.neutron_compressor.name"),
             inv_player(176, 90)[1],
         ],
-        recesses=[(42, 18, 134, 38)],
-        arrows=[(69, 28), (105, 28)],
-        buttons=[(148, 18, 22, 20, "C"), (148, 40, 22, 20, "64")],
+        buttons=[(140, 18, 22, 20, "one"), (140, 40, 22, 20, "stack")],
     ),
     "super_chest": panel_screen(
         "gui/super_chest.png",
@@ -267,9 +265,15 @@ SCREENS = {
 # PositionedStack coordinates in compat/nei/*NEI.java.
 NEI_PAGES = {
     "machines": {
-        "texture": "gui/nei_spawner.png",
+        "texture": "gui/nei_page.png",
         "page": (176, 166),
         "items": [(8, 20), (50, 20), (110, 20)],
+        "text": [(8, 6, 140)],
+    },
+    "compressor": {
+        "texture": "gui/nei_page.png",
+        "page": (176, 166),
+        "items": [(8, 20), (50, 20), (116, 20)],
         "text": [(8, 6, 140)],
     },
 }

@@ -15,27 +15,46 @@ from PIL import Image, ImageDraw
 from gui_layout import BAR_FRAME, BAR_TROUGH, SLOT
 
 # --- palette ---------------------------------------------------------------
+#
+# Colours come from tools/palette.json - the same file the Java constants are
+# generated from (tools/gen_theme_java.py), so a palette change lands everywhere.
 
-BG_TOP = (54, 59, 72)
-BG_BOTTOM = (38, 42, 52)
+import json
+import os
 
-FRAME_OUTER = (12, 14, 18)
-FRAME_CYAN = (44, 140, 138)
-FRAME_LIGHT = (111, 233, 224)
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "palette.json"), encoding="utf-8") as _handle:
+    PALETTE = json.load(_handle)
 
-PLATE = (33, 37, 46)
-PLATE_DARK = (28, 32, 40)
-EDGE_DARK = (20, 23, 29)
-EDGE_LIGHT = (61, 68, 84)
 
-SLOT_FILL = (35, 39, 47)
-SLOT_EDGE_DARK = (18, 21, 26)
-SLOT_EDGE_LIGHT = (60, 67, 82)
+def _colour(group, name):
+    value = PALETTE[group][name].lstrip("#")
+    return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
 
-TROUGH = (18, 21, 27)
-TROUGH_EDGE = (12, 14, 18)
-BAR_FILL = (79, 214, 205)     # matches GuiTheme.ACCENT at full brightness
-BAR_FILL_EDGE = (140, 246, 238)
+
+BG_TOP = _colour("panel", "top")
+BG_BOTTOM = _colour("panel", "bottom")
+
+FRAME_OUTER = _colour("frame", "outer")
+FRAME_CYAN = _colour("frame", "cyan")
+FRAME_LIGHT = _colour("frame", "light")
+FRAME_SHADOW_TOP = _colour("frame", "shadow_top")
+FRAME_SHADOW_BOTTOM = _colour("frame", "shadow_bottom")
+FRAME_GLOW_BOTTOM = _colour("frame", "glow_bottom")
+FRAME_GLOW_RIGHT = _colour("frame", "glow_right")
+
+PLATE = _colour("plate", "base")
+PLATE_DARK = _colour("plate", "dark")
+EDGE_DARK = _colour("edge", "dark")
+EDGE_LIGHT = _colour("edge", "light")
+
+SLOT_FILL = _colour("slot", "fill")
+SLOT_EDGE_DARK = _colour("slot", "edge_dark")
+SLOT_EDGE_LIGHT = _colour("slot", "edge_light")
+
+TROUGH = _colour("progress", "trough")
+TROUGH_EDGE = _colour("progress", "trough_edge")
+BAR_FILL = _colour("progress", "fill")
+BAR_FILL_EDGE = _colour("progress", "fill_edge")
 
 
 def lerp(a, b, t):
@@ -85,10 +104,10 @@ def draw_inner_shadow(image):
     """Two rows/columns of darkening just inside the frame: the panel reads recessed."""
     width, height = image.size
     draw = ImageDraw.Draw(image)
-    for offset, colour in ((4, (36, 40, 50)), (5, (44, 48, 60))):
+    for offset, colour in ((4, FRAME_SHADOW_TOP), (5, FRAME_SHADOW_BOTTOM)):
         draw.line([(4, offset), (width - 5, offset)], fill=colour + (255,))
         draw.line([(offset, 4), (offset, height - 5)], fill=colour + (255,))
-    for offset, colour in ((4, (70, 77, 92)), (5, (58, 64, 78))):
+    for offset, colour in ((4, FRAME_GLOW_BOTTOM), (5, FRAME_GLOW_RIGHT)):
         draw.line([(4, height - 1 - offset), (width - 5, height - 1 - offset)], fill=colour + (255,))
         draw.line([(width - 1 - offset, 4), (width - 1 - offset, height - 5)], fill=colour + (255,))
 
@@ -197,58 +216,3 @@ def draw_info_icon(image, box):
 def paste_slots(image, slots, offset_x=0, offset_y=0):
     for slot_x, slot_y in slots:
         image.alpha_composite(TILE, (slot_x - 1 - offset_x, slot_y - 1 - offset_y))
-
-# --- flat variant ----------------------------------------------------------
-#
-# A second look for the assembler: no double frame, no corner brackets, no bevel.
-# The panel is flat slate and every slot is a rounded cell with a light 1px frame,
-# matching the reference art.
-
-FLAT_BG = (46, 50, 60)
-FLAT_EDGE = (104, 110, 124)
-CELL_FILL = (53, 57, 68)
-CELL_EDGE = (152, 154, 162)
-
-
-def cell_tile():
-    """18x18 slot: light 1px frame, corners cut, flat interior."""
-    tile = Image.new("RGBA", (SLOT, SLOT), CELL_FILL + (255,))
-    draw = ImageDraw.Draw(tile)
-
-    draw.line([(1, 0), (SLOT - 2, 0)], fill=CELL_EDGE + (255,))
-    draw.line([(1, SLOT - 1), (SLOT - 2, SLOT - 1)], fill=CELL_EDGE + (255,))
-    draw.line([(0, 1), (0, SLOT - 2)], fill=CELL_EDGE + (255,))
-    draw.line([(SLOT - 1, 1), (SLOT - 1, SLOT - 2)], fill=CELL_EDGE + (255,))
-
-    # cut the four corners so the frame reads as rounded
-    for x, y in ((0, 0), (SLOT - 1, 0), (0, SLOT - 1), (SLOT - 1, SLOT - 1)):
-        draw.point((x, y), fill=FLAT_BG + (255,))
-    return tile
-
-
-TILE_CELL = cell_tile()
-
-
-def new_flat_panel(width, height):
-    """Flat panel with a single dim frame and cut corners."""
-    image = Image.new("RGBA", (width, height), FLAT_BG + (255,))
-    draw = ImageDraw.Draw(image)
-    draw.line([(1, 0), (width - 2, 0)], fill=FLAT_EDGE + (255,))
-    draw.line([(1, height - 1), (width - 2, height - 1)], fill=FLAT_EDGE + (255,))
-    draw.line([(0, 1), (0, height - 2)], fill=FLAT_EDGE + (255,))
-    draw.line([(width - 1, 1), (width - 1, height - 2)], fill=FLAT_EDGE + (255,))
-    for x, y in ((0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1)):
-        draw.point((x, y), fill=FLAT_BG + (255,))
-    return image
-
-
-def draw_title_rule(image):
-    """A single hairline under the title instead of a framed strip."""
-    width = image.size[0]
-    draw = ImageDraw.Draw(image)
-    draw.line([(8, 16), (width - 9, 16)], fill=FLAT_EDGE + (255,))
-
-
-def paste_cells(image, slots, offset_x=0, offset_y=0):
-    for slot_x, slot_y in slots:
-        image.alpha_composite(TILE_CELL, (slot_x - 1 - offset_x, slot_y - 1 - offset_y))

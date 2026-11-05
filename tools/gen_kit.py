@@ -22,21 +22,37 @@ from PIL import Image, ImageDraw
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "src", "main", "resources", "assets", "berlit", "textures", "gui", "kit.png")
 
-DARK_RIM = (12, 14, 18)
-CYAN = (44, 140, 138)
-CYAN_LIGHT = (111, 233, 224)
-SHADOW_1 = (36, 40, 50)
-SHADOW_2 = (44, 48, 60)
-FILL = (48, 52, 63)
+import json
 
-BUTTON_FILL = (50, 58, 72)
-BUTTON_HI = (74, 82, 100)
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "palette.json"), encoding="utf-8") as _handle:
+    PALETTE = json.load(_handle)
 
-CELL_FILL = (58, 63, 75)
-CELL_DARK = (30, 34, 42)
-CELL_LIGHT = (86, 96, 116)
 
-TOOLTIP_FILL = (28, 32, 40)
+def _colour(group, name):
+    value = PALETTE[group][name].lstrip("#")
+    return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
+
+
+DARK_RIM = _colour("frame", "outer")
+CYAN = _colour("frame", "cyan")
+CYAN_LIGHT = _colour("frame", "light")
+SHADOW_1 = _colour("frame", "shadow_top")
+SHADOW_2 = _colour("frame", "shadow_bottom")
+GLOW_1 = _colour("frame", "glow_bottom")
+GLOW_2 = _colour("frame", "glow_right")
+
+BUTTON_FILL = _colour("button", "fill")
+BUTTON_EDGE = _colour("button", "border")
+BUTTON_HI = _colour("button", "highlight")
+
+CELL_FILL = _colour("cell", "fill")
+CELL_DARK = _colour("cell", "edge_dark")
+CELL_LIGHT = _colour("cell", "edge_light")
+
+TOOLTIP_FILL = _colour("tooltip", "fill")
+TOOLTIP_EDGE = _colour("tooltip", "edge")
+
+FILL = (0, 0, 0)
 
 
 def draw_panel(image, x0, y0, size):
@@ -48,7 +64,7 @@ def draw_panel(image, x0, y0, size):
     """
     draw = ImageDraw.Draw(image)
     top_colours = (DARK_RIM, CYAN, CYAN, DARK_RIM, SHADOW_1, SHADOW_2)
-    bottom_colours = (DARK_RIM, CYAN, CYAN, DARK_RIM, (70, 77, 92), (58, 64, 78))
+    bottom_colours = (DARK_RIM, CYAN, CYAN, DARK_RIM, GLOW_1, GLOW_2)
 
     for offset in range(6):
         top = top_colours[offset]
@@ -66,7 +82,7 @@ def draw_panel(image, x0, y0, size):
 def draw_button(image, x0, y0, size):
     draw = ImageDraw.Draw(image)
     draw.rectangle([x0, y0, x0 + size - 1, y0 + size - 1], fill=BUTTON_FILL + (255,))
-    draw.rectangle([x0, y0, x0 + size - 1, y0 + size - 1], outline=CYAN + (255,))
+    draw.rectangle([x0, y0, x0 + size - 1, y0 + size - 1], outline=BUTTON_EDGE + (255,))
     draw.line([(x0 + 1, y0 + 1), (x0 + size - 2, y0 + 1)], fill=BUTTON_HI + (255,))
     draw.line([(x0 + 1, y0 + size - 2), (x0 + size - 2, y0 + size - 2)], fill=DARK_RIM + (255,))
 
@@ -84,7 +100,7 @@ def draw_tooltip(image, x0, y0, size):
     draw = ImageDraw.Draw(image)
     draw.rectangle([x0, y0, x0 + size - 1, y0 + size - 1], fill=TOOLTIP_FILL + (255,))
     draw.rectangle([x0, y0, x0 + size - 1, y0 + size - 1], outline=DARK_RIM + (255,))
-    draw.rectangle([x0 + 1, y0 + 1, x0 + size - 2, y0 + size - 2], outline=CYAN + (255,))
+    draw.rectangle([x0 + 1, y0 + 1, x0 + size - 2, y0 + size - 2], outline=TOOLTIP_EDGE + (255,))
 
 
 def main():

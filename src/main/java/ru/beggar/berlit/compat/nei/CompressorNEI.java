@@ -76,7 +76,7 @@ public class CompressorNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/neutron_compressor.png";
+        return "berlit:textures/gui/nei_page.png";
     }
 
     @Override
