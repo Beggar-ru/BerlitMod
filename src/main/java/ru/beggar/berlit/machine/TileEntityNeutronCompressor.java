@@ -49,7 +49,14 @@ public class TileEntityNeutronCompressor extends TileEntity
     private ItemStack pendingOutput;
     private IGridNode node;
 
+    /**
+     * AE2 grid features are server side only - createGridNode throws on the client, which used to
+     * crash the game as soon as the GUI synced its inventory. Client callers get null.
+     */
     private IGridNode getNode() {
+        if (worldObj != null && worldObj.isRemote) {
+            return null;
+        }
         if (node == null) {
             node = AEApi.instance()
                 .createGridNode(new GridBlock());
@@ -155,7 +162,8 @@ public class TileEntityNeutronCompressor extends TileEntity
 
     /** Own grid, or the grid of an adjacent AE2 block (e.g. ME Interface) if no cable. */
     private IGrid networkGrid() {
-        IGrid grid = getNode().getGrid();
+        IGridNode own = getNode();
+        IGrid grid = own == null ? null : own.getGrid();
         if (grid != null && grid.getCache(IStorageGrid.class) != null) return grid;
 
         for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
@@ -309,7 +317,10 @@ public class TileEntityNeutronCompressor extends TileEntity
     public void setInventorySlotContents(int slot, ItemStack stack) {
         inventory[slot] = stack;
         markDirty();
-        if (slot == PATTERN) notifyPatternChange();
+        // The client gets here while syncing the window contents; the grid event is server side.
+        if (slot == PATTERN && worldObj != null && !worldObj.isRemote) {
+            notifyPatternChange();
+        }
     }
 
     @Override

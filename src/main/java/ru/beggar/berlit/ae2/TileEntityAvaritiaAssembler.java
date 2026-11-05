@@ -45,7 +45,15 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     private final ItemStack[] patterns = new ItemStack[PATTERNS];
     private final java.util.List<ItemStack> pendingOutput = new java.util.ArrayList<ItemStack>();
 
+    /**
+     * AE2 grid features are server side only - calling createGridNode on the client throws
+     * "Grid features ... are server side only", which used to crash the game as soon as the GUI synced
+     * its inventory. Callers on the client get null and must tolerate it.
+     */
     private IGridNode getNode() {
+        if (worldObj != null && worldObj.isRemote) {
+            return null;
+        }
         if (node == null) {
             node = AEApi.instance()
                 .createGridNode(new Block());
@@ -198,7 +206,8 @@ public class TileEntityAvaritiaAssembler extends TileEntity
 
     /** Own grid, or the grid of an adjacent AE2 block (e.g. ME Interface) if no cable. */
     private IGrid networkGrid() {
-        IGrid grid = getNode().getGrid();
+        IGridNode own = getNode();
+        IGrid grid = own == null ? null : own.getGrid();
         if (grid != null && grid.getCache(IStorageGrid.class) != null) return grid;
 
         for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
@@ -298,7 +307,10 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     public void setInventorySlotContents(int slot, ItemStack stack) {
         patterns[slot] = stack;
         markDirty();
-        if (slot >= 0 && slot < PATTERNS) notifyPatternChange();
+        // The client gets here while syncing the window contents; the grid event is server side.
+        if (slot >= 0 && slot < PATTERNS && worldObj != null && !worldObj.isRemote) {
+            notifyPatternChange();
+        }
     }
 
     @Override
