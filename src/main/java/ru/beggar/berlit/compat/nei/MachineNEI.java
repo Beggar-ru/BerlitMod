@@ -32,13 +32,15 @@ public class MachineNEI extends TemplateRecipeHandler {
         private final PositionedStack machine;
         private final PositionedStack input;
         private final PositionedStack output;
+        private final int energy;
 
         public CachedMachineRecipe(MachineType type, int mode, MachineRecipe recipe) {
             this.type = type;
             this.mode = mode;
+            this.energy = recipe.getEnergy();
             this.machine = new PositionedStack(new ItemStack(Berlit.machineBlocks.get(type)), 8, 20);
-            this.input = new PositionedStack(recipe.getInput(), 50, 20);
-            this.output = new PositionedStack(recipe.getOutput(), 110, 20);
+            this.input = new PositionedStack(recipe.getInput(), 58, 20);
+            this.output = new PositionedStack(recipe.getOutput(), 112, 20);
         }
 
         @Override
@@ -146,5 +148,7 @@ public class MachineNEI extends TemplateRecipeHandler {
             8,
             6,
             0x404040);
+        Minecraft.getMinecraft().fontRenderer.drawString("->", 88, 22, 0x606060);
+        Minecraft.getMinecraft().fontRenderer.drawString("EU: " + cached.energy, 8, 48, 0x404040);
     }
 }

@@ -30,6 +30,7 @@ public class SpawnerNEI extends TemplateRecipeHandler {
 
         private final PositionedStack input;
         private final List<PositionedStack> outputs = new ArrayList<PositionedStack>();
+        private final List<EntityDrop> drops = new ArrayList<EntityDrop>();
 
         public CachedSpawnerRecipe(EntityDefinition definition) {
             this.input = new PositionedStack(ItemEntityCard.create(definition.getId()), 30, 20);
@@ -42,6 +43,7 @@ public class SpawnerNEI extends TemplateRecipeHandler {
                     10 + (index / 3) * 22);
 
                 outputs.add(stack);
+                drops.add(drop);
                 index++;
             }
         }
@@ -113,8 +115,8 @@ public class SpawnerNEI extends TemplateRecipeHandler {
         Minecraft minecraft = Minecraft.getMinecraft();
 
         int y = 62;
-        for (PositionedStack stack : cached.outputs) {
-            minecraft.fontRenderer.drawString(stack.getChance() + "%", 10, y, 0x404040);
+        for (EntityDrop drop : cached.drops) {
+            minecraft.fontRenderer.drawString(Math.round(drop.getChance() * 100.0F) + "%", 10, y, 0x404040);
             y += 10;
         }
     }
