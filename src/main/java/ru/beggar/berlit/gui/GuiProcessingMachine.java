@@ -48,7 +48,7 @@ public class GuiProcessingMachine extends BerlitGui {
         int y = (height - ySize) / 2 + MachineLayout.ARROW_Y;
         if (mouseX >= x && mouseX < x + 12 && mouseY >= y && mouseY < y + 12) {
             if (cpw.mods.fml.common.Loader.isModLoaded("NotEnoughItems")) {
-                codechicken.nei.recipe.GuiCraftingRecipe.openRecipeGui(
+                codechicken.nei.recipe.GuiUsageRecipe.openRecipeGui(
                     "item",
                     new net.minecraft.item.ItemStack(Berlit.machineBlocks.get(tile.getMachineType())));
             }
