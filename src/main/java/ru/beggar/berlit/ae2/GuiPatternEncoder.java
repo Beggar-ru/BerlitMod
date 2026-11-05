@@ -27,6 +27,8 @@ public class GuiPatternEncoder extends BerlitGui {
     public GuiPatternEncoder(InventoryPlayer playerInventory, TileEntityPatternEncoder tile) {
         super(new ContainerPatternEncoder(playerInventory, tile), WIDTH, INVENTORY_TOP + 98);
         this.tile = tile;
+        this.textureWidth = 256;
+        this.textureHeight = 512;
     }
 
     @Override

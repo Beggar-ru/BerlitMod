@@ -19,6 +19,8 @@ public class GuiSuperChest extends BerlitGui {
 
     public GuiSuperChest(InventoryPlayer playerInventory, TileEntitySuperChest tile) {
         super(new ContainerSuperChest(playerInventory, tile), WIDTH, INVENTORY_TOP + 98);
+        this.textureWidth = 512;
+        this.textureHeight = 512;
     }
 
     @Override

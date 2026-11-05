@@ -496,6 +496,27 @@ def check_java_references(report, langs):
                 report.error(f"lang/{lang_name}", f"missing key '{key}' used by the code")
 
 
+def check_uv_scaling(report):
+    """A screen whose texture is larger than 256 must set textureWidth/Height on its Gui.
+
+    drawTexturedModalRect divides UVs by 256, so a 256x512 or 512x512 GUI texture gets
+    tiled instead of sampled once unless the Gui uses BerlitGui.drawPanel with the real size.
+    """
+    sources = read_java_sources()
+    for name, screen in SCREENS.items():
+        canvas_w, canvas_h = screen["canvas"]
+        if canvas_w <= 256 and canvas_h <= 256:
+            continue
+        declared = any(
+            f"textureWidth = {canvas_w}" in text and f"textureHeight = {canvas_h}" in text
+            for text in sources.values())
+        if not declared:
+            report.error(
+                name,
+                f"canvas is {canvas_w}x{canvas_h}; set textureWidth = {canvas_w} and "
+                    + f"textureHeight = {canvas_h} in the Gui, otherwise the panel tiles")
+
+
 def check_nei(report):
     """NEI recipe pages: 176x166 backgrounds with fixed item/text positions."""
     for name, page in NEI_PAGES.items():
@@ -566,6 +587,7 @@ def cmd_check(args):
     check_java_references(report, langs)
     check_item_textures(report)
     check_nei(report)
+    check_uv_scaling(report)
     return report.print()
 
 

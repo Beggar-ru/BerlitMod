@@ -3,6 +3,7 @@ package ru.beggar.berlit.gui;
 import java.util.List;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.StatCollector;
 
@@ -52,9 +53,33 @@ public abstract class BerlitGui extends GuiContainer {
         this.ySize = height;
     }
 
+    /** Texture size of the screen; subclasses override it for 256x512 and 512x512 textures. */
+    protected int textureWidth = 256;
+    protected int textureHeight = 256;
+
     /** Draws a panel 1:1 from the texture at the coordinates the layout uses. */
     protected void drawPanel(int guiX, int guiY, int panelX, int panelY, int width, int height) {
-        drawTexturedModalRect(guiX + panelX, guiY + panelY, panelX, panelY, width, height);
+        drawTextureRegion(guiX + panelX, guiY + panelY, panelX, panelY, width, height, textureWidth, textureHeight);
+    }
+
+    /**
+     * Draws a region with UVs derived from the actual texture size.
+     *
+     * <p>
+     * {@code drawTexturedModalRect} hardcodes 1/256, so on a 256x512 texture it samples the wrong rows
+     * and on a 512x512 one it tiles the image four times.
+     */
+    protected void drawTextureRegion(int x, int y, int u, int v, int width, int height, int texWidth, int texHeight) {
+        float uvWidth = 1.0F / texWidth;
+        float uvHeight = 1.0F / texHeight;
+
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV(x, y + height, this.zLevel, u * uvWidth, (v + height) * uvHeight);
+        tessellator.addVertexWithUV(x + width, y + height, this.zLevel, (u + width) * uvWidth, (v + height) * uvHeight);
+        tessellator.addVertexWithUV(x + width, y, this.zLevel, (u + width) * uvWidth, v * uvHeight);
+        tessellator.addVertexWithUV(x, y, this.zLevel, u * uvWidth, v * uvHeight);
+        tessellator.draw();
     }
 
     /** Draws both panels; the gap between them stays transparent. */
