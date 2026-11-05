@@ -3,6 +3,8 @@ package ru.beggar.berlit.gui;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
 
+import org.lwjgl.opengl.GL11;
+
 /**
  * Draws a sub-rect of the UI kit as a 9-slice: corners stay 1:1, edges repeat in one axis and the middle
  * stretches, so a 24x24 tile becomes a panel of any size without new art.
@@ -45,6 +47,10 @@ public final class NineSlice {
         float uvHeight = 1.0F / textureHeight;
         int rightSource = u + size - inset;
         int bottomSource = v + size - inset;
+
+        // GL colour leaks between draw calls (drawRect leaves its own colour set), which would tint
+        // every textured quad - reset to white before drawing.
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();
@@ -117,6 +123,7 @@ public final class NineSlice {
 
     /** Draws a single kit sprite 1:1. */
     public void drawSprite(float z, int x, int y, int spriteWidth, int spriteHeight) {
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();
         quad(
