@@ -36,7 +36,9 @@
     "trough": "#12151B",
     "trough_edge": "#0C0E12",
     "fill": "#4FD6CD",
-    "fill_edge": "#8CF6EE"
+    "fill_edge": "#8CF6EE",
+    "frame": "#2E3340",
+    "frame_edge": "#14171D"
   },
   "text": {
     "base": "#C8D2DE",

@@ -103,12 +103,24 @@ def draw_tooltip(image, x0, y0, size):
     draw.rectangle([x0 + 1, y0 + 1, x0 + size - 2, y0 + size - 2], outline=TOOLTIP_EDGE + (255,))
 
 
+def draw_arrow(image, x0, y0):
+    """Two cyan chevrons pointing right, drawn between machine slots."""
+    draw = ImageDraw.Draw(image)
+    for offset in (0, 5):
+        for step in range(4):
+            draw.point((x0 + offset + step, y0 + 2 + step), fill=CYAN_LIGHT + (255,))
+            draw.point((x0 + offset + step, y0 + 9 - step), fill=CYAN_LIGHT + (255,))
+        draw.point((x0 + offset + 4, y0 + 5), fill=CYAN_LIGHT + (255,))
+        draw.point((x0 + offset + 4, y0 + 6), fill=CYAN_LIGHT + (255,))
+
+
 def main():
     image = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
     draw_panel(image, 0, 0, 24)
     draw_button(image, 24, 0, 16)
     draw_cell(image, 0, 24, 18)
     draw_tooltip(image, 24, 24, 24)
+    draw_arrow(image, 0, 48)
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     image.save(OUT)

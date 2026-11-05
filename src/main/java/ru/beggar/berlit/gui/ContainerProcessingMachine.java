@@ -11,7 +11,7 @@ import ru.beggar.berlit.upgrade.UpgradeHelper;
 
 public class ContainerProcessingMachine extends Container {
 
-    private static final int SLOT_SIZE = 18;
+    private static final int SLOT_SIZE = MachineLayout.SLOT;
 
     private final TileEntityProcessingMachine tile;
 
@@ -19,7 +19,12 @@ public class ContainerProcessingMachine extends Container {
         this.tile = tile;
 
         for (int i = 0; i < TileEntityProcessingMachine.SLOT_INPUT_COUNT; i++) {
-            addSlotToContainer(new Slot(tile, i, 38 + (i % 3) * SLOT_SIZE, 22 + (i / 3) * SLOT_SIZE));
+            addSlotToContainer(
+                new Slot(
+                    tile,
+                    i,
+                    MachineLayout.INPUT_X + (i % 3) * SLOT_SIZE,
+                    MachineLayout.INPUT_Y + (i / 3) * SLOT_SIZE));
         }
         for (int i = 0; i < TileEntityProcessingMachine.SLOT_OUTPUT_COUNT; i++) {
             addSlotToContainer(
@@ -37,7 +42,11 @@ public class ContainerProcessingMachine extends Container {
         }
         for (int i = 0; i < TileEntityProcessingMachine.SLOT_UPGRADE_COUNT; i++) {
             addSlotToContainer(
-                new Slot(tile, TileEntityProcessingMachine.SLOT_UPGRADE_START + i, 64 + i * SLOT_SIZE, 92) {
+                new Slot(
+                    tile,
+                    TileEntityProcessingMachine.SLOT_UPGRADE_START + i,
+                    MachineLayout.UPGRADE_X + i * SLOT_SIZE,
+                    MachineLayout.UPGRADE_Y) {
 
                     @Override
                     public boolean isItemValid(ItemStack stack) {
@@ -49,11 +58,16 @@ public class ContainerProcessingMachine extends Container {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlotToContainer(
-                    new Slot(playerInventory, col + row * 9 + 9, 20 + col * SLOT_SIZE, 166 + row * SLOT_SIZE));
+                    new Slot(
+                        playerInventory,
+                        col + row * 9 + 9,
+                        MachineLayout.PLAYER_X + col * SLOT_SIZE,
+                        MachineLayout.PLAYER_TOP + row * SLOT_SIZE));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(playerInventory, col, 20 + col * SLOT_SIZE, 222));
+            addSlotToContainer(
+                new Slot(playerInventory, col, MachineLayout.PLAYER_X + col * SLOT_SIZE, MachineLayout.HOTBAR_Y));
         }
     }
 

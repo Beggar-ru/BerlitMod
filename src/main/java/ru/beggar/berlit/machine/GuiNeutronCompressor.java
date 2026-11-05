@@ -83,8 +83,8 @@ public class GuiNeutronCompressor extends BerlitGui {
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
 
-        drawPanel(x, y, CompressorLayout.WIDTH, CompressorLayout.CONTENT_HEIGHT);
-        drawPanel(x, y + CompressorLayout.INVENTORY_TOP, CompressorLayout.WIDTH, CompressorLayout.INVENTORY_HEIGHT);
+        drawKitPanel(x, y, CompressorLayout.WIDTH, CompressorLayout.CONTENT_HEIGHT);
+        drawKitPanel(x, y + CompressorLayout.INVENTORY_TOP, CompressorLayout.WIDTH, CompressorLayout.INVENTORY_HEIGHT);
 
         drawRect(x + 8, y + 15, x + CompressorLayout.WIDTH - 9, y + 16, GuiTheme.FRAME_BORDER);
         drawRect(x + 8, y + 16, x + CompressorLayout.WIDTH - 9, y + 17, GuiTheme.FRAME_RULE);
@@ -92,6 +92,9 @@ public class GuiNeutronCompressor extends BerlitGui {
         drawCell(x, y, CompressorLayout.INPUT_X, CompressorLayout.SLOT_Y);
         drawCell(x, y, CompressorLayout.PATTERN_X, CompressorLayout.SLOT_Y);
         drawCell(x, y, CompressorLayout.OUTPUT_X, CompressorLayout.SLOT_Y);
+
+        drawArrow(x + CompressorLayout.ARROW_X1, y + CompressorLayout.ARROW_Y - 6);
+        drawArrow(x + CompressorLayout.ARROW_X2, y + CompressorLayout.ARROW_Y - 6);
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
@@ -107,24 +110,12 @@ public class GuiNeutronCompressor extends BerlitGui {
         }
     }
 
+    private void drawArrow(int x, int y) {
+        GuiKit.ARROW.drawSprite(zLevel, x, y, 12, 12);
+    }
+
     private void drawCell(int originX, int originY, int slotX, int slotY) {
         GuiKit.CELL
             .drawSprite(zLevel, originX + slotX - 1, originY + slotY - 1, CompressorLayout.SLOT, CompressorLayout.SLOT);
-    }
-
-    /** Same recipe as the machine panels: gradient, 9-slice frame ring, bright corner brackets. */
-    private void drawPanel(int x, int y, int width, int height) {
-        drawGradientRect(x, y, x + width, y + height, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
-        GuiKit.PANEL.draw(zLevel, x, y, width, height);
-        drawBracket(x + 4, y + 4, 1, 1);
-        drawBracket(x + width - 5, y + 4, -1, 1);
-        drawBracket(x + 4, y + height - 5, 1, -1);
-        drawBracket(x + width - 5, y + height - 5, -1, -1);
-    }
-
-    private void drawBracket(int x, int y, int dx, int dy) {
-        int arm = 14;
-        drawRect(Math.min(x, x + dx * arm), y, Math.max(x, x + dx * arm) + 1, y + 1, GuiTheme.FRAME_LIGHT);
-        drawRect(x, Math.min(y, y + dy * arm), x + 1, Math.max(y, y + dy * arm) + 1, GuiTheme.FRAME_LIGHT);
     }
 }

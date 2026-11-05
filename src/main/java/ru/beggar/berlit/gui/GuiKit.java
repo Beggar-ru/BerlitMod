@@ -13,6 +13,7 @@ import net.minecraft.util.ResourceLocation;
  *   (24, 0)  16x16 button  , 4px insets
  *   (0, 24)  18x18 cell    , drawn 1:1 per slot
  *   (24, 24) 24x24 tooltip , 8px insets
+ *   (0, 48)  12x12 arrow   , drawn 1:1 between slots
  * </pre>
  */
 public final class GuiKit {
@@ -23,6 +24,7 @@ public final class GuiKit {
     public static final NineSlice BUTTON = new NineSlice(KIT, 64, 64, 24, 0, 16, 4);
     public static final NineSlice CELL = new NineSlice(KIT, 64, 64, 0, 24, 18, 1);
     public static final NineSlice TOOLTIP = new NineSlice(KIT, 64, 64, 24, 24, 24, 8);
+    public static final NineSlice ARROW = new NineSlice(KIT, 64, 64, 0, 48, 12, 1);
 
     private GuiKit() {}
 }

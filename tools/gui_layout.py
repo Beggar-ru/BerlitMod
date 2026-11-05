@@ -107,7 +107,7 @@ def inv_player(width, height):
     return slots, label
 
 
-def widget_screen(width, height, groups, text, buttons=()):
+def widget_screen(width, height, groups, text, buttons=(), arrows=()):
     """Screen drawn at runtime from the 9-slice kit: no per-screen texture at all."""
     return {
         "style": "widget",
@@ -116,11 +116,35 @@ def widget_screen(width, height, groups, text, buttons=()):
         "groups": groups,
         "text": text,
         "buttons": buttons,
+        "arrows": list(arrows),
         "kit": {
             "texture": "gui/kit.png",
             "panel": (0, 0, 24, 8),
             "cell": (0, 24, 18, 1),
             "button": (24, 0, 16, 4),
+            "arrow": (0, 48, 12, 1),
+        },
+    }
+
+
+def machine_widget_screen(groups, text):
+    """Machine screen drawn from the kit: 200x140 panel with bar and info badge, plus inventory."""
+    return {
+        "style": "widget",
+        "canvas": (200, 246),
+        "panels": [(0, 0, 200, 140), (12, 148, 176, 98)],
+        "groups": groups,
+        "text": text,
+        "buttons": [],
+        "arrows": [(100, 40)],
+        "bar": (12, 62, 176, 12),
+        "info": (176, 116, 14),
+        "kit": {
+            "texture": "gui/kit.png",
+            "panel": (0, 0, 24, 8),
+            "cell": (0, 24, 18, 1),
+            "button": (24, 0, 16, 4),
+            "arrow": (0, 48, 12, 1),
         },
     }
 
@@ -140,8 +164,7 @@ INVENTORY_LABEL = ("inventory", MACHINE_INV_X + 8, 154, 160, "container.inventor
 
 SCREENS = {
     # --- our machines: wide panel + separate inventory ---------------------
-    "molecular_transformer": machine_screen(
-        "gui/molecular_transformer.png",
+    "molecular_transformer": machine_widget_screen(
         [
             ("input", grid(38, 22, 3, 2)),
             ("output", grid(110, 22, 3, 2)),
@@ -188,14 +211,14 @@ SCREENS = {
         176,
         90,
         [
-            ("craft", grid(44, 18, 3, 3)),
+            ("craft", grid(44, 22, 3, 3)),
             ("player", inv_player(176, 90)[0]),
         ],
         [
             ("title", 8, 6, 160, "tile.berlit.avaritia_assembler.name"),
             inv_player(176, 90)[1],
         ],
-        buttons=[(140, 18, 22, 20, "one"), (140, 40, 22, 20, "stack")],
+        buttons=[(140, 28, 22, 20, "one"), (140, 50, 22, 20, "stack")],
     ),
     "pattern_encoder": panel_screen(
         "gui/pattern_encoder.png",
@@ -234,16 +257,17 @@ SCREENS = {
         176,
         90,
         [
-            ("input", [(44, 20)]),
-            ("pattern", [(80, 20)]),
-            ("output", [(116, 20)]),
+            ("input", [(44, 40)]),
+            ("pattern", [(80, 40)]),
+            ("output", [(116, 40)]),
             ("player", inv_player(176, 90)[0]),
         ],
         [
             ("title", 8, 6, 160, "tile.berlit.neutron_compressor.name"),
             inv_player(176, 90)[1],
         ],
-        buttons=[(140, 18, 22, 20, "one"), (140, 40, 22, 20, "stack")],
+        buttons=[(140, 28, 22, 20, "one"), (140, 50, 22, 20, "stack")],
+        arrows=[(69, 49), (105, 49)],
     ),
     "super_chest": panel_screen(
         "gui/super_chest.png",

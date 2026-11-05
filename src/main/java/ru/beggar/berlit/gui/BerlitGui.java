@@ -82,6 +82,106 @@ public abstract class BerlitGui extends GuiContainer {
         tessellator.draw();
     }
 
+    /** Kit panel: machine gradient, 9-slice frame ring, 14px corner brackets. */
+    protected void drawKitPanel(int x, int y, int width, int height) {
+        drawGradientRect(x, y, x + width, y + height, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
+        GuiKit.PANEL.draw(zLevel, x, y, width, height);
+        drawBracket(x + 4, y + 4, 1, 1);
+        drawBracket(x + width - 5, y + 4, -1, 1);
+        drawBracket(x + 4, y + height - 5, 1, -1);
+        drawBracket(x + width - 5, y + height - 5, -1, -1);
+    }
+
+    protected void drawBracket(int x, int y, int dx, int dy) {
+        int arm = 14;
+        drawRect(Math.min(x, x + dx * arm), y, Math.max(x, x + dx * arm) + 1, y + 1, GuiTheme.FRAME_LIGHT);
+        drawRect(x, Math.min(y, y + dy * arm), x + 1, Math.max(y, y + dy * arm) + 1, GuiTheme.FRAME_LIGHT);
+    }
+
+    /** One 18x18 slot cell from the kit, at the slot's own coordinates. */
+    protected void drawKitCell(int x, int y, int slotX, int slotY) {
+        GuiKit.CELL.drawSprite(zLevel, x + slotX - 1, y + slotY - 1, MachineLayout.SLOT, MachineLayout.SLOT);
+    }
+
+    protected void drawKitArrow(int x, int y) {
+        GuiKit.ARROW.drawSprite(zLevel, x, y, 12, 12);
+    }
+
+    /** Progress bar frame and trough; the moving fill is drawn by {@link #drawProgressBar}. */
+    protected void drawProgressTrough(int x, int y) {
+        int fx = x + MachineLayout.BAR_X;
+        int fy = y + MachineLayout.BAR_Y;
+        drawRect(fx, fy, fx + MachineLayout.BAR_WIDTH, fy + MachineLayout.BAR_HEIGHT, GuiTheme.BAR_EDGE);
+        drawRect(
+            fx + 1,
+            fy + 1,
+            fx + MachineLayout.BAR_WIDTH - 1,
+            fy + MachineLayout.BAR_HEIGHT - 1,
+            GuiTheme.BAR_FRAME);
+        drawRect(fx + 1, fy + 1, fx + MachineLayout.BAR_WIDTH - 1, fy + 2, GuiTheme.BAR_FRAME);
+
+        int tx = x + MachineLayout.TROUGH_X;
+        int ty = y + MachineLayout.TROUGH_Y;
+        drawRect(tx, ty, tx + MachineLayout.TROUGH_WIDTH, ty + MachineLayout.TROUGH_HEIGHT, GuiTheme.BAR_TROUGH);
+        drawRect(tx, ty, tx + MachineLayout.TROUGH_WIDTH, ty + 1, GuiTheme.BAR_EDGE);
+    }
+
+    /** Small "i" badge; the tooltip itself comes from {@link #drawInfoTooltip}. */
+    protected void drawInfoBadge(int x, int y) {
+        int size = MachineLayout.INFO_SIZE;
+        drawRect(x, y, x + size, y + size, GuiTheme.BAR_EDGE);
+        drawRect(x + 1, y + 1, x + size - 1, y + size - 1, GuiTheme.PANEL_BOTTOM);
+        drawRect(x + 1, y + 1, x + size - 1, y + 2, GuiTheme.FRAME_BORDER);
+        drawRect(x + 1, y + size - 2, x + size - 1, y + size - 1, GuiTheme.BAR_EDGE);
+
+        int cx = x + size / 2;
+        drawRect(cx, y + 4, cx + 2, y + 6, GuiTheme.FRAME_LIGHT);
+        drawRect(cx, y + 7, cx + 2, y + size - 3, GuiTheme.FRAME_LIGHT);
+    }
+
+    /** Whole machine screen: both panels, every cell, the arrow, the bar trough and the info badge. */
+    protected void drawMachineFrame(int x, int y) {
+        drawKitPanel(x, y, MachineLayout.WIDTH, MachineLayout.CONTENT_HEIGHT);
+        drawKitPanel(x, y + MachineLayout.INVENTORY_TOP, MachineLayout.INVENTORY_WIDTH, MachineLayout.INVENTORY_HEIGHT);
+
+        drawRect(x + 8, y + 15, x + MachineLayout.WIDTH - 9, y + 16, GuiTheme.FRAME_BORDER);
+        drawRect(x + 8, y + 16, x + MachineLayout.WIDTH - 9, y + 17, GuiTheme.FRAME_RULE);
+
+        for (int row = 0; row < 2; row++) {
+            for (int col = 0; col < 3; col++) {
+                drawKitCell(
+                    x,
+                    y,
+                    MachineLayout.INPUT_X + col * MachineLayout.SLOT,
+                    MachineLayout.INPUT_Y + row * MachineLayout.SLOT);
+                drawKitCell(
+                    x,
+                    y,
+                    MachineLayout.OUTPUT_X + col * MachineLayout.SLOT,
+                    MachineLayout.OUTPUT_Y + row * MachineLayout.SLOT);
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            drawKitCell(x, y, MachineLayout.UPGRADE_X + i * MachineLayout.SLOT, MachineLayout.UPGRADE_Y);
+        }
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                drawKitCell(
+                    x,
+                    y,
+                    MachineLayout.PLAYER_X + col * MachineLayout.SLOT,
+                    MachineLayout.PLAYER_TOP + row * MachineLayout.SLOT);
+            }
+        }
+        for (int col = 0; col < 9; col++) {
+            drawKitCell(x, y, MachineLayout.PLAYER_X + col * MachineLayout.SLOT, MachineLayout.HOTBAR_Y);
+        }
+
+        drawKitArrow(x + MachineLayout.ARROW_X, y + MachineLayout.ARROW_Y);
+        drawProgressTrough(x, y);
+        drawInfoBadge(x + MachineLayout.INFO_X, y + MachineLayout.INFO_Y);
+    }
+
     /** Draws both panels; the gap between them stays transparent. */
     protected void drawPanels(int x, int y) {
         drawTexturedModalRect(x, y, 0, 0, PANEL_WIDTH, MACHINE_HEIGHT);

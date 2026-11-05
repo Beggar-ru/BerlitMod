@@ -47,6 +47,13 @@ public final class GuiTheme {{
     /** Frame highlight, matches gui_theme.FRAME_LIGHT. */
     public static final int FRAME_LIGHT = {frame_light};
 
+    /** Progress bar frame and trough. */
+    public static final int BAR_FRAME = {bar_frame};
+
+    public static final int BAR_EDGE = {bar_edge};
+
+    public static final int BAR_TROUGH = {bar_trough};
+
     /** Title rule under the header, dimmer than the frame. */
     public static final int FRAME_BORDER = {frame_border};
 
@@ -83,6 +90,9 @@ def main():
         button_border=argb(palette["button"]["border"]),
         frame_border=argb(palette["frame"]["cyan"]),
         frame_rule=argb(palette["frame"]["rule"]),
+        bar_frame=argb(palette["progress"]["frame"]),
+        bar_edge=argb(palette["progress"]["frame_edge"]),
+        bar_trough=argb(palette["progress"]["trough"]),
     )
 
     with open(OUT, "w", encoding="utf-8", newline="\n") as handle:

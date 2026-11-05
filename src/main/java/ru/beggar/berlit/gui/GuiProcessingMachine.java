@@ -3,7 +3,6 @@ package ru.beggar.berlit.gui;
 import java.util.Arrays;
 
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
@@ -11,9 +10,6 @@ import org.lwjgl.opengl.GL11;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 
 public class GuiProcessingMachine extends BerlitGui {
-
-    private static final ResourceLocation TEXTURE = new ResourceLocation(
-        "berlit:textures/gui/molecular_transformer.png");
 
     private final TileEntityProcessingMachine tile;
 
@@ -56,11 +52,11 @@ public class GuiProcessingMachine extends BerlitGui {
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager()
-            .bindTexture(TEXTURE);
+            .bindTexture(GuiKit.KIT);
 
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        drawPanels(x, y);
+        drawMachineFrame(x, y);
         drawProgressBar(x, y, tile.getProgressScaled(100));
     }
 }

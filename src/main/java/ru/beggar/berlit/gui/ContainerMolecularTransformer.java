@@ -11,13 +11,13 @@ import ru.beggar.berlit.upgrade.UpgradeHelper;
 
 public class ContainerMolecularTransformer extends Container {
 
-    private static final int SLOT_SIZE = 18;
-    private static final int INPUT_X = 38;
-    private static final int INPUT_Y = 22;
-    private static final int OUTPUT_X = 110;
-    private static final int OUTPUT_Y = 22;
-    private static final int UPGRADE_X = 64;
-    private static final int UPGRADE_Y = 92;
+    private static final int SLOT_SIZE = MachineLayout.SLOT;
+    private static final int INPUT_X = MachineLayout.INPUT_X;
+    private static final int INPUT_Y = MachineLayout.INPUT_Y;
+    private static final int OUTPUT_X = MachineLayout.OUTPUT_X;
+    private static final int OUTPUT_Y = MachineLayout.OUTPUT_Y;
+    private static final int UPGRADE_X = MachineLayout.UPGRADE_X;
+    private static final int UPGRADE_Y = MachineLayout.UPGRADE_Y;
 
     private final TileEntityMolecularTransformer tile;
 
@@ -67,11 +67,17 @@ public class ContainerMolecularTransformer extends Container {
     private void bindPlayerInventory(InventoryPlayer inventory) {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(inventory, col + row * 9 + 9, 20 + col * SLOT_SIZE, 166 + row * SLOT_SIZE));
+                addSlotToContainer(
+                    new Slot(
+                        inventory,
+                        col + row * 9 + 9,
+                        MachineLayout.PLAYER_X + col * SLOT_SIZE,
+                        MachineLayout.PLAYER_TOP + row * SLOT_SIZE));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(inventory, col, 20 + col * SLOT_SIZE, 222));
+            addSlotToContainer(
+                new Slot(inventory, col, MachineLayout.PLAYER_X + col * SLOT_SIZE, MachineLayout.HOTBAR_Y));
         }
     }
 

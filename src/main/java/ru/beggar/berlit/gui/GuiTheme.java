@@ -29,6 +29,13 @@ public final class GuiTheme {
     /** Frame highlight, matches gui_theme.FRAME_LIGHT. */
     public static final int FRAME_LIGHT = 0xFF6FE9E0;
 
+    /** Progress bar frame and trough. */
+    public static final int BAR_FRAME = 0xFF2E3340;
+
+    public static final int BAR_EDGE = 0xFF14171D;
+
+    public static final int BAR_TROUGH = 0xFF12151B;
+
     /** Title rule under the header, dimmer than the frame. */
     public static final int FRAME_BORDER = 0xFF2C8C8A;
 

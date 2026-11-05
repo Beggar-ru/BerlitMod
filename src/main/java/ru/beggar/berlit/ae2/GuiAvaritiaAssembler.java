@@ -81,12 +81,12 @@ public class GuiAvaritiaAssembler extends BerlitGui {
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
 
-        drawPanel(x, y, AssemblerLayout.WIDTH, AssemblerLayout.CONTENT_HEIGHT);
-        drawPanel(x, y + AssemblerLayout.INVENTORY_TOP, AssemblerLayout.WIDTH, AssemblerLayout.INVENTORY_HEIGHT);
+        drawKitPanel(x, y, AssemblerLayout.WIDTH, AssemblerLayout.CONTENT_HEIGHT);
+        drawKitPanel(x, y + AssemblerLayout.INVENTORY_TOP, AssemblerLayout.WIDTH, AssemblerLayout.INVENTORY_HEIGHT);
 
         // cyan rule under the title, like the machine panels
-        drawRect(x + 8, y + 15, x + AssemblerLayout.WIDTH - 9, y + 16, 0xFF2C8C8A);
-        drawRect(x + 8, y + 16, x + AssemblerLayout.WIDTH - 9, y + 17, 0xFF386868);
+        drawRect(x + 8, y + 15, x + AssemblerLayout.WIDTH - 9, y + 16, GuiTheme.FRAME_BORDER);
+        drawRect(x + 8, y + 16, x + AssemblerLayout.WIDTH - 9, y + 17, GuiTheme.FRAME_RULE);
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
@@ -111,25 +111,5 @@ public class GuiAvaritiaAssembler extends BerlitGui {
 
     private void drawCell(int slotX, int slotY) {
         GuiKit.CELL.drawSprite(zLevel, slotX - 1, slotY - 1, AssemblerLayout.SLOT, AssemblerLayout.SLOT);
-    }
-
-    /**
-     * Same recipe as the machine panels: the gradient background, the 9-slice frame ring on top of it and
-     * the bright corner brackets. The kit tile is ring-only so the gradient survives.
-     */
-    private void drawPanel(int x, int y, int width, int height) {
-        drawGradientRect(x, y, x + width, y + height, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
-        GuiKit.PANEL.draw(zLevel, x, y, width, height);
-        drawBracket(x + 4, y + 4, 1, 1);
-        drawBracket(x + width - 5, y + 4, -1, 1);
-        drawBracket(x + 4, y + height - 5, 1, -1);
-        drawBracket(x + width - 5, y + height - 5, -1, -1);
-    }
-
-    /** 14px L-shaped accent, identical to the one baked into the machine panel textures. */
-    private void drawBracket(int x, int y, int dx, int dy) {
-        int arm = 14;
-        drawRect(Math.min(x, x + dx * arm), y, Math.max(x, x + dx * arm) + 1, y + 1, GuiTheme.FRAME_LIGHT);
-        drawRect(x, Math.min(y, y + dy * arm), x + 1, Math.max(y, y + dy * arm) + 1, GuiTheme.FRAME_LIGHT);
     }
 }

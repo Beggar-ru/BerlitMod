@@ -239,6 +239,16 @@ def nine_slice(image, target_w, target_h, inset):
     return out
 
 
+def draw_rect(canvas, x, y, width, height, colour, scale):
+    """Filled rectangle in GUI coordinates."""
+    from PIL import ImageDraw as _ImageDraw
+
+    draw = _ImageDraw.Draw(canvas)
+    draw.rectangle(
+        [x * scale, y * scale, (x + width) * scale - 1, (y + height) * scale - 1],
+        fill=colour + (255,))
+
+
 def render_widget_screen(screen, scale):
     """Screens drawn at runtime: compose the kit the way the Gui does."""
     canvas_w, canvas_h = screen["canvas"]
@@ -289,6 +299,27 @@ def render_widget_screen(screen, scale):
     for _group, slots in screen["groups"]:
         for slot_x, slot_y in slots:
             canvas.alpha_composite(cell, ((slot_x - 1) * scale, (slot_y - 1) * scale))
+
+    arrow_x, arrow_y, arrow_size, _arrow_inset = screen["kit"]["arrow"]
+    arrow = kit.crop((arrow_x, arrow_y, arrow_x + arrow_size, arrow_y + arrow_size))
+    arrow = arrow.resize((arrow_size * scale, arrow_size * scale), Image.NEAREST)
+    for cx, cy in screen.get("arrows", ()):
+        canvas.alpha_composite(arrow, ((cx - arrow_size // 2) * scale, (cy - arrow_size // 2) * scale))
+
+    bar = screen.get("bar")
+    if bar:
+        bx, by, bw, bh = bar
+        draw_rect(canvas, bx, by, bw, bh, (20, 23, 29), scale)
+        draw_rect(canvas, bx + 1, by + 1, bw - 2, bh - 2, (46, 51, 64), scale)
+        draw_rect(canvas, bx + 2, by + 2, bw - 4, bh - 4, (18, 21, 27), scale)
+
+    info = screen.get("info")
+    if info:
+        ix, iy, isize = info
+        draw_rect(canvas, ix, iy, isize, isize, (20, 23, 29), scale)
+        draw_rect(canvas, ix + 1, iy + 1, isize - 2, isize - 2, (38, 42, 52), scale)
+        draw_rect(canvas, ix + 6, iy + 4, 2, 2, (111, 233, 224), scale)
+        draw_rect(canvas, ix + 6, iy + 7, 2, isize - 10, (111, 233, 224), scale)
 
     from PIL import ImageDraw as _ImageDraw
     draw = _ImageDraw.Draw(canvas)
