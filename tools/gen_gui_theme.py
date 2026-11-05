@@ -59,45 +59,61 @@ def build_machine(screen):
 
 
 def build_inventory(screen):
-    image = theme.new_panel(layout.INV_W, layout.INV_H)
-    theme.draw_inventory_divider(image, layout.INVENTORY_DIVIDER_Y - layout.INV_TOP)
-    theme.paste_slots(
-        image,
-        slots_of(screen, "player"),
-        offset_x=layout.INV_X,
-        offset_y=layout.INV_TOP)
+    """The shared 176x98 inventory panel, from whichever panel slot it occupies."""
+    inv_x, inv_y, inv_w, inv_h = screen["panels"][1]
+    image = theme.new_panel(inv_w, inv_h)
+    theme.draw_inventory_divider(image, layout.INV_DIVIDER_Y)
+    theme.paste_slots(image, slots_of(screen, "player"), offset_x=inv_x, offset_y=inv_y)
     theme.draw_frame(image)
     theme.draw_inner_shadow(image)
     theme.draw_corner_brackets(image)
     return image
 
 
-def build_panel(screen, width, height):
-    """Single-panel screens: same palette, no progress bar or inventory split."""
-    image = theme.new_panel(width, height)
-    theme.draw_title_strip(image)
+def build_panel(screen, rect, first):
+    """One panel of a ``panel`` screen; elements are clipped to its bounds."""
+    panel_x, panel_y, panel_w, panel_h = rect
+    image = theme.new_panel(panel_w, panel_h)
+
+    if first:
+        theme.draw_title_strip(image)
 
     for x0, y0, x1, y1 in screen.get("recesses", ()):
-        theme.draw_recess(image, (x0, y0, x1, y1))
+        if panel_x <= x0 and panel_y <= y0 and x1 < panel_x + panel_w and y1 < panel_y + panel_h:
+            theme.draw_recess(image, (x0 - panel_x, y0 - panel_y, x1 - panel_x, y1 - panel_y))
 
     for y in screen.get("dividers", ()):
-        theme.draw_divider(image, y)
+        if panel_y <= y < panel_y + panel_h:
+            theme.draw_divider(image, y - panel_y)
 
-    theme.paste_slots(image, all_slots(screen))
+    for arrow_x, arrow_y in screen.get("arrows", ()):
+        if panel_x <= arrow_x < panel_x + panel_w and panel_y <= arrow_y < panel_y + panel_h:
+            theme.draw_flow_arrow(image, arrow_x - panel_x, arrow_y - panel_y)
+
+    inside = [slot for slot in all_slots(screen) if in_panel(slot, rect)]
+    theme.paste_slots(image, inside, offset_x=panel_x, offset_y=panel_y)
+
     theme.draw_frame(image)
     theme.draw_inner_shadow(image)
     theme.draw_corner_brackets(image)
     return image
+
+
+def in_panel(slot, rect):
+    panel_x, panel_y, panel_w, panel_h = rect
+    x, y = slot[0] - 1, slot[1] - 1
+    return panel_x <= x and panel_y <= y and x + layout.SLOT <= panel_x + panel_w \
+        and y + layout.SLOT <= panel_y + panel_h
 
 
 def build(screen):
     canvas = Image.new("RGBA", screen["canvas"], (0, 0, 0, 0))
-    for index, (panel_x, panel_y, panel_w, panel_h) in enumerate(screen["panels"]):
+    for index, rect in enumerate(screen["panels"]):
         if screen["style"] == "machine":
             panel = build_machine(screen) if index == 0 else build_inventory(screen)
         else:
-            panel = build_panel(screen, panel_w, panel_h)
-        canvas.alpha_composite(panel, (panel_x, panel_y))
+            panel = build_panel(screen, rect, index == 0)
+        canvas.alpha_composite(panel, (rect[0], rect[1]))
     return canvas
 
 

@@ -15,11 +15,11 @@ public class ContainerPatternEncoder extends Container {
 
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(tile, col + row * 9, 8 + col * 18, 18 + row * 18));
+                addSlotToContainer(new Slot(tile, col + row * 9, 8 + col * 18, 24 + row * 18));
             }
         }
 
-        addSlotToContainer(new Slot(tile, TileEntityPatternEncoder.OUTPUT, 190, 40) {
+        addSlotToContainer(new Slot(tile, TileEntityPatternEncoder.OUTPUT, 190, 96) {
 
             @Override
             public boolean isItemValid(ItemStack stack) {
@@ -29,11 +29,11 @@ public class ContainerPatternEncoder extends Container {
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 200 + row * 18));
+                addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 30 + col * 18, 222 + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(playerInventory, col, 8 + col * 18, 258));
+            addSlotToContainer(new Slot(playerInventory, col, 30 + col * 18, 278));
         }
     }
 

@@ -4,16 +4,17 @@ The slot coordinates are the ones the Container classes really add, so everythin
 downstream (texture generation, preview overlay, alignment check) uses one copy.
 If a Container changes, edit it here.
 
-Two kinds of screen:
+Every screen is now built the same way: a content panel on top and a 176x98
+player inventory panel 8px below it. Two render styles differ only in what the
+content panel contains:
 
-* ``machine`` - our own machines: a 200x140 panel with a progress bar, upgrade
-  well and info badge, plus a 176x98 inventory panel 8px below it.
-* ``panel`` - the AE2/Avaritia and chest screens: one panel of the size their
-  GuiContainer uses, restyled with the same palette and slot tiles.
+* ``machine`` - our machines: 200x140 with a progress bar, upgrade well, flow
+  arrow and info badge.
+* ``panel`` - AE2/Avaritia and chest screens: title, slot groups sunk into
+  recesses, optional dividers.
 
-Every screen lists its panels as (x, y, width, height) inside a ``canvas`` big
-enough to hold them; the space outside the panels stays transparent. Inside a
-panel the usable area starts 6px in from the frame.
+The inventory panel of a panel screen is centred under its content panel:
+``inv_x = (width - INV_W) // 2``.
 """
 
 from __future__ import annotations
@@ -23,13 +24,15 @@ SLOT = 18            # vanilla slot pitch
 MACHINE_W = 200      # machine panel width
 MACHINE_H = 140      # machine panel height
 
-INV_X = 12           # inventory panel is centred under the machine panel
 INV_W = 176
-INV_TOP = 148        # 8px gap after the machine panel
 INV_H = 98
+INV_GAP = 8          # transparent gap between content and inventory panels
+INV_DIVIDER_Y = 64   # hotbar separator inside the inventory panel
+
+MACHINE_INV_X = (MACHINE_W - INV_W) // 2   # 12
 
 GUI_W = MACHINE_W        # GuiContainer xSize for machine screens
-GUI_H = INV_TOP + INV_H  # GuiContainer ySize = 246
+GUI_H = MACHINE_H + INV_GAP + INV_H  # 246
 
 # Progress bar drawn by BerlitGui: outer frame and the trough inside it.
 BAR_FRAME = (12, 62, 188, 74)
@@ -37,8 +40,6 @@ BAR_TROUGH = (14, 64, 186, 72)
 
 # Info badge in the bottom-right corner of the machine panel: (x, y, size).
 INFO_ICON = (176, 116, 14)
-
-INVENTORY_DIVIDER_Y = 212
 
 
 def grid(origin_x, origin_y, cols, rows):
@@ -62,32 +63,59 @@ def machine_upgrades(count=4):
     return [(x0 + SLOT * (i % 4), 92 + SLOT * (i // 4)) for i in range(count)]
 
 
+def inventory_slots(width):
+    """Player inventory for a panel of the given width, plus the label position."""
+    inv_x = (width - INV_W) // 2
+    inv_top = None  # filled in by panel_screen
+    return inv_x, inv_top
+
+
+def panel_screen(texture, size, groups, text, recesses=(), dividers=(), arrows=(), canvas=None):
+    """Content panel ``size`` with the shared inventory panel below it.
+
+    ``groups`` and ``text`` use GUI coordinates, i.e. the content panel starts at
+    (0, 0) and the inventory panel at ``(inv_x, height + INV_GAP)``.
+    """
+    width, height = size
+    inv_x = (width - INV_W) // 2
+    inv_top = height + INV_GAP
+    total_h = inv_top + INV_H
+    return {
+        "style": "panel",
+        "texture": texture,
+        "canvas": canvas or (max(256, width), max(256, total_h)),
+        "content": (width, height),
+        "inv": (inv_x, inv_top),
+        "panels": [(0, 0, width, height), (inv_x, inv_top, INV_W, INV_H)],
+        "groups": groups,
+        "text": text,
+        "recesses": list(recesses),
+        "dividers": list(dividers),
+        "arrows": list(arrows),
+    }
+
+
+def inv_player(width, height):
+    """Player inventory slots and the label position for a panel screen."""
+    inv_x = (width - INV_W) // 2
+    inv_top = height + INV_GAP
+    slots = player_inventory(x0=inv_x + 8, top=inv_top + 18, hotbar=inv_top + 74)
+    label = ("inventory", inv_x + 8, inv_top + 6, 140, "container.inventory")
+    return slots, label
+
+
 def machine_screen(texture, groups, text):
     return {
         "style": "machine",
         "texture": texture,
         "canvas": (256, 256),
-        "panels": [(0, 0, MACHINE_W, MACHINE_H), (INV_X, INV_TOP, INV_W, INV_H)],
+        "panels": [(0, 0, MACHINE_W, MACHINE_H), (MACHINE_INV_X, MACHINE_H + INV_GAP, INV_W, INV_H)],
         "groups": groups,
         "text": text,
     }
 
 
-def panel_screen(texture, size, groups, text, recesses=(), dividers=(), canvas=None):
-    width, height = size
-    return {
-        "style": "panel",
-        "texture": texture,
-        "canvas": canvas or (max(256, width), max(256, height)),
-        "panels": [(0, 0, width, height)],
-        "groups": groups,
-        "text": text,
-        "recesses": list(recesses),
-        "dividers": list(dividers),
-    }
-
-
-INVENTORY_LABEL = ("inventory", INV_X + 8, 154, 160, "container.inventory")
+INVENTORY_LABEL = ("inventory", MACHINE_INV_X + 8, 154, 160, "container.inventory")
 
 SCREENS = {
     # --- our machines: wide panel + separate inventory ---------------------
@@ -137,77 +165,76 @@ SCREENS = {
     # --- AE2 / Avaritia screens -------------------------------------------
     "avaritia_assembler": panel_screen(
         "gui/avaritia_assembler.png",
-        (176, 166),
+        (176, 90),
         [
             ("craft", grid(44, 20, 3, 3)),
-            ("player", player_inventory(x0=8, top=84, hotbar=142)),
+            ("player", inv_player(176, 90)[0]),
         ],
         [
             ("title", 8, 6, 160, "tile.berlit.avaritia_assembler.name"),
-            ("inventory", 8, 73, 140, "container.inventory"),
+            inv_player(176, 90)[1],
         ],
         recesses=[(42, 18, 98, 74)],
-        dividers=[],
     ),
     "pattern_encoder": panel_screen(
         "gui/pattern_encoder.png",
-        (220, 282),
+        (220, 196),
         [
-            ("craft", grid(8, 18, 9, 9)),
-            ("output", [(190, 40)]),
-            ("player", player_inventory(x0=8, top=200, hotbar=258)),
+            ("craft", grid(8, 24, 9, 9)),
+            ("output", [(190, 96)]),
+            ("player", inv_player(220, 196)[0]),
         ],
         [
             ("title", 8, 6, 200, "tile.berlit.pattern_encoder.name"),
+            inv_player(220, 196)[1],
         ],
-        recesses=[(6, 16, 160, 178), (188, 38, 208, 58)],
-        dividers=[190],
+        recesses=[(6, 22, 170, 184), (188, 94, 208, 114)],
+        arrows=[(178, 104)],
         canvas=(256, 512),
     ),
     "singularity_encoder": panel_screen(
         "gui/singularity_encoder.png",
-        (176, 166),
+        (176, 76),
         [
             ("input", [(44, 20)]),
             ("output", [(116, 20)]),
-            ("player", player_inventory(x0=8, top=84, hotbar=142)),
+            ("player", inv_player(176, 76)[0]),
         ],
         [
             ("title", 8, 6, 160, "tile.berlit.singularity_encoder.name"),
-            ("inventory", 8, 72, 140, "container.inventory"),
+            inv_player(176, 76)[1],
         ],
         recesses=[(42, 18, 134, 38)],
-        dividers=[81],
+        arrows=[(86, 28)],
     ),
     "neutron_compressor": panel_screen(
         "gui/neutron_compressor.png",
-        (176, 166),
+        (176, 90),
         [
             ("input", [(44, 20)]),
             ("pattern", [(80, 20)]),
             ("output", [(116, 20)]),
-            ("player", player_inventory(x0=8, top=84, hotbar=142)),
+            ("player", inv_player(176, 90)[0]),
         ],
         [
             ("title", 8, 6, 160, "tile.berlit.neutron_compressor.name"),
-            ("inventory", 8, 72, 140, "container.inventory"),
+            inv_player(176, 90)[1],
         ],
         recesses=[(42, 18, 134, 38)],
-        dividers=[81],
+        arrows=[(69, 28), (105, 28)],
     ),
     "super_chest": panel_screen(
         "gui/super_chest.png",
-        (502, 278),
+        (502, 190),
         [
             ("chest", grid(8, 18, 27, 9)),
-            ("player", player_inventory(x0=170, top=196, hotbar=254)),
+            ("player", inv_player(502, 190)[0]),
         ],
         [
             ("title", 8, 6, 200, "tile.berlit.super_chest.name"),
-            ("inventory", 172, 182, 140, "container.inventory"),
+            inv_player(502, 190)[1],
         ],
         recesses=[(6, 16, 496, 178)],
-        dividers=[180],
         canvas=(512, 512),
     ),
 }

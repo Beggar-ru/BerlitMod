@@ -24,11 +24,11 @@ public class ContainerSingularityEncoder extends Container {
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+                addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 102 + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(playerInventory, col, 8 + col * 18, 142));
+            addSlotToContainer(new Slot(playerInventory, col, 8 + col * 18, 158));
         }
     }
 

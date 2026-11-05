@@ -42,9 +42,19 @@ public abstract class BerlitGui extends GuiContainer {
     private static final int INVENTORY_LABEL_Y = 154;
 
     protected BerlitGui(Container container) {
+        this(container, PANEL_WIDTH, INVENTORY_TOP + INVENTORY_HEIGHT);
+    }
+
+    /** For screens whose panels are sized by their own GuiContainer (AE2, chests). */
+    protected BerlitGui(Container container, int width, int height) {
         super(container);
-        this.xSize = PANEL_WIDTH;
-        this.ySize = INVENTORY_TOP + INVENTORY_HEIGHT;
+        this.xSize = width;
+        this.ySize = height;
+    }
+
+    /** Draws a panel 1:1 from the texture at the coordinates the layout uses. */
+    protected void drawPanel(int guiX, int guiY, int panelX, int panelY, int width, int height) {
+        drawTexturedModalRect(guiX + panelX, guiY + panelY, panelX, panelY, width, height);
     }
 
     /** Draws both panels; the gap between them stays transparent. */
