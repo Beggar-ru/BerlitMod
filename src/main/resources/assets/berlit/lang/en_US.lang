@@ -72,3 +72,5 @@ item.berlit.infinity_cell.name=Infinity Item Cell (63 types)
 item.berlit.infinity_fluid_cell.name=Infinity Fluid Cell (5 types)
 
 tile.berlit.nether_star_block.name=Block of Nether Stars
+
+tile.berlit.fast_assembler.name=Fast Molecular Assembler

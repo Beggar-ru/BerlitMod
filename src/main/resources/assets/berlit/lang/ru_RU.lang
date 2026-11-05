@@ -72,3 +72,5 @@ item.berlit.infinity_cell.name=Бесконечная ячейка предме�
 item.berlit.infinity_fluid_cell.name=Бесконечная ячейка жидкостей (5 типов)
 
 tile.berlit.nether_star_block.name=Блок звёзд Нижнего мира
+
+tile.berlit.fast_assembler.name=Ускоренный молекулярный сборщик

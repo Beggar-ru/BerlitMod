@@ -110,12 +110,12 @@ public class TileEntityAvaritiaAssembler extends TileEntity
         super.onChunkUnload();
     }
 
-    private void queueOutput(ItemStack stack) {
+    protected void queueOutput(ItemStack stack) {
         pendingOutput.add(stack);
         markDirty();
     }
 
-    private void flushOutput() {
+    protected void flushOutput() {
         if (pendingOutput.isEmpty() || worldObj == null || worldObj.isRemote) return;
         IGrid grid = networkGrid();
         if (grid == null) return;
@@ -143,6 +143,10 @@ public class TileEntityAvaritiaAssembler extends TileEntity
             node.getGrid()
                 .postEvent(new appeng.api.networking.events.MENetworkCraftingPatternChange(this, node));
         }
+    }
+
+    protected ItemStack machineStack() {
+        return new ItemStack(Berlit.avaritiaAssembler);
     }
 
     @Override
@@ -414,7 +418,7 @@ public class TileEntityAvaritiaAssembler extends TileEntity
 
         @Override
         public ItemStack getMachineRepresentation() {
-            return new ItemStack(Berlit.avaritiaAssembler);
+            return machineStack();
         }
     }
 }
