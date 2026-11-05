@@ -16,13 +16,13 @@ public class GuiSuperChest extends GuiContainer {
     public GuiSuperChest(InventoryPlayer playerInventory, TileEntitySuperChest tile) {
         super(new ContainerSuperChest(playerInventory, tile));
         this.xSize = 502;
-        this.ySize = 266;
+        this.ySize = 278;
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         fontRendererObj.drawString(StatCollector.translateToLocal("tile.berlit.super_chest.name"), 8, 6, 0xE8F1F5);
-        fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, 178, 0xC8D2DE);
+        fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 172, 182, 0xC8D2DE);
     }
 
     @Override

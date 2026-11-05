@@ -143,12 +143,24 @@ def draw_progress_bar(image):
     draw.line([(tx0, ty1), (tx1, ty1)], fill=(46, 52, 64, 255))
 
 
-def draw_upgrade_well(image, box):
-    """Faint recess behind the upgrade row so it reads as a separate group."""
+def draw_recess(image, box):
+    """Sunk panel: used for slot groups so they read as a separate block."""
     x0, y0, x1, y1 = box
     draw = ImageDraw.Draw(image)
     draw.rectangle([x0, y0, x1, y1], fill=PLATE_DARK + (255,), outline=EDGE_DARK + (255,))
     draw.line([(x0 + 1, y0 + 1), (x1 - 1, y0 + 1)], fill=(44, 49, 61, 255))
+    draw.line([(x0 + 1, y0 + 1), (x0 + 1, y1 - 1)], fill=(44, 49, 61, 255))
+    draw.line([(x0 + 1, y1 - 1), (x1 - 1, y1 - 1)], fill=(24, 27, 34, 255))
+    draw.line([(x1 - 1, y0 + 1), (x1 - 1, y1 - 1)], fill=(24, 27, 34, 255))
+
+
+def draw_divider(image, y, x0=8, x1=None):
+    """Thin separator between a machine area and the player inventory."""
+    if x1 is None:
+        x1 = image.size[0] - 9
+    draw = ImageDraw.Draw(image)
+    draw.line([(x0, y), (x1, y)], fill=EDGE_DARK + (255,))
+    draw.line([(x0, y + 1), (x1, y + 1)], fill=(48, 54, 66, 255))
 
 
 def draw_inventory_divider(image, y):

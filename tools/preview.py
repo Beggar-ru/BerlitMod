@@ -36,7 +36,7 @@ OUT_DIR = os.path.join(ROOT, "docs", "preview")
 # 18x18 background pasted at (slot_x - 1, slot_y - 1); `check` compares the
 # texture against it instead of guessing from colour uniformity.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gui_layout import GUI_H, GUI_W, NEI_PAGES, PANELS, SCREENS, SLOT  # noqa: E402
+from gui_layout import NEI_PAGES, SCREENS, SLOT  # noqa: E402
 
 # Vanilla ships these; they are not expected in the mod's own lang files.
 VANILLA_KEYS = {"container.inventory"}
@@ -139,9 +139,10 @@ def render_screen(name, screen, scale=4, overlay=True):
         raise SystemExit(f"missing texture: {path}")
 
     source = Image.open(path).convert("RGBA")
-    canvas = checkerboard(GUI_W * scale, GUI_H * scale)
-    # The screen is two panels with a transparent gap; compose them as the game does.
-    for panel_x, panel_y, panel_w, panel_h in PANELS:
+    canvas_w, canvas_h = screen["canvas"]
+    canvas = checkerboard(canvas_w * scale, canvas_h * scale)
+    # Panels are cut from the texture and placed where the GuiContainer draws them.
+    for panel_x, panel_y, panel_w, panel_h in screen["panels"]:
         panel = source.crop((panel_x, panel_y, panel_x + panel_w, panel_y + panel_h))
         canvas.alpha_composite(
             panel.resize((panel_w * scale, panel_h * scale), Image.NEAREST),
@@ -305,7 +306,7 @@ class Report:
         return 1 if self.errors else 0
 
 
-def panel_background(image, slots):
+def panel_background(image, slots, panels):
     """Most common colour of the panel *outside* the slots - the screen background.
 
     Slot fill can cover more pixels than the background, so sampling the whole
@@ -318,7 +319,7 @@ def panel_background(image, slots):
                 slot_pixels.add((x, y))
 
     counter = Counter()
-    for panel_x, panel_y, panel_w, panel_h in PANELS:
+    for panel_x, panel_y, panel_w, panel_h in panels:
         for y in range(panel_y, panel_y + panel_h):
             for x in range(panel_x, panel_x + panel_w):
                 if (x, y) not in slot_pixels:
@@ -344,8 +345,9 @@ def check_screen(name, screen, report, langs):
         return
 
     image = Image.open(path)
-    if image.size[0] < GUI_W or image.size[1] < GUI_H:
-        report.error(where, f"texture is {image.size[0]}x{image.size[1]}, the screen needs {GUI_W}x{GUI_H}")
+    canvas_w, canvas_h = screen["canvas"]
+    if image.size[0] < canvas_w or image.size[1] < canvas_h:
+        report.error(where, f"texture is {image.size[0]}x{image.size[1]}, the screen needs {canvas_w}x{canvas_h}")
         return
     if image.mode != "RGBA":
         report.error(where, f"mode is {image.mode}; GUI textures need RGBA so the panel can be drawn over the world")
@@ -353,13 +355,12 @@ def check_screen(name, screen, report, langs):
 
     # A GUI texture is sampled with GL_NEAREST; odd sizes are legal but 256x256 is the
     # vanilla convention and keeps the whole image power-of-two on old GPUs.
-    if rgba.size != (256, 256):
-        report.warn(where, f"size is {rgba.size[0]}x{rgba.size[1]}; 256x256 is the 1.7.10 convention")
+
     for value in rgba.size:
         if value & (value - 1):
             report.warn(where, f"size {value} is not a power of two")
 
-    for panel_x, panel_y, panel_w, panel_h in PANELS:
+    for panel_x, panel_y, panel_w, panel_h in screen["panels"]:
         region = rgba.crop((panel_x, panel_y, panel_x + panel_w, panel_y + panel_h))
         holes = sum(region.getchannel("A").histogram()[:255])
         if holes:
@@ -369,13 +370,13 @@ def check_screen(name, screen, report, langs):
                     + f"{panel_w}x{panel_h}")
 
     all_slots = [slot for _group, group in screen["groups"] for slot in group]
-    background = panel_background(rgba, all_slots)
+    background = panel_background(rgba, all_slots, screen["panels"])
     occupied = []
     for group, slots in screen["groups"]:
         for index, (sx, sy) in enumerate(slots):
             tag = f"{group}{index} @({sx},{sy})"
             x0, y0, x1, y1 = slot_rect(sx, sy)
-            if x0 < 0 or y0 < 0 or x1 >= GUI_W or y1 >= GUI_H:
+            if x0 < 0 or y0 < 0 or x1 >= canvas_w or y1 >= canvas_h:
                 report.error(where, f"slot {tag} falls outside the screen")
                 continue
             modal, share = modal_colour(rgba.crop(slot_inner(sx, sy)))

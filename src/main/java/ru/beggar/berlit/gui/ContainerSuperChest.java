@@ -32,11 +32,11 @@ public class ContainerSuperChest extends Container {
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 8 + col * SLOT, 190 + row * SLOT));
+                addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 170 + col * SLOT, 196 + row * SLOT));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlotToContainer(new Slot(playerInventory, col, 8 + col * SLOT, 248));
+            addSlotToContainer(new Slot(playerInventory, col, 170 + col * SLOT, 254));
         }
     }
 

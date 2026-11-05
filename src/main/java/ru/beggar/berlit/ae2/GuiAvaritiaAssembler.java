@@ -44,7 +44,7 @@ public class GuiAvaritiaAssembler extends GuiContainer {
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         fontRendererObj
             .drawString(StatCollector.translateToLocal("tile.berlit.avaritia_assembler.name"), 8, 6, 0xE8F1F5);
-        fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, 72, 0xC8D2DE);
+        fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, 73, 0xC8D2DE);
     }
 
     @Override
