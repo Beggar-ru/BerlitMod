@@ -41,7 +41,7 @@ public class ItemInfinityFluidCell extends Item implements IFluidStorageCell {
 
     @Override
     public int getMaxBytes(ItemStack cell) {
-        return 100000000;
+        return 8000000;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ItemInfinityFluidCell extends Item implements IFluidStorageCell {
     @Override
     public void addInformation(ItemStack cell, EntityPlayer player, List list, boolean advanced) {
         list.add("Types: max 5");
-        list.add("Bytes: 100000000");
+        list.add("Bytes: 8000000");
     }
 
     @Override
