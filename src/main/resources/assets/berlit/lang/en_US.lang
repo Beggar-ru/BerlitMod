@@ -28,9 +28,9 @@ item.berlit.accelerator_t3.name=Accelerator MK III
 item.berlit.accelerator.speed=Speed: %s%%
 item.berlit.accelerator.energy=Energy use: %s%%
 
-item.berlit.spawner_core_t1.name=Spawner Core I
-item.berlit.spawner_core_t2.name=Spawner Core II
-item.berlit.spawner_core_t3.name=Spawner Core III
+item.berlit.spawner_core_t1.name=Nuclear Core
+item.berlit.spawner_core_t2.name=Technological Core
+item.berlit.spawner_core_t3.name=Holy Core
 item.berlit.spawner_core.speed=Cycle speed: +%s%%
 item.berlit.spawner_core.amount=Drop amount: +%s
 
@@ -73,3 +73,7 @@ item.berlit.infinity_fluid_cell.name=Infinity Fluid Cell (5 types)
 tile.berlit.cobble_generator.name=Cobblestone Generator
 tile.berlit.cobble_generator_mk2.name=Cobblestone Generator MK II
 tile.berlit.cobble_generator_mk3.name=Cobblestone Generator MK III
+
+tile.berlit.nether_star_block.name=Block of Nether Stars
+
+tile.berlit.fast_assembler.name=Fast Molecular Assembler

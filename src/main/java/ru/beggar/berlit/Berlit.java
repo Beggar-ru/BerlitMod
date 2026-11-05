@@ -77,6 +77,7 @@ public class Berlit {
     public static BlockProcessingMachine electricFurnace;
     public static BlockSuperChest superChest;
     public static ru.beggar.berlit.ae2.BlockAvaritiaAssembler avaritiaAssembler;
+    public static ru.beggar.berlit.ae2.BlockFastAssembler fastAssembler;
     public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
     public static ru.beggar.berlit.machine.BlockNeutronCompressor neutronCompressor;
     public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGenerator;
@@ -86,8 +87,9 @@ public class Berlit {
     public static ru.beggar.berlit.item.ItemGarlic garlic;
     public static ru.beggar.berlit.item.ItemGreenJacket greenJacket;
     public static ru.beggar.berlit.block.BlockGarlicCrop garlicCrop;
+    public static ru.beggar.berlit.block.BlockNetherStar netherStarBlock;
     public static ru.beggar.berlit.ae2.ItemInfinityCell infinityCell;
-    public static ru.beggar.berlit.ae2.ItemInfinityFluidCell infinityFluidCell;
+    public static net.minecraft.item.Item infinityFluidCell;
     public static ItemStackUpgrade stackUpgrade;
     public static ru.beggar.berlit.ae2.ItemAvaritiaPattern avaritiaPattern;
     public static ru.beggar.berlit.ae2.ItemSingularityPattern singularityPattern;
@@ -159,6 +161,8 @@ public class Berlit {
         GameRegistry.registerBlock(electricFurnace, "berlit.machine_electric_furnace");
         machineBlocks.put(MachineType.ELECTRIC_FURNACE, electricFurnace);
 
+        netherStarBlock = new ru.beggar.berlit.block.BlockNetherStar();
+        GameRegistry.registerBlock(netherStarBlock, "berlit.nether_star_block");
         superChest = new BlockSuperChest();
         GameRegistry.registerBlock(superChest, "berlit.super_chest");
         GameRegistry.registerTileEntity(TileEntitySuperChest.class, "berlit:super_chest");
@@ -177,6 +181,11 @@ public class Berlit {
             GameRegistry.registerTileEntity(
                 ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler.class,
                 "berlit:avaritia_assembler");
+
+            fastAssembler = new ru.beggar.berlit.ae2.BlockFastAssembler();
+            GameRegistry.registerBlock(fastAssembler, "berlit.fast_assembler");
+            GameRegistry
+                .registerTileEntity(ru.beggar.berlit.ae2.TileEntityFastAssembler.class, "berlit:fast_assembler");
 
             avaritiaPattern = new ru.beggar.berlit.ae2.ItemAvaritiaPattern();
             GameRegistry.registerItem(avaritiaPattern, "avaritia_pattern");
@@ -455,6 +464,18 @@ public class Berlit {
 
         if (cpw.mods.fml.common.Loader.isModLoaded("appliedenergistics2")) {
             GameRegistry.addRecipe(
+                new ItemStack(fastAssembler),
+                "IQI",
+                "QPQ",
+                "IQI",
+                'I',
+                Items.iron_ingot,
+                'Q',
+                Items.quartz,
+                'P',
+                Blocks.piston);
+
+            GameRegistry.addRecipe(
                 new ItemStack(avaritiaAssembler),
                 "IQI",
                 "QPQ",
@@ -525,6 +546,7 @@ public class Berlit {
                 'I',
                 Items.iron_ingot);
         }
+        GameRegistry.addRecipe(new ItemStack(netherStarBlock), "SSS", "SSS", "SSS", 'S', Items.nether_star);
         GameRegistry.addShapelessRecipe(new ItemStack(stackUpgrade), Items.paper, Blocks.chest, Items.redstone);
 
         GameRegistry

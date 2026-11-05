@@ -110,6 +110,18 @@ public class MachineNEI extends TemplateRecipeHandler {
         if (ingredient == null) return;
 
         for (MachineType type : MachineType.values()) {
+            ItemStack machine = new ItemStack(Berlit.machineBlocks.get(type));
+            if (machine.getItem() == ingredient.getItem() && machine.getItemDamage() == ingredient.getItemDamage()) {
+                for (int mode = 0; mode < modes(type); mode++) {
+                    for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
+                        arecipes.add(new CachedMachineRecipe(type, mode, recipe));
+                    }
+                }
+                return;
+            }
+        }
+
+        for (MachineType type : MachineType.values()) {
             for (int mode = 0; mode < modes(type); mode++) {
                 for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
                     if (recipe.getInput()

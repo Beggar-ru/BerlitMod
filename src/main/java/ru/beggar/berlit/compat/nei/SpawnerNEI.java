@@ -40,7 +40,7 @@ public class SpawnerNEI extends TemplateRecipeHandler {
                     drop.getStack(),
                     75 + (index % 3) * 22,
                     10 + (index / 3) * 22);
-                stack.setChance((int) (drop.getChance() * 100.0F));
+
                 outputs.add(stack);
                 index++;
             }
