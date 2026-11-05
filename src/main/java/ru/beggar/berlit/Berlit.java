@@ -84,7 +84,7 @@ public class Berlit {
     public static ru.beggar.berlit.item.ItemGreenJacket greenJacket;
     public static ru.beggar.berlit.block.BlockGarlicCrop garlicCrop;
     public static ru.beggar.berlit.ae2.ItemInfinityCell infinityCell;
-    public static ru.beggar.berlit.ae2.ItemInfinityFluidCell infinityFluidCell;
+    public static net.minecraft.item.Item infinityFluidCell;
     public static ItemStackUpgrade stackUpgrade;
     public static ru.beggar.berlit.ae2.ItemAvaritiaPattern avaritiaPattern;
     public static ru.beggar.berlit.ae2.ItemSingularityPattern singularityPattern;
