@@ -70,7 +70,8 @@ def inventory_slots(width):
     return inv_x, inv_top
 
 
-def panel_screen(texture, size, groups, text, recesses=(), dividers=(), arrows=(), canvas=None):
+def panel_screen(texture, size, groups, text, recesses=(), dividers=(), arrows=(), canvas=None,
+                 variant="classic", buttons=()):
     """Content panel ``size`` with the shared inventory panel below it.
 
     ``groups`` and ``text`` use GUI coordinates, i.e. the content panel starts at
@@ -82,6 +83,7 @@ def panel_screen(texture, size, groups, text, recesses=(), dividers=(), arrows=(
     total_h = inv_top + INV_H
     return {
         "style": "panel",
+        "variant": variant,
         "texture": texture,
         "canvas": canvas or (max(256, width), max(256, total_h)),
         "content": (width, height),
@@ -89,6 +91,7 @@ def panel_screen(texture, size, groups, text, recesses=(), dividers=(), arrows=(
         "panels": [(0, 0, width, height), (inv_x, inv_top, INV_W, INV_H)],
         "groups": groups,
         "text": text,
+        "buttons": buttons,
         "recesses": list(recesses),
         "dividers": list(dividers),
         "arrows": list(arrows),
@@ -175,6 +178,8 @@ SCREENS = {
             inv_player(176, 90)[1],
         ],
         recesses=[(42, 18, 98, 74)],
+        variant="flat",
+        buttons=[(148, 18, 22, 20, "C"), (148, 40, 22, 20, "64")],
     ),
     "pattern_encoder": panel_screen(
         "gui/pattern_encoder.png",
@@ -191,6 +196,7 @@ SCREENS = {
         recesses=[(6, 22, 170, 184), (188, 94, 208, 114)],
         arrows=[(178, 104)],
         canvas=(256, 512),
+        buttons=[(186, 122, 24, 20, "disk")],
     ),
     "singularity_encoder": panel_screen(
         "gui/singularity_encoder.png",
@@ -206,6 +212,7 @@ SCREENS = {
         ],
         recesses=[(42, 18, 134, 38)],
         arrows=[(86, 28)],
+        buttons=[(76, 40, 24, 20, "disk")],
     ),
     "neutron_compressor": panel_screen(
         "gui/neutron_compressor.png",
@@ -222,6 +229,7 @@ SCREENS = {
         ],
         recesses=[(42, 18, 134, 38)],
         arrows=[(69, 28), (105, 28)],
+        buttons=[(148, 18, 22, 20, "C"), (148, 40, 22, 20, "64")],
     ),
     "super_chest": panel_screen(
         "gui/super_chest.png",

@@ -8,8 +8,8 @@ import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
 
 import ru.beggar.berlit.gui.BerlitGui;
+import ru.beggar.berlit.gui.DiskButton;
 import ru.beggar.berlit.gui.GuiTheme;
-import ru.beggar.berlit.gui.ThemedButton;
 import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.network.PacketEncode;
 
@@ -31,7 +31,7 @@ public class GuiSingularityEncoder extends BerlitGui {
     @Override
     public void initGui() {
         super.initGui();
-        buttonList.add(new ThemedButton(0, guiLeft + 76, guiTop + 40, 24, 20, "E"));
+        buttonList.add(new DiskButton(0, guiLeft + 76, guiTop + 40, 24, 20));
     }
 
     @Override

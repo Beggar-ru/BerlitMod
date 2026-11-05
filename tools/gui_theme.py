@@ -197,3 +197,58 @@ def draw_info_icon(image, box):
 def paste_slots(image, slots, offset_x=0, offset_y=0):
     for slot_x, slot_y in slots:
         image.alpha_composite(TILE, (slot_x - 1 - offset_x, slot_y - 1 - offset_y))
+
+# --- flat variant ----------------------------------------------------------
+#
+# A second look for the assembler: no double frame, no corner brackets, no bevel.
+# The panel is flat slate and every slot is a rounded cell with a light 1px frame,
+# matching the reference art.
+
+FLAT_BG = (46, 50, 60)
+FLAT_EDGE = (104, 110, 124)
+CELL_FILL = (53, 57, 68)
+CELL_EDGE = (152, 154, 162)
+
+
+def cell_tile():
+    """18x18 slot: light 1px frame, corners cut, flat interior."""
+    tile = Image.new("RGBA", (SLOT, SLOT), CELL_FILL + (255,))
+    draw = ImageDraw.Draw(tile)
+
+    draw.line([(1, 0), (SLOT - 2, 0)], fill=CELL_EDGE + (255,))
+    draw.line([(1, SLOT - 1), (SLOT - 2, SLOT - 1)], fill=CELL_EDGE + (255,))
+    draw.line([(0, 1), (0, SLOT - 2)], fill=CELL_EDGE + (255,))
+    draw.line([(SLOT - 1, 1), (SLOT - 1, SLOT - 2)], fill=CELL_EDGE + (255,))
+
+    # cut the four corners so the frame reads as rounded
+    for x, y in ((0, 0), (SLOT - 1, 0), (0, SLOT - 1), (SLOT - 1, SLOT - 1)):
+        draw.point((x, y), fill=FLAT_BG + (255,))
+    return tile
+
+
+TILE_CELL = cell_tile()
+
+
+def new_flat_panel(width, height):
+    """Flat panel with a single dim frame and cut corners."""
+    image = Image.new("RGBA", (width, height), FLAT_BG + (255,))
+    draw = ImageDraw.Draw(image)
+    draw.line([(1, 0), (width - 2, 0)], fill=FLAT_EDGE + (255,))
+    draw.line([(1, height - 1), (width - 2, height - 1)], fill=FLAT_EDGE + (255,))
+    draw.line([(0, 1), (0, height - 2)], fill=FLAT_EDGE + (255,))
+    draw.line([(width - 1, 1), (width - 1, height - 2)], fill=FLAT_EDGE + (255,))
+    for x, y in ((0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1)):
+        draw.point((x, y), fill=FLAT_BG + (255,))
+    return image
+
+
+def draw_title_rule(image):
+    """A single hairline under the title instead of a framed strip."""
+    width = image.size[0]
+    draw = ImageDraw.Draw(image)
+    draw.line([(8, 16), (width - 9, 16)], fill=FLAT_EDGE + (255,))
+
+
+def paste_cells(image, slots, offset_x=0, offset_y=0):
+    for slot_x, slot_y in slots:
+        image.alpha_composite(TILE_CELL, (slot_x - 1 - offset_x, slot_y - 1 - offset_y))

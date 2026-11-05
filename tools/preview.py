@@ -40,7 +40,7 @@ from gui_layout import NEI_PAGES, SCREENS, SLOT  # noqa: E402
 
 # Vanilla ships these; they are not expected in the mod's own lang files.
 VANILLA_KEYS = {"container.inventory"}
-from gui_theme import TILE as SLOT_TILE  # noqa: E402
+from gui_theme import TILE as SLOT_TILE, TILE_CELL  # noqa: E402
 
 
 # Placeholder substituted into lang strings before measuring their width.
@@ -133,6 +133,61 @@ def read_java_sources():
 # Preview
 # --------------------------------------------------------------------------
 
+
+def draw_disk(canvas, origin_x, origin_y, scale):
+    """10x10 floppy glyph, drawn pixel-wise so it stays crisp at any zoom."""
+    body = (200, 205, 214)
+    edge = (138, 146, 162)
+    shutter = (58, 64, 80)
+    label = (110, 118, 136)
+
+    def put(offset_x, offset_y, colour):
+        canvas.alpha_composite(
+            Image.new("RGBA", (scale, scale), colour + (255,)),
+            ((origin_x + offset_x) * scale, (origin_y + offset_y) * scale))
+
+    for ix in range(10):
+        for iy in range(10):
+            put(ix, iy, edge if ix in (0, 9) or iy in (0, 9) else body)
+
+    for ix in range(2, 7):
+        for iy in range(1, 4):
+            put(ix, iy, shutter)
+
+    for ix in range(2, 8):
+        for iy in range(6, 9):
+            put(ix, iy, label)
+
+
+def draw_button(canvas, x, y, width, height, label, scale):
+    """Same look as ThemedButton: dark plate, cyan border, glyph or text."""
+    from PIL import ImageDraw as _ImageDraw
+
+    draw = _ImageDraw.Draw(canvas)
+    plate = (50, 58, 72, 255)
+    border = (44, 140, 138, 255)
+    draw.rectangle([x * scale, y * scale, (x + width) * scale - 1, (y + height) * scale - 1], fill=plate)
+    draw.rectangle([x * scale, y * scale, (x + width) * scale - 1, y * scale + scale - 1], fill=border)
+    draw.rectangle(
+        [x * scale, (y + height) * scale - scale, (x + width) * scale - 1, (y + height) * scale - 1],
+        fill=border)
+    draw.rectangle([x * scale, y * scale, x * scale + scale - 1, (y + height) * scale - 1], fill=border)
+    draw.rectangle(
+        [(x + width) * scale - scale, y * scale, (x + width) * scale - 1, (y + height) * scale - 1],
+        fill=border)
+
+    if label == "disk":
+        draw_disk(canvas, x + (width - 10) // 2, y + (height - 10) // 2, scale)
+    else:
+        glyph = font(max(8, scale * 4))
+        width_px = draw.textlength(label, font=glyph)
+        draw.text(
+            ((x + width / 2) * scale - width_px / 2, (y + height / 2) * scale - glyph.size / 2),
+            label,
+            fill=(200, 210, 222, 255),
+            font=glyph)
+
+
 def render_screen(name, screen, scale=4, overlay=True):
     path = texture_path(screen["texture"])
     if not os.path.isfile(path):
@@ -150,6 +205,9 @@ def render_screen(name, screen, scale=4, overlay=True):
 
     draw = ImageDraw.Draw(canvas)
     label_font = font(max(9, scale * 2))
+
+    for button_x, button_y, button_w, button_h, button_label in screen.get("buttons", ()):
+        draw_button(canvas, button_x, button_y, button_w, button_h, button_label, scale)
 
     if overlay:
         palette = {
@@ -383,12 +441,13 @@ def check_screen(name, screen, report, langs):
 
             # Compare the whole 18x18 slot area with the tile the generator pastes.
             # Any mismatch means the texture and the Container coordinates disagree.
+            expected = TILE_CELL if screen.get("variant") == "flat" else SLOT_TILE
             region = rgba.crop((x0, y0, x0 + SLOT, y0 + SLOT))
             mismatched = sum(
                 1
                 for y in range(SLOT)
                 for x in range(SLOT)
-                if region.getpixel((x, y)) != SLOT_TILE.getpixel((x, y))
+                if region.getpixel((x, y)) != expected.getpixel((x, y))
             )
             if mismatched:
                 worst = 100 * mismatched / (SLOT * SLOT)

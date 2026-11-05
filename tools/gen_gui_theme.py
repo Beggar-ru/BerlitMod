@@ -106,11 +106,27 @@ def in_panel(slot, rect):
         and y + layout.SLOT <= panel_y + panel_h
 
 
+
+def build_flat_panel(screen, rect, first):
+    """Borderless variant: flat slate, cells with a light frame, no outer decoration."""
+    panel_x, panel_y, panel_w, panel_h = rect
+    image = theme.new_flat_panel(panel_w, panel_h)
+
+    if first:
+        theme.draw_title_rule(image)
+
+    inside = [slot for slot in all_slots(screen) if in_panel(slot, rect)]
+    theme.paste_cells(image, inside, offset_x=panel_x, offset_y=panel_y)
+    return image
+
+
 def build(screen):
     canvas = Image.new("RGBA", screen["canvas"], (0, 0, 0, 0))
     for index, rect in enumerate(screen["panels"]):
         if screen["style"] == "machine":
             panel = build_machine(screen) if index == 0 else build_inventory(screen)
+        elif screen.get("variant") == "flat":
+            panel = build_flat_panel(screen, rect, index == 0)
         else:
             panel = build_panel(screen, rect, index == 0)
         canvas.alpha_composite(panel, (rect[0], rect[1]))
