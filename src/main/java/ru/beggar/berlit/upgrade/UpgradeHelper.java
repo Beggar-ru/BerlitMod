@@ -36,8 +36,15 @@ public final class UpgradeHelper {
             return stats;
         }
 
-        String name = stack.getItem()
-            .getUnlocalizedName();
+        if (stack.getItem() instanceof ItemAccelerator) {
+            ItemAccelerator accelerator = (ItemAccelerator) stack.getItem();
+            Stats stats = new Stats();
+            stats.speed = accelerator.getSpeedMultiplier();
+            stats.energyCost = accelerator.getEnergyMultiplier();
+            return stats;
+        }
+
+        String name = storeName(stack);
 
         if (name.contains("overclockerUpgrade")) {
             Stats stats = new Stats();
@@ -45,12 +52,12 @@ public final class UpgradeHelper {
             stats.energyCost = 1.6F;
             return stats;
         }
-        if (name.contains("ejectorUpgrade") || name.contains("fluidEjectorUpgrade")) {
+        if (name.contains("ejectorUpgrade") || name.contains("EjectorUpgrade")) {
             Stats stats = new Stats();
             stats.ejector = true;
             return stats;
         }
-        if (name.contains("pullingUpgrade")) {
+        if (name.contains("pullingUpgrade") || name.contains("PullingUpgrade")) {
             Stats stats = new Stats();
             stats.puller = true;
             return stats;
@@ -66,15 +73,21 @@ public final class UpgradeHelper {
             return stats;
         }
 
-        if (stack.getItem() instanceof ItemAccelerator) {
-            ItemAccelerator accelerator = (ItemAccelerator) stack.getItem();
-            Stats stats = new Stats();
-            stats.speed = accelerator.getSpeedMultiplier();
-            stats.energyCost = accelerator.getEnergyMultiplier();
-            return stats;
-        }
-
         return null;
+    }
+
+    /**
+     * The unlocalized name of this exact stack.
+     *
+     * <p>
+     * IC2 keeps every upgrade in one item ({@code ic2.itemUpgradeModule}) and encodes the
+     * kind in the stack, so {@code getItem().getUnlocalizedName()} returns the same string
+     * for all of them and no IC2 upgrade could ever be recognised. Asking the stack gives
+     * {@code ic2.overclockerUpgrade}, {@code ic2.energyStorageUpgrade}, ...
+     */
+    private static String storeName(ItemStack stack) {
+        String name = stack.getUnlocalizedName();
+        return name == null ? "" : name;
     }
 
     public static boolean isMachineUpgrade(ItemStack stack) {

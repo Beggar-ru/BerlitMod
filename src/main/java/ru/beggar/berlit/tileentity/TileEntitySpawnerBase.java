@@ -68,6 +68,8 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
         super.updateEntity();
         if (worldObj.isRemote) return;
 
+        enforceSingleCore();
+
         UpgradeStats stats = getTotalUpgradeStats();
 
         for (int i = 0; i < getEntitySlotCount(); i++) {
@@ -177,6 +179,61 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
 
     public EntityDefinition getDefinition(int slot) {
         return EntityRegistry.get(ItemEntityCard.getEntityId(inventory[slot]));
+    }
+
+    /**
+     * A spawner accepts at most one core of each kind, so {@code slot} may only take
+     * {@code stack} when no other upgrade slot already holds that kind.
+     */
+    public boolean canAcceptUpgrade(int slot, ItemStack stack) {
+        if (slot < getUpgradeSlotStart() || slot >= getSlotCount()) return false;
+        if (UpgradeRegistry.get(stack) == null) return false;
+
+        for (int i = getUpgradeSlotStart(); i < getSlotCount(); i++) {
+            if (i == slot) continue;
+            if (UpgradeRegistry.isSameType(inventory[i], stack)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Safety net for the paths that bypass slot validation (pipes, hoppers, imported NBT):
+     * a second core of the same kind, or more than one core in a slot, is dropped out of
+     * the block instead of quietly piling up.
+     */
+    private void enforceSingleCore() {
+        boolean changed = false;
+
+        for (int i = getUpgradeSlotStart(); i < getSlotCount(); i++) {
+            ItemStack stack = inventory[i];
+            if (stack == null) continue;
+
+            if (stack.stackSize > 1) {
+                ItemStack extra = stack.copy();
+                extra.stackSize = stack.stackSize - 1;
+                stack.stackSize = 1;
+                ejectUpgrade(extra);
+                changed = true;
+            }
+
+            for (int j = getUpgradeSlotStart(); j < i; j++) {
+                if (!UpgradeRegistry.isSameType(inventory[j], stack)) continue;
+                inventory[i] = null;
+                ejectUpgrade(stack);
+                changed = true;
+                break;
+            }
+        }
+
+        if (changed) markDirty();
+    }
+
+    private void ejectUpgrade(ItemStack stack) {
+        EntityItem entity = new EntityItem(worldObj, xCoord + 0.5D, yCoord + 1.2D, zCoord + 0.5D, stack);
+        entity.motionX = 0.0D;
+        entity.motionY = 0.0D;
+        entity.motionZ = 0.0D;
+        worldObj.spawnEntityInWorld(entity);
     }
 
     public UpgradeStats getTotalUpgradeStats() {
@@ -334,7 +391,7 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
         if (slot < getEntitySlotCount()) {
             return stack.getItem() instanceof ItemEntityCard;
         }
-        return slot >= getUpgradeSlotStart() && slot < getSlotCount() && UpgradeRegistry.get(stack) != null;
+        return canAcceptUpgrade(slot, stack);
     }
 
     // ----- NBT -----

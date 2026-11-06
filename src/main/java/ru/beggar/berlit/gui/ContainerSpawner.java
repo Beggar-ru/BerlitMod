@@ -30,12 +30,18 @@ public class ContainerSpawner extends Container {
         }
 
         for (int i = 0; i < TileEntitySpawnerBase.UPGRADE_SLOTS; i++) {
-            int index = tile.getUpgradeSlotStart() + i;
+            final int index = tile.getUpgradeSlotStart() + i;
             addSlotToContainer(new Slot(tile, index, tile.getUpgradeSlotX(i), tile.getUpgradeSlotY(i)) {
 
                 @Override
                 public boolean isItemValid(ItemStack stack) {
-                    return UpgradeRegistry.get(stack) != null;
+                    return tile.canAcceptUpgrade(index, stack);
+                }
+
+                /** One core per slot: the rest of the held stack stays in the cursor. */
+                @Override
+                public int getSlotStackLimit() {
+                    return 1;
                 }
             });
         }
@@ -52,6 +58,28 @@ public class ContainerSpawner extends Container {
         for (int col = 0; col < 9; col++) {
             addSlotToContainer(new Slot(inventory, col, 20 + col * SLOT_SIZE, 222));
         }
+    }
+
+    /**
+     * Shift-click path for cores: one core per slot and none twice, so each core kind is
+     * placed into the first upgrade slot that still accepts it. Anything that does not fit
+     * stays in the player's inventory.
+     */
+    private boolean mergeUpgrades(ItemStack stack) {
+        boolean moved = false;
+
+        for (int i = tile.getUpgradeSlotStart(); i < tile.getSlotCount() && stack.stackSize > 0; i++) {
+            if (tile.getStackInSlot(i) != null) continue;
+            if (!tile.canAcceptUpgrade(i, stack)) continue;
+
+            ItemStack single = stack.copy();
+            single.stackSize = 1;
+            tile.setInventorySlotContents(i, single);
+            stack.stackSize--;
+            moved = true;
+        }
+
+        return moved;
     }
 
     @Override
@@ -80,7 +108,7 @@ public class ContainerSpawner extends Container {
                     return null;
                 }
             } else if (UpgradeRegistry.get(stack) != null) {
-                if (!mergeItemStack(stack, entityCount, machineSlots, false)) {
+                if (!mergeUpgrades(stack)) {
                     return null;
                 }
             } else {

@@ -10,6 +10,10 @@
 - Запуск: `./gradlew runClient` / `runServer`. В dev-клиенте есть IC2, CraftTweaker, NEI
   (CodeChickenCore/Lib) — см. `dependencies.gradle`, `libs/`.
 - После правок Java: `./gradlew spotlessApply` (иначе `build` упадёт на spotlessJavaCheck).
+- Окружение этой машины и восстановление с нуля — `DEV_ENVIRONMENT.md`. Коротко:
+  `python tools\env\fetch_jdks.py`, `python tools\env\mirror.py`, затем
+  `.\tools\dev-env.ps1 build`. Сборка требует полного доступа к файлам: jabel
+  подключается к javac через именованный канал Windows, который песочница блокирует.
 
 ## Структура
 
@@ -44,11 +48,20 @@ tools/                   — генераторы текстур/GUI и прев
 
 - Креативная вкладка, молекулярный трансформер (6+6+4 слота, пакетная переработка,
   энергия, ejector/pulling/overclocker/accelerators/stack upgrade).
-- Спавнер T1 (1 сущность) и T2 (10 слотов ×10), дропы с шансами, ядра DE + свои I–III,
+- Спавнер T1 (1 сущность) и T2 (10 слотов ×10), дропы с шансами, 7 слотов ядер:
+  4 ядра Draconic Evolution + свои I–III (`ItemSpawnerCore`). DE-ядра ищутся по unlocalized
+  имени стека (`item.draconicevolution:draconicCore`), поэтому DE остаётся опциональным.
+  Действует правило «одно ядро каждого вида» (`TileEntitySpawnerBase.canAcceptUpgrade`),
   NEI-страница дропов, CraftTweaker `mods.berlit.Spawner`.
-- Обработчики: дробитель, компрессор, металоформовочный (продавливание), прокатный стан,
-  электропечь. 6+6+4 слота, импорт рецептов IC2, NEI, CraftTweaker `mods.berlit.Machines`.
-- Вход обработчиков принимает только предметы с рецептом в текущем режиме.
+- Обработчики: дробитель, компрессор, **экструдер** (`metal_extruder`, выдавливание),
+  **прокатный стан** (`metal_roller`, прокатка), электропечь. 6+6+4 слота, импорт рецептов
+  IC2, NEI, CraftTweaker `mods.berlit.Machines`. У металлических машин операция задана типом
+  (`MachineType.getDefaultMode()`), переключения режима нет; NEI показывает рецепты IC2
+  отдельной страницей для экструдера и для прокатки.
+- Вход обработчиков принимает только предметы с рецептом у этой машины.
+- IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
+  улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
+  потому что IC2 держит все модули в одном предмете и различает их только стеком.
 - Ускорители Berlit реализуют IC2 `IUpgradeItem` — работают в IC2-машинах.
 - **Super Chest** 27×9 слотов по 1024 предмета (`BlockSuperChest`, кастомный NBT `Count` int,
   широкий GUI 502×266, `ContainerSuperChest`/`GuiSuperChest`).
@@ -82,8 +95,10 @@ tools/                   — генераторы текстур/GUI и прев
 - `ItemSingularityPattern` / `SingularityPatternDetails` + `berlit.singularity_encoder` — шаблоны компрессора.
 - `TileEntityNeutronCompressor` — `CompressorManager`, слот шаблона, cost→singularity.
 
-Проверено selftest'ом на сервере: 9×9-шаблон даёт 81 вход / 80 в конденсированном и алмаз на выходе;
-шаблон сингулярности — cost 2900. Осталось прогнать полный цикл в игровом мире (GUI/ME-сеть).
+Проверено: автокрафт 9×9 и создание сингулярностей работают в игре (подтверждено вручную —
+терминал, ME Interface, шаблоны, нейтронный компрессор). Selftest на сервере страхует от
+регрессий: 9×9-шаблон конденсируется, находится в `ExtremeCraftingManager` и выдаёт алмаз;
+шаблон сингулярности забирает `cost` из `CompressorManager` и отдаёт сингулярность.
 
 ## Полезные ссылки
 
@@ -97,9 +112,16 @@ tools/                   — генераторы текстур/GUI и прев
 
 Запуск: $env:BERLIT_SELFTEST='1'; $env:JAVA_TOOL_OPTIONS='-Dfml.queryResult=confirm'; ./gradlew runServer запускает Selftest: добавляет тестовый 9×9-рецепт (81 железо → алмаз), прогоняет `pushPattern` и компрессор. Ожидаемые строки в логе:
 `
+BERLIT_SELFTEST upgrades: overclocker=true storage=true draconic=true chaotic=true
+BERLIT_SELFTEST spawner cores: first=true duplicate=false other=true
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
 BERLIT_SELFTEST compressor: cost=900 out=1xitem.avaritia_singularity@0 inputLeft=null
 `
+
+Тестовая площадка сборщика стоит на `(1000, 64, 1000)`; чанк там приходится грузить явно
+(`world.getChunkFromBlockCoords`), иначе `setTileEntity` молча ничего не делает и `pushPattern`
+рапортует ложный отказ. Сервер работает в `run/server`, поэтому `eula.txt` и `server.properties`
+нужны именно там.
 
 ### Как кодировать 9×9 и запускать автокрафт
 

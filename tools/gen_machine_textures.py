@@ -36,7 +36,9 @@ def machine(name, accent):
 
 machine("machine_macerator", (200, 90, 60, 255))
 machine("machine_compressor", (90, 140, 220, 255))
-machine("machine_metal_former", (190, 170, 70, 255))
+# The metal former was split into two blocks; the accent tells them apart.
+machine("machine_metal_extruder", (190, 170, 70, 255))
+machine("machine_metal_roller", (120, 165, 205, 255))
 machine("machine_electric_furnace", (220, 120, 60, 255))
 
 # Stack upgrade icon.

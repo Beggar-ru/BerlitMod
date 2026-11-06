@@ -77,11 +77,6 @@ public class MachineNEI extends TemplateRecipeHandler {
         return "berlit:textures/gui/nei_page.png";
     }
 
-    /** One mode per machine: the metal former no longer switches between recipes. */
-    private static int modes(MachineType type) {
-        return 1;
-    }
-
     @Override
     public void loadCraftingRecipes(String outputId, Object... results) {
         if ("item".equals(outputId) && results.length > 0 && results[0] instanceof ItemStack) {
@@ -94,14 +89,11 @@ public class MachineNEI extends TemplateRecipeHandler {
         if (result == null) return;
 
         for (MachineType type : MachineType.values()) {
-            for (int mode = 0; mode < modes(type); mode++) {
-                for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
-                    if (recipe.getOutput()
-                        .getItem() == result.getItem()
-                        && recipe.getOutput()
-                            .getItemDamage() == result.getItemDamage()) {
-                        arecipes.add(new CachedMachineRecipe(type, mode, recipe));
-                    }
+            int mode = type.getDefaultMode();
+            for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
+                ItemStack output = recipe.getOutput();
+                if (output.getItem() == result.getItem() && output.getItemDamage() == result.getItemDamage()) {
+                    arecipes.add(new CachedMachineRecipe(type, mode, recipe));
                 }
             }
         }
@@ -113,25 +105,23 @@ public class MachineNEI extends TemplateRecipeHandler {
 
         for (MachineType type : MachineType.values()) {
             ItemStack machine = new ItemStack(Berlit.machineBlocks.get(type));
-            if (machine.getItem() == ingredient.getItem() && machine.getItemDamage() == ingredient.getItemDamage()) {
-                for (int mode = 0; mode < modes(type); mode++) {
-                    for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
-                        arecipes.add(new CachedMachineRecipe(type, mode, recipe));
-                    }
-                }
-                return;
+            if (machine.getItem() != ingredient.getItem() || machine.getItemDamage() != ingredient.getItemDamage()) {
+                continue;
             }
+
+            int mode = type.getDefaultMode();
+            for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
+                arecipes.add(new CachedMachineRecipe(type, mode, recipe));
+            }
+            return;
         }
 
         for (MachineType type : MachineType.values()) {
-            for (int mode = 0; mode < modes(type); mode++) {
-                for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
-                    if (recipe.getInput()
-                        .getItem() == ingredient.getItem()
-                        && recipe.getInput()
-                            .getItemDamage() == ingredient.getItemDamage()) {
-                        arecipes.add(new CachedMachineRecipe(type, mode, recipe));
-                    }
+            int mode = type.getDefaultMode();
+            for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
+                ItemStack input = recipe.getInput();
+                if (input.getItem() == ingredient.getItem() && input.getItemDamage() == ingredient.getItemDamage()) {
+                    arecipes.add(new CachedMachineRecipe(type, mode, recipe));
                 }
             }
         }
@@ -141,14 +131,25 @@ public class MachineNEI extends TemplateRecipeHandler {
     public void drawExtras(int recipe) {
         if (recipe < 0 || recipe >= arecipes.size()) return;
         CachedMachineRecipe cached = (CachedMachineRecipe) arecipes.get(recipe);
-        Minecraft.getMinecraft().fontRenderer.drawString(
-            StatCollector.translateToLocal(
-                cached.getMachineType()
-                    .getTitleKey()),
-            8,
-            6,
-            0x404040);
+        MachineType type = cached.getMachineType();
+
+        Minecraft.getMinecraft().fontRenderer
+            .drawString(StatCollector.translateToLocal(type.getTitleKey()), 8, 6, 0x404040);
+
+        String operation = operationKey(type);
+        if (operation != null) {
+            Minecraft.getMinecraft().fontRenderer
+                .drawString(StatCollector.translateToLocal(operation), 8, 46, 0x606060);
+        }
+
         Minecraft.getMinecraft().fontRenderer.drawString("->", 88, 22, 0x606060);
-        Minecraft.getMinecraft().fontRenderer.drawString("EU: " + cached.energy, 8, 48, 0x404040);
+        Minecraft.getMinecraft().fontRenderer.drawString("EU: " + cached.energy, 8, 34, 0x404040);
+    }
+
+    /** Names the IC2 operation shown on the page, for the two metal machines. */
+    private static String operationKey(MachineType type) {
+        if (type == MachineType.METAL_EXTRUDER) return "nei.berlit.operation.extruding";
+        if (type == MachineType.METAL_ROLLER) return "nei.berlit.operation.rolling";
+        return null;
     }
 }

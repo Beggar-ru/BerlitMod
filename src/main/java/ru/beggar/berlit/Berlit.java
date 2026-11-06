@@ -72,7 +72,7 @@ public class Berlit {
     public static ItemSpawnerCore spawnerCore3;
     public static BlockProcessingMachine macerator;
     public static BlockProcessingMachine compressor;
-    public static BlockProcessingMachine metalFormer;
+    public static BlockProcessingMachine metalExtruder;
     public static BlockProcessingMachine metalRoller;
     public static BlockProcessingMachine electricFurnace;
     public static BlockSuperChest superChest;
@@ -149,9 +149,9 @@ public class Berlit {
         GameRegistry.registerBlock(compressor, "berlit.machine_compressor");
         machineBlocks.put(MachineType.COMPRESSOR, compressor);
 
-        metalFormer = new BlockProcessingMachine(MachineType.METAL_FORMER);
-        GameRegistry.registerBlock(metalFormer, "berlit.machine_metal_former");
-        machineBlocks.put(MachineType.METAL_FORMER, metalFormer);
+        metalExtruder = new BlockProcessingMachine(MachineType.METAL_EXTRUDER);
+        GameRegistry.registerBlock(metalExtruder, "berlit.machine_metal_extruder");
+        machineBlocks.put(MachineType.METAL_EXTRUDER, metalExtruder);
 
         metalRoller = new BlockProcessingMachine(MachineType.METAL_ROLLER);
         GameRegistry.registerBlock(metalRoller, "berlit.machine_metal_roller");
@@ -431,7 +431,7 @@ public class Berlit {
             Items.redstone);
 
         GameRegistry.addRecipe(
-            new ItemStack(metalFormer),
+            new ItemStack(metalExtruder),
             "IBI",
             "IRI",
             "IBI",

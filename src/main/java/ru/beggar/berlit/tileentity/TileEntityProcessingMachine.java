@@ -66,7 +66,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
         return type;
     }
 
-    /** Kept for the recipe lookup: the metal former now runs a single mode. */
+    /** Each machine runs one fixed IC2 operation, and the mode selects its recipe table. */
     public int getMode() {
         return mode;
     }

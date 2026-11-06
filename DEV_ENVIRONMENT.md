@@ -1,24 +1,44 @@
 # Рабочее окружение Berlit
 
-Документ описывает окружение, которое подготовлено в этом чекауте (`C:\main_mod`),
-и то, как им пользоваться при работе над интерфейсом и текстурами.
+Документ описывает окружение для работы над модом и то, как им пользоваться.
+Всё, что нужно для сборки, восстанавливается из репозитория тремя командами —
+см. «Восстановление с нуля» ниже.
 
 ## Что установлено
 
 | Компонент | Где | Зачем |
 |---|---|---|
-| JDK 25 (Microsoft OpenJDK 25.0.5) | `.tools\jdk-25` | Gradle-демон (`.java-version` = 25) |
+| JDK 25 (Temurin 25.0.5) | `.tools\jdk-25` | Gradle-демон (`.java-version` = 25) |
 | JDK 21 (Temurin 21.0.13) | `.tools\jdk-21` | тулчейн для `applyJST` (RFG-трансформер) |
-| JDK 8 (Temurin 8u504) | `.tools\jdk-8` | тулчейн целевой версии мода |
-| JDK 17 (уже был в системе) | `C:\Program Files\Microsoft\jdk-17.0.18.8-hotspot` | тулчейн для `compileInjectedInterfacesJava` |
+| JDK 17 (Temurin 17.0.20.1) | `.tools\jdk-17` | тулчейн для `compileInjectedInterfacesJava` |
+| JDK 8 (Temurin 1.8.0_512) | `.tools\jdk-8` | тулчейн целевой версии мода |
 | Gradle 9.7.1 | `.gradle-home\wrapper\dists` | скачивается wrapper'ом, версия из `gradle/wrapper/gradle-wrapper.properties` |
 | Gradle-кэш и daemon | `.gradle-home` | `GRADLE_USER_HOME`, чтобы не писать в `%USERPROFILE%` |
-| Python + Pillow 12.3 | `.tools\python.txt` | генераторы `tools\gen_*.py` и превью-инструменты |
+| Локальное Maven-зеркало | `.tools\local-maven` | jar'ы, которые не отдаёт GTNH Nexus (~78 МБ) |
+| Python + Pillow 12.3 | путь записан в `.tools\python.txt` | генераторы `tools\gen_*.py` и превью-инструменты |
 
-`.tools\` и `.gradle-home\` добавлены в `.git\info\exclude` — в репозиторий они не попадут.
-JDK скачиваются скриптами `.tools\fetch_jdk25.py` и `.tools\fetch_jdk.py <версия>`
-(Python/OpenSSL, см. ниже про TLS), потому что авто-скачивание тулчейнов через foojay
-на этой сети отваливается по таймауту.
+`.tools\` и `.gradle-home\` перечислены в `.gitignore` — в репозиторий они не попадают.
+
+## Восстановление с нуля
+
+```powershell
+python tools\env\fetch_jdks.py      # JDK 25/21/17/8 через API Adoptium
+python tools\env\mirror.py          # jar'ы с GitHub Releases -> .tools\local-maven
+.\tools\dev-env.ps1 build           # собрать мод
+```
+
+Оба скрипта качают через Python (`urllib` и его собственный OpenSSL), потому что
+системный TLS на этой машине сломан, а авто-скачивание тулчейнов через foojay на
+этой сети отваливается по таймауту.
+
+`dev-env.ps1` при первом запуске сам создаёт `.gradle-home\gradle.properties`
+(абсолютные пути к JDK, обходы песочницы, таймауты сети) и копирует
+`tools\env\local-mirror.gradle` в `.gradle-home\init.d`. Оба файла машинно-зависимые
+и генерируются, править их руками не нужно: удалите `gradle.properties`, и он будет
+создан заново.
+
+Проверить, что зеркало на месте: `python tools\env\mirror.py --list`.
+
 
 ## Быстрый старт
 
@@ -48,11 +68,12 @@ pv sheet
 Чтобы `gw`/`pv` были всегда, добавьте строку в профиль PowerShell (`notepad $PROFILE`):
 
 ```powershell
-. C:\main_mod\tools\dev-env.ps1
+. C:\Users\SERVER\Desktop\BerlitMod\tools\dev-env.ps1
 ```
 
-Сборка проверена: `BUILD SUCCESSFUL`, на выходе `build\libs\berlit-0.12.0-main.2+534e68152f-dirty.jar`
-(74 класса, 4 GUI-текстуры, 8 предметов, 25 блоков, `en_US`/`ru_RU`).
+Сборка проверена на этом чекауте: `BUILD SUCCESSFUL`, на выходе
+`build\libs\berlit-0.21.1-main+2ab71d4ade-dirty.jar` (148 классов, 53 текстуры блоков,
+14 предметов, 7 GUI-текстур, `en_US`/`ru_RU`, `mixins.berlit.json` с refmap).
 
 ## Особенность этой машины: сломан системный TLS
 
@@ -68,48 +89,32 @@ pv sheet
 Если понадобится другой инструмент с HTTPS — запускайте его через Python или Java,
 либо добавьте `-c http.sslBackend=openssl` для git-команд в других репозиториях.
 
-## Блокер: jar-файлы с nexus.gtnewhorizons.com не скачиваются (решено обходом)
+## Nexus отдаёт pom, но не отдаёт jar
 
-Сетевой путь до GTNH-нексуса отдаёт только текстовые ответы. Проверено с трёх клиентов
-(Python/OpenSSL, Node/undici, Java HTTP/1.1 и HTTP/2) и по HTTPS и по HTTP:
+`nexus.gtnewhorizons.com` отвечает на `.pom`, `.module` и `.sha1` нормально, а на `.jar`
+присылает заголовки с `Content-Length` — и обрывает соединение, так и не отдав тело.
+Проверено с Python/OpenSSL, Node и Java, по HTTPS и по HTTP. Обрыв привязан не к пути,
+а к объёму: **Range-запрос до 16 КБ проходит (206), всё крупнее — таймаут**.
+GitHub Releases, Maven Central и services.gradle.org при этом работают нормально.
 
-| Ресурс | Результат |
-|---|---|
-| `*.pom`, `*.module`, `*.sha1`, `*.sha256` | 200, тело приходит |
-| `gtnhgradle-2.0.33.jar`, `retrofuturagradle-2.0.5.jar` | 200 + `Content-Length`, тело не приходит, таймаут или сброс |
-| jar-файлы с `repo1.maven.org` | скачиваются (3 МБ за 0.7 с) |
+### Обход: локальное зеркало
 
-Браузер (с VPN) эти же файлы скачивает, поэтому jar-файлы добираются руками.
+`tools\env\mirror.py` собирает Maven-репозиторий `.tools\local-maven`:
 
-### Обход: локальное зеркало из вручную скачанных jar
+- **jar — с GitHub Releases**: GTNH публикует туда каждый артефакт с нужным
+  классификатором (`-dev`, `-api`, `-dev-preshadow`);
+- **pom — с Nexus**: текст отдаётся, и Gradle видит настоящие зависимости;
+- **единственное исключение** — `jabel-javac-plugin:1.0.2-GTNH`: у тега на GitHub нет
+  ассетов, jitpack отдаёт 404/401, поэтому его jar (27 КБ) собирается по чанкам
+  16 КБ через Range-запросы (см. `fetch_chunked` в том же скрипте).
 
-Скачанные в браузере jar-файлы складываются в `.tools\downloads\`,
-а `.tools\install_jars.py` публикует их как Maven-репозиторий `.tools\local-maven\`
-(проверяя, что файл — настоящий zip). Скрипт `.gradle-home\init.d\local-mirror.gradle`
-ставит этот репозиторий перед Nexus, поэтому Gradle берёт готовые jar локально,
-а pom/метаданные (они качаются) — из сети.
+`.gradle-home\init.d\local-mirror.gradle` ставит зеркало **перед** Nexus в
+`pluginManagement`, `dependencyResolutionManagement` и `repositories` проектов,
+поэтому Gradle находит jar локально и не ждёт таймаут.
 
-```powershell
-# 1. скачать jar в браузере и положить в .tools\downloads
-# 2. установить в локальный репозиторий
-python .tools\install_jars.py
-python .tools\install_jars.py --list    # что уже стоит, чего не хватает
-```
-
-Соответствие «имя файла → группа:артефакт:версия» ведётся в
-`.tools\downloads\MANIFEST.txt`; имя файла можно брать прямо из URL
-(`retrofuturagradle-2.0.5.jar`), подчёркивания вместо дефисов тоже принимаются.
-
-Сейчас в зеркале лежат 9 артефактов, и сборка проходит полностью:
-`gtnhgradle`, `retrofuturagradle`, `jabel-javac-plugin`, `GTNHExtLib`, `GTNHLib` (0.11.0,
-0.11.37, 0.11.48), `Hodgepodge`, `lwjgl3ify`.
-
-Если появится новая недоступная зависимость, найти все сразу можно так:
-
-```powershell
-gw :dependencies -q                          # граф зависимостей (метаданные качаются)
-python .tools\scan_deps.py .tools\deps.log   # какие из них лежат на Nexus
-```
+Соответствие «координаты → URL» — словарь `MANIFEST` в `tools\env\mirror.py`.
+Если появится новая недоступная зависимость, Gradle назовёт её в тексте ошибки:
+допишите пару в `MANIFEST` и запустите `python tools\env\mirror.py`.
 
 ## Песочница, временные файлы и компиляция
 
@@ -124,6 +129,27 @@ python .tools\scan_deps.py .tools\deps.log   # какие из них лежат
    а песочница такие каналы запрещает (`Win32Exception: Отказано в доступе` в
    `ByteBuddyAgent...NamedPipe`). Поэтому сборку нужно запускать вне песочницы DSH —
    с полным доступом к файлам или из обычного терминала.
+4. **Configuration cache.** Gradle 9 включает её по умолчанию, а `Download`-задача RFG
+   в неё не сериализуется (`sourceObjects` / `HttpHostConnectException`). Отключена:
+   `org.gradle.configuration-cache=false`.
+
+### Политика выполнения PowerShell
+
+`Get-ExecutionPolicy` = `Restricted` (во всех областях `Undefined`), поэтому
+`.\tools\dev-env.ps1` без подготовки не запустится: «выполнение сценариев отключено
+в этой системе». Разово:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+или на одну сессию: `Set-ExecutionPolicy -Scope Process Bypass -Force`.
+
+Вторая ловушка той же природы: Windows PowerShell 5.1 добавляет BOM при
+`Set-Content -Encoding UTF8`, а Gradle и Groovy его не переваривают — BOM в
+`.gradle.properties` ломает первый ключ, BOM в init-скрипте даёт
+`Unexpected character: '﻿'` при компиляции Groovy. Поэтому `dev-env.ps1` пишет
+сгенерированные файлы через `[System.IO.File]::WriteAllText` с `UTF8Encoding($false)`.
 
 ## Инструменты для интерфейса и текстур
 
@@ -262,17 +288,17 @@ PNG. Всё рисуется в рантайме из одного кита `tex
 - **GUI 1.7.10 — 256x256 RGBA.** Все четыре GUI-текстуры этому соответствуют, линтер следит.
 - **Счётчик улучшений у спавнера убран**: слоты теперь видны отдельным блоком, а строка
   «Улучшения: N» не помещалась на панели. Ключ `berlit.gui.spawner.upgrades` остался в lang.
-- **Режимы металлоформовочного убраны.** Кнопки режима, пакета `PacketCycleMode` и переключения
-  по Shift-клику больше нет; режим резки удалён из `MachineRecipes` вместе с рецептами, константа
-  `MODE_ROLLING` стала `1`. Машина сейчас работает как «выдавливание» (режим 0), а рецепты
-  прокатки остаются в таблице недостижимыми до появления отдельного механизма прокатки.
+- **Металлоформовочный разнесён на два блока.** Кнопки режима, пакета `PacketCycleMode` и
+  переключения по Shift-клику нет; вместо одной машины с необъявленным режимом теперь
+  `METAL_EXTRUDER` (выдавливание, `Recipes.metalformerExtruding`) и `METAL_ROLLER`
+  (прокатка, `Recipes.metalformerRolling`). Режим задаётся типом машины
+  (`MachineType.getDefaultMode()`), поэтому `mode` остаётся только ключом таблицы рецептов,
+  а NEI показывает рецепты IC2 отдельной страницей для каждого блока.
 
 ## Следующие шаги
 
 - Удалить `gen_gui.py` и `gen_transformer_gui.py` (после подтверждения).
 - Занять пустое место у спавнера T1 (один слот на всю панель) — например, рамкой
   под портрет сущности.
-- Разнести металлоформовочный на отдельные механизмы прокатки и выдавливания; тогда
-  `MODE_ROLLING` снова станет достижимым, а `getMode()` можно будет убрать.
 - Добавить `pv check` в CI (`.github/workflows/build-and-test.yml`) — линтер
   работает без JDK и ловит рассинхрон текстуры и кода до сборки.

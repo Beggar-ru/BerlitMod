@@ -36,11 +36,13 @@ item.berlit.spawner_core.amount=Drop amount: +%s
 
 tile.berlit.machine_macerator.name=Macerator
 tile.berlit.machine_compressor.name=Compressor
-tile.berlit.machine_metal_former.name=Metal Former
+tile.berlit.machine_metal_extruder.name=Metal Extruder
 tile.berlit.machine_electric_furnace.name=Electric Furnace
 item.berlit.stack_upgrade.name=Stack Upgrade
 item.berlit.stack_upgrade.tooltip=Processes a whole stack per operation
 nei.berlit.machines=Berlit Machines
+nei.berlit.operation.extruding=Extruding
+nei.berlit.operation.rolling=Rolling
 
 berlit.gui.info.energy=Energy: %s / %s EU
 berlit.gui.info.input=Consumption: %s EU/t

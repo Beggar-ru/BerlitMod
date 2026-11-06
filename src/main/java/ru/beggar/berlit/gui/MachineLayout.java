@@ -1,7 +1,7 @@
 package ru.beggar.berlit.gui;
 
 /**
- * Geometry of the machine screens (transformer, macerator, compressor, metal former/roller, furnace),
+ * Geometry of the machine screens (transformer, macerator, compressor, extruder, roller, furnace),
  * shared by their Containers and Guis. The screen is a 200x140 panel with the progress bar and upgrade
  * well, plus the 176x98 inventory panel 8px below it.
  */

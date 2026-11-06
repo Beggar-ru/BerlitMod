@@ -36,11 +36,13 @@ item.berlit.spawner_core.amount=Количество дропа: +%s
 
 tile.berlit.machine_macerator.name=Дробитель
 tile.berlit.machine_compressor.name=Компрессор
-tile.berlit.machine_metal_former.name=Металоформовочный
+tile.berlit.machine_metal_extruder.name=Экструдер
 tile.berlit.machine_electric_furnace.name=Электропечь
 item.berlit.stack_upgrade.name=Улучшение «Стакс»
 item.berlit.stack_upgrade.tooltip=Перерабатывает целый стак за операцию
 nei.berlit.machines=Механизмы Berlit
+nei.berlit.operation.extruding=Выдавливание
+nei.berlit.operation.rolling=Прокатка
 
 berlit.gui.info.energy=Энергия: %s / %s EU
 berlit.gui.info.input=Потребление: %s EU/t

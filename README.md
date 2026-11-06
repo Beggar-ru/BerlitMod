@@ -6,11 +6,13 @@
 
 - **Молекулярный трансформер** — 6 входов / 6 выходов / 4 улучшения, переработка предметов за EU.
 - **Спавнер сущностей** (Tier 1 и Tier 2) — карты мобов, дроп с шансами, 7 слотов ядер.
-  Tier 2: 10 слотов по 10 сущностей. Ядра DE и свои Spawner Core I–III.
-- **Обрабатывающие механизмы** — дробитель, компрессор, металоформовочный (3 режима: продавливание,
-  резка, прокатка), электропечь. Импортируют рецепты IC2, вход принимает только валидные ресурсы.
-- **Улучшения** — IC2 Overclocker/Ejector/Pulling/Energy Storage/Transformer, свои Accelerator MK II/III
-  (работают и в IC2-машинах) и Stack Upgrade (стак за операцию).
+  Tier 2: 10 слотов по 10 сущностей. 4 ядра Draconic Evolution и свои Spawner Core I–III,
+  по одному ядру каждого вида.
+- **Обрабатывающие механизмы** — дробитель, компрессор, экструдер (выдавливание), прокатный
+  стан (прокатка), электропечь. Импортируют рецепты IC2, вход принимает только валидные ресурсы;
+  у каждого металлического механизма своя операция и своя страница рецептов в NEI.
+- **Улучшения** — IC2 Overclocker/Ejector/Pulling/Energy Storage/Transformer (принимаются в механизмах
+  Berlit), свои Accelerator MK II/III (работают и в IC2-машинах) и Stack Upgrade (стак за операцию).
 - **CraftTweaker** — рецепты трансформера, машин, дропы и сущности спавнера.
 - **NEI** — страницы рецептов машин и дропов сущностей.
 
@@ -38,7 +40,8 @@ MolecularTransformer.removeRecipe(<minecraft:diamond>);
 
 import mods.berlit.Machines;
 Machines.addRecipe("macerator", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300);
-Machines.addRecipe("metal_former", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300, 1);
+Machines.addRecipe("metal_extruder", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300);
+Machines.addRecipe("metal_roller", <minecraft:iron_plate>, <minecraft:iron_ore>, 300);
 
 import mods.berlit.Spawner;
 Spawner.addDrop("iron_golem", <minecraft:gold_ingot>, 0.5, 1, 2);

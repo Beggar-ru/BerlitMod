@@ -4,7 +4,7 @@ public enum MachineType {
 
     MACERATOR("macerator", "tile.berlit.machine_macerator.name", 300),
     COMPRESSOR("compressor", "tile.berlit.machine_compressor.name", 400),
-    METAL_FORMER("metal_former", "tile.berlit.machine_metal_former.name", 500),
+    METAL_EXTRUDER("metal_extruder", "tile.berlit.machine_metal_extruder.name", 500),
     METAL_ROLLER("metal_roller", "tile.berlit.machine_metal_roller.name", 500),
     ELECTRIC_FURNACE("electric_furnace", "tile.berlit.machine_electric_furnace.name", 200);
 
@@ -30,9 +30,12 @@ public enum MachineType {
         return energyPerItem;
     }
 
-    /** Metal former works in extruding mode, the roller in rolling mode. */
+    /**
+     * Each metal machine does exactly one IC2 metal-former operation: the extruder presses
+     * shapes, the roller rolls plates, and neither can be switched to the other mode.
+     */
     public int getDefaultMode() {
-        return this == METAL_ROLLER ? 1 : 0;
+        return this == METAL_ROLLER ? MachineRecipes.MODE_ROLLING : MachineRecipes.MODE_EXTRUDING;
     }
 
     public String getTextureName() {

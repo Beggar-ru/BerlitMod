@@ -22,7 +22,7 @@ import stanhebben.zenscript.annotations.ZenMethod;
  * import mods.berlit.Machines;
  *
  * Machines.addRecipe("macerator", &lt;minecraft:iron_ingot&gt;, &lt;minecraft:iron_ore&gt;, 300);
- * Machines.addRecipe("metal_former", &lt;minecraft:iron_ingot&gt;, &lt;minecraft:iron_ore&gt;, 300, 1);
+ * Machines.addRecipe("metal_roller", &lt;minecraft:iron_ingot&gt;, &lt;minecraft:iron_ore&gt;, 300);
  * Machines.removeRecipe("macerator", &lt;minecraft:iron_ingot&gt;);
  * </pre>
  */
@@ -37,7 +37,12 @@ public final class MachinesTweaker {
 
     @ZenMethod
     public static void addRecipe(String machine, IItemStack output, IItemStack input, int energy) {
-        addRecipe(machine, output, input, energy, 0);
+        MachineType type = type(machine);
+        if (type == null) {
+            MineTweakerAPI.logError("Machines.addRecipe: unknown machine '" + machine + "'");
+            return;
+        }
+        addRecipe(machine, output, input, energy, type.getDefaultMode());
     }
 
     @ZenMethod
@@ -77,7 +82,12 @@ public final class MachinesTweaker {
 
     @ZenMethod
     public static void removeRecipeByInput(String machine, IItemStack input) {
-        removeRecipeByInput(machine, input, 0);
+        MachineType type = type(machine);
+        if (type == null) {
+            MineTweakerAPI.logError("Machines.removeRecipeByInput: unknown machine '" + machine + "'");
+            return;
+        }
+        removeRecipeByInput(machine, input, type.getDefaultMode());
     }
 
     @ZenMethod
@@ -183,7 +193,8 @@ public final class MachinesTweaker {
         @Override
         public void undo() {
             for (MachineRecipe recipe : removed) {
-                MachineRecipes.add(type, 0, recipe.getInput(), recipe.getOutput(), recipe.getEnergy());
+                MachineRecipes
+                    .add(type, type.getDefaultMode(), recipe.getInput(), recipe.getOutput(), recipe.getEnergy());
             }
         }
 

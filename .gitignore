@@ -1,4 +1,8 @@
 .gradle
+.gradle-home
+.tools
+/docs/preview
+__pycache__
 .settings
 /.idea/
 /.vscode/

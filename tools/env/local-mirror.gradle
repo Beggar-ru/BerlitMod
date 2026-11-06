@@ -1,0 +1,47 @@
+// Put the local jar mirror in front of the GTNH Nexus.
+//
+// On this network nexus.gtnewhorizons.com serves poms but never delivers jar
+// bodies, so `python tools/env/mirror.py` copies every needed jar into
+// .tools/local-maven (from GitHub Releases, plus one chunked download from the
+// Nexus). This script makes Gradle look there first; poms and everything else
+// still come from the normal repositories.
+//
+// It is auto-applied because it lives in $GRADLE_USER_HOME/init.d.
+
+def projectRoot = gradle.gradleUserHomeDir.parentFile
+def mirrorDir = new File(projectRoot, ".tools/local-maven")
+
+if (!mirrorDir.directory) {
+    throw new GradleException(
+        "Local Maven mirror not found: ${mirrorDir}\n" +
+        "Run: python tools/env/mirror.py"
+    )
+}
+
+def mirrorUri = mirrorDir.toURI()
+
+// Settings plugins (gtnhsettingsconvention) are resolved while settings.gradle.kts
+// is evaluated, so this has to happen before then. The settings script appends the
+// Nexus afterwards, which keeps the mirror first in the lookup order.
+beforeSettings { settings ->
+    settings.pluginManagement.repositories.maven { repo ->
+        repo.name = "BerlitLocalMirror"
+        repo.url = mirrorUri
+    }
+}
+
+// Dependencies declared in settings (dependencyResolutionManagement) as well.
+settingsEvaluated { settings ->
+    settings.dependencyResolutionManagement.repositories.maven { repo ->
+        repo.name = "BerlitLocalMirror"
+        repo.url = mirrorUri
+    }
+}
+
+// And the per-project repositories that RFG/GTNHGradle add from repositories.gradle.
+allprojects { project ->
+    project.repositories.maven { repo ->
+        repo.name = "BerlitLocalMirror"
+        repo.url = mirrorUri
+    }
+}

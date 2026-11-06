@@ -39,13 +39,13 @@ public final class MachineRecipes {
         add(MachineType.COMPRESSOR, 0, new ItemStack(Items.glowstone_dust, 4), new ItemStack(Blocks.glowstone), 400);
 
         add(
-            MachineType.METAL_FORMER,
+            MachineType.METAL_EXTRUDER,
             MODE_EXTRUDING,
             new ItemStack(Items.iron_ingot),
             new ItemStack(Blocks.iron_block),
             900);
         add(
-            MachineType.METAL_FORMER,
+            MachineType.METAL_ROLLER,
             MODE_ROLLING,
             new ItemStack(Items.gold_ingot),
             new ItemStack(Blocks.gold_block),
@@ -191,7 +191,7 @@ public final class MachineRecipes {
                 return Recipes.macerator;
             case COMPRESSOR:
                 return Recipes.compressor;
-            case METAL_FORMER:
+            case METAL_EXTRUDER:
                 return Recipes.metalformerExtruding;
             case METAL_ROLLER:
                 return Recipes.metalformerRolling;

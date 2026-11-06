@@ -24,7 +24,8 @@ public class ItemSpawnerCore extends Item implements UpgradeRegistry.ISpawnerUpg
         this.tier = tier;
         setUnlocalizedName("berlit.spawner_core_t" + tier);
         setTextureName("berlit:spawner_core_t" + tier);
-        setMaxStackSize(16);
+        // One core of each kind fits into a spawner, so they never need to stack.
+        setMaxStackSize(1);
         setCreativeTab(Berlit.TAB);
     }
 

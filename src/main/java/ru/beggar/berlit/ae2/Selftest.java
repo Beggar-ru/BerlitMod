@@ -2,8 +2,9 @@ package ru.beggar.berlit.ae2;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
 
 import appeng.api.implementations.ICraftingPatternItem;
@@ -11,7 +12,12 @@ import appeng.api.networking.crafting.ICraftingPatternDetails;
 import cpw.mods.fml.common.FMLLog;
 import fox.spiteful.avaritia.crafting.CompressorManager;
 import fox.spiteful.avaritia.crafting.ExtremeCraftingManager;
+import ic2.api.item.IC2Items;
+import ru.beggar.berlit.Berlit;
 import ru.beggar.berlit.machine.TileEntityNeutronCompressor;
+import ru.beggar.berlit.spawner.UpgradeRegistry;
+import ru.beggar.berlit.tileentity.TileEntitySpawner;
+import ru.beggar.berlit.upgrade.UpgradeHelper;
 
 /** Server-side smoke test of the AE2/Avaritia machines, enabled with BERLIT_SELFTEST=1. */
 public final class Selftest {
@@ -19,8 +25,48 @@ public final class Selftest {
     private Selftest() {}
 
     public static void run(World world) {
+        testUpgrades();
         testAssembler(world);
         testCompressor(world);
+    }
+
+    /**
+     * Checks the upgrade lookups, which are the kind of bug only a hand test would catch:
+     * IC2 keeps every module in a single item and puts the kind on the stack, and a
+     * Draconic Evolution core is registered as {@code item.draconicevolution:<core>}.
+     */
+    private static void testUpgrades() {
+        ItemStack overclocker = IC2Items.getItem("overclockerUpgrade");
+        ItemStack energyStorage = IC2Items.getItem("energyStorageUpgrade");
+
+        UpgradeHelper.Stats overclockerStats = UpgradeHelper.get(overclocker);
+        UpgradeHelper.Stats storageStats = UpgradeHelper.get(energyStorage);
+
+        ItemStack draconicCore = new ItemStack(new Item().setUnlocalizedName("draconicevolution:draconicCore"));
+        ItemStack chaoticCore = new ItemStack(new Item().setUnlocalizedName("draconicevolution:chaoticCore"));
+
+        FMLLog.info(
+            "BERLIT_SELFTEST upgrades: overclocker=%s storage=%s draconic=%s chaotic=%s",
+            overclockerStats != null && overclockerStats.speed > 1.0F,
+            storageStats != null && storageStats.storage > 0,
+            UpgradeRegistry.get(draconicCore) != null,
+            UpgradeRegistry.get(chaoticCore) != null);
+
+        TileEntitySpawner spawner = new TileEntitySpawner();
+        int first = spawner.getUpgradeSlotStart();
+        ItemStack tierOne = new ItemStack(Berlit.spawnerCore1);
+        ItemStack tierTwo = new ItemStack(Berlit.spawnerCore2);
+
+        boolean acceptsFirst = spawner.canAcceptUpgrade(first, tierOne);
+        spawner.setInventorySlotContents(first, tierOne);
+        boolean rejectsDuplicate = spawner.canAcceptUpgrade(first + 1, tierOne);
+        boolean acceptsOther = spawner.canAcceptUpgrade(first + 1, tierTwo);
+
+        FMLLog.info(
+            "BERLIT_SELFTEST spawner cores: first=%s duplicate=%s other=%s",
+            acceptsFirst,
+            rejectsDuplicate,
+            acceptsOther);
     }
 
     private static void testAssembler(World world) {
@@ -59,12 +105,14 @@ public final class Selftest {
             "BERLIT_SELFTEST direct recipe: %s",
             ExtremeCraftingManager.getInstance()
                 .findMatchingRecipe(direct, world));
-        TileEntityChest chest = new TileEntityChest();
-        chest.setWorldObj(world);
-        chest.xCoord = x;
-        chest.yCoord = y + 1;
-        chest.zCoord = z;
-        world.setTileEntity(x, y + 1, z, chest);
+        // A fresh dev world has no chunks loaded at the test rig, so both the chunk and a
+        // real chest block are needed: a hand-made TileEntityChest is not picked up by
+        // world.getTileEntity, which made pushPattern report a false failure.
+        world.getChunkFromBlockCoords(x, z);
+        world.setBlock(x, y + 1, z, Blocks.chest);
+        IInventory chest = world.getTileEntity(x, y + 1, z) instanceof IInventory
+            ? (IInventory) world.getTileEntity(x, y + 1, z)
+            : null;
 
         TileEntityAvaritiaAssembler assembler = new TileEntityAvaritiaAssembler();
         assembler.setWorldObj(world);
