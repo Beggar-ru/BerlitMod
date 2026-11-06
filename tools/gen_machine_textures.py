@@ -40,6 +40,8 @@ machine("machine_compressor", (90, 140, 220, 255))
 machine("machine_metal_extruder", (190, 170, 70, 255))
 machine("machine_metal_roller", (120, 165, 205, 255))
 machine("machine_electric_furnace", (220, 120, 60, 255))
+# UU matter replicator: violet accent, its own names (replicator_side/top/bottom).
+machine("replicator", (170, 110, 230, 255))
 
 # Stack upgrade icon.
 img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))

@@ -6,6 +6,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -15,9 +16,13 @@ import fox.spiteful.avaritia.crafting.ExtremeCraftingManager;
 import ic2.api.item.IC2Items;
 import ru.beggar.berlit.Berlit;
 import ru.beggar.berlit.machine.TileEntityNeutronCompressor;
+import ru.beggar.berlit.recipe.ReplicatorPattern;
+import ru.beggar.berlit.recipe.ReplicatorRecipes;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
+import ru.beggar.berlit.tileentity.TileEntityReplicator;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
 import ru.beggar.berlit.upgrade.UpgradeHelper;
+import ru.beggar.berlit.util.ReplicatorFluid;
 
 /** Server-side smoke test of the AE2/Avaritia machines, enabled with BERLIT_SELFTEST=1. */
 public final class Selftest {
@@ -26,8 +31,83 @@ public final class Selftest {
 
     public static void run(World world) {
         testUpgrades();
+        testReplicator();
+        testReplicatorMachine(world);
         testAssembler(world);
         testCompressor(world);
+        FMLLog.info("BERLIT_SELFTEST optional items: infinityFluidCell=%s", Berlit.infinityFluidCell != null);
+    }
+
+    /**
+     * Verifies that IC2's UU graph is available at runtime and that a scanned diamond gets a
+     * sensible per-item value, a whole-stack value and that CraftTweaker overrides work.
+     */
+    private static void testReplicator() {
+        ItemStack diamond = new ItemStack(Items.diamond);
+        int matter = ReplicatorRecipes.getMatterPerItem(diamond);
+        ReplicatorPattern pattern = ReplicatorRecipes.createPattern(diamond);
+
+        ReplicatorRecipes.setMatter(diamond, 7);
+        int overridden = ReplicatorRecipes.getMatterPerItem(diamond);
+        ReplicatorRecipes.removeMatter(diamond);
+        int restored = ReplicatorRecipes.getMatterPerItem(diamond);
+
+        int ic2Matter = -1;
+        try {
+            ItemStack ic2Generator = IC2Items.getItem("generator");
+            if (ic2Generator != null) {
+                ic2Matter = ReplicatorRecipes.getMatterPerItem(ic2Generator);
+            }
+        } catch (Throwable ignored) {
+            // The IC2 item name can differ between forks; the diamond value is enough then.
+        }
+
+        FMLLog.info(
+            "BERLIT_SELFTEST replicator: matter=%s stack=%s perStack=%s fluid=%s override=%s restored=%s ic2=%s",
+            matter,
+            pattern == null ? -1 : pattern.getStackSize(),
+            pattern == null ? -1 : pattern.getMatterPerStack(),
+            ReplicatorFluid.get() != null,
+            overridden,
+            restored,
+            ic2Matter);
+    }
+
+    /**
+     * End-to-end check of one stack: scan a diamond, feed exactly the matter for 64 diamonds,
+     * give the machine EU and tick it until the output appears. The chunk is loaded for the same
+     * reason as in the assembler test - a detached tile still posts to the IC2 energy net.
+     */
+    private static void testReplicatorMachine(World world) {
+        int x = 1000;
+        int y = 64;
+        int z = 1008;
+        world.getChunkFromBlockCoords(x, z);
+
+        TileEntityReplicator replicator = new TileEntityReplicator();
+        replicator.setWorldObj(world);
+        replicator.xCoord = x;
+        replicator.yCoord = y;
+        replicator.zCoord = z;
+
+        replicator.setInventorySlotContents(TileEntityReplicator.SLOT_SCAN, new ItemStack(Items.diamond));
+        replicator.fill(ForgeDirection.UP, ReplicatorFluid.createStack(2880), true);
+
+        // The first tick scans the item and refreshes the demand; only then can energy be injected.
+        replicator.updateEntity();
+        replicator.injectEnergy(ForgeDirection.UP, TileEntityReplicator.ENERGY_CAPACITY, 512.0D);
+
+        for (int i = 0; i < 4000; i++) {
+            replicator.updateEntity();
+        }
+
+        FMLLog.info(
+            "BERLIT_SELFTEST replicator machine: patterns=%s matter=%s tank=%s output=%s progress=%s",
+            replicator.getPatternCount(),
+            replicator.getMatterPerItem(),
+            replicator.getFluidAmount(),
+            replicator.getStackInSlot(TileEntityReplicator.SLOT_OUTPUT),
+            replicator.getProgress());
     }
 
     /**

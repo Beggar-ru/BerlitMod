@@ -1,10 +1,12 @@
 itemGroup.berlit=Berlit
 
 tile.berlit.molecular_transformer.name=Molecular Transformer
+tile.berlit.replicator.name=Replicator
 tile.berlit.test_generator.name=Test Generator
 tile.berlit.spawner.name=Entity Spawner
 
 container.berlit.molecular_transformer=Molecular Transformer
+container.berlit.replicator=Replicator
 container.berlit.spawner=Entity Spawner
 
 item.berlit.entity_card.name=%s
@@ -43,6 +45,30 @@ item.berlit.stack_upgrade.tooltip=Processes a whole stack per operation
 nei.berlit.machines=Berlit Machines
 nei.berlit.operation.extruding=Extruding
 nei.berlit.operation.rolling=Rolling
+
+nei.berlit.replicator=Replicator
+nei.berlit.replicator.scan=Scan: %s
+nei.berlit.replicator.matter_per_item=UU cost: %s mB/item
+nei.berlit.replicator.matter_per_stack=Whole stack: %s mB (%s items)
+
+berlit.gui.replicator.no_pattern=No pattern
+berlit.gui.replicator.scan_hint=Scan an item
+berlit.gui.replicator.cost=Cost: %s mB/item
+berlit.gui.replicator.pattern_index=Pattern %s / %s
+berlit.gui.replicator.matter=UU matter: %s / %s mB
+berlit.gui.replicator.matter_per_item=Per item: %s mB
+berlit.gui.replicator.matter_per_stack=Per stack: %s mB (%s items)
+berlit.gui.replicator.tank=Liquid UU matter tank
+berlit.gui.replicator.info.scan=Place an item in the scan slot to remember it instantly (it is not consumed).
+berlit.gui.replicator.info.fluid=UU matter: put an IC2 UU matter cell in the fluid slot or connect a fluid pipe.
+berlit.gui.replicator.status.active=Replicating...
+berlit.gui.replicator.status.ready=Ready
+berlit.gui.replicator.status.no_value=Item has no UU value
+berlit.gui.replicator.status.output_full=Output full
+berlit.gui.replicator.status.no_matter=No UU matter
+berlit.gui.replicator.status.no_energy=No energy
+berlit.gui.replicator.status.pattern_limit=Pattern memory full
+berlit.gui.replicator.status.no_pattern=No pattern selected
 
 berlit.gui.info.energy=Energy: %s / %s EU
 berlit.gui.info.input=Consumption: %s EU/t

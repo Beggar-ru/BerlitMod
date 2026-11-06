@@ -8,7 +8,7 @@
 - JDK 25 — Gradle-демон (`.java-version` = 25), Java 8 — целевой тулчейн, ставится RFG.
 - `./gradlew build` → `build/libs/berlit-<версия>.jar`. Версия берётся из git-тега.
 - Запуск: `./gradlew runClient` / `runServer`. В dev-клиенте есть IC2, CraftTweaker, NEI
-  (CodeChickenCore/Lib) — см. `dependencies.gradle`, `libs/`.
+  (CodeChickenCore/Lib), **ExtraCells** (для `berlit:infinity_fluid_cell`) — см. `dependencies.gradle`, `libs/`.
 - После правок Java: `./gradlew spotlessApply` (иначе `build` упадёт на spotlessJavaCheck).
 - Окружение этой машины и восстановление с нуля — `DEV_ENVIRONMENT.md`. Коротко:
   `python tools\env\fetch_jdks.py`, `python tools\env\mirror.py`, затем
@@ -24,12 +24,13 @@ src/main/java/ru/beggar/berlit/
   tileentity/            — тайлы (энергия, инвентари, прогресс, синхронизация)
   gui/                   — контейнеры и GUI (тёмная тема: BerlitGui/GuiTheme)
   machine/               — MachineType, MachineRecipe(s), импорт рецептов IC2
-  recipe/                — рецепты молекулярного трансформера
+  recipe/                — рецепты молекулярного трансформера и репликатора
   spawner/               — сущности, дропы, ядра
   item/                  — карты сущностей, ускорители, ядра, stack upgrade
   upgrade/               — UpgradeHelper (IC2-модули + свои ускорители)
   network/               — SimpleNetworkWrapper-пакеты (синхронизация GUI)
   compat/                — CraftTweaker, NEI
+  util/                  — InventoryUtils, ReplicatorFluid
 tools/                   — генераторы текстур/GUI и превью (Python + Pillow)
 ```
 
@@ -59,6 +60,12 @@ tools/                   — генераторы текстур/GUI и прев
   (`MachineType.getDefaultMode()`), переключения режима нет; NEI показывает рецепты IC2
   отдельной страницей для экструдера и для прокатки.
 - Вход обработчиков принимает только предметы с рецептом у этой машины.
+- **Репликатор** (`berlit.replicator`, `TileEntityReplicator`): слот мгновенного сканирования
+  без кристаллов, память до 1024 шаблонов, бак UU-жидкости 16 000 mB, выпуск целого стака
+  (`matterPerItem × stackSize`), стоимость из IC2 `UuIndex` (стандартные крафты), NEI-страница
+  и CraftTweaker `mods.berlit.Replicator`. Энергия: 32 EU/t, буфер 100 000 EU, tier 4.
+  Для заливки — IC2-ячейка UU-материи или `IFluidHandler`; `infinity_fluid_cell` — это
+  AE2-ячейка ExtraCells, к репликатору отношения не имеет.
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
@@ -114,8 +121,11 @@ tools/                   — генераторы текстур/GUI и прев
 `
 BERLIT_SELFTEST upgrades: overclocker=true storage=true draconic=true chaotic=true
 BERLIT_SELFTEST spawner cores: first=true duplicate=false other=true
+BERLIT_SELFTEST replicator: matter=45 stack=64 perStack=2880 fluid=true override=7 restored=45 ic2=115
+BERLIT_SELFTEST replicator machine: patterns=1 matter=45 tank=0 output=1xitem.diamond@0 progress=0
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
 BERLIT_SELFTEST compressor: cost=900 out=1xitem.avaritia_singularity@0 inputLeft=null
+BERLIT_SELFTEST optional items: infinityFluidCell=true
 `
 
 Тестовая площадка сборщика стоит на `(1000, 64, 1000)`; чанк там приходится грузить явно

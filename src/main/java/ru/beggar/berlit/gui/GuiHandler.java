@@ -20,6 +20,9 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityMolecularTransformer) {
             return new ContainerMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
         }
+        if (tile instanceof ru.beggar.berlit.tileentity.TileEntityReplicator) {
+            return new ContainerReplicator(player.inventory, (ru.beggar.berlit.tileentity.TileEntityReplicator) tile);
+        }
         if (tile instanceof TileEntitySpawnerBase) {
             return new ContainerSpawner(player.inventory, (TileEntitySpawnerBase) tile);
         }
@@ -66,6 +69,9 @@ public class GuiHandler implements IGuiHandler {
 
         if (tile instanceof TileEntityMolecularTransformer) {
             return new GuiMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
+        }
+        if (tile instanceof ru.beggar.berlit.tileentity.TileEntityReplicator) {
+            return new GuiReplicator(player.inventory, (ru.beggar.berlit.tileentity.TileEntityReplicator) tile);
         }
         if (tile instanceof TileEntitySpawnerBase) {
             return new GuiSpawner(player.inventory, (TileEntitySpawnerBase) tile);

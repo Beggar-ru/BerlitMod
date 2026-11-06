@@ -51,6 +51,9 @@ dependencies {
     compileOnly files("libs/extracells-1.7.10-2.3.14b200.jar")
     devOnlyNonPublishable(rfg.deobf(files("libs/appliedenergistics2-rv3-beta-6.jar")))
     devOnlyNonPublishable(rfg.deobf(files("libs/avaritia-1.13.jar")))
+    // ExtraCells is optional at runtime, but the dev client needs it to register and show the
+    // infinity fluid cell in the creative tab.
+    devOnlyNonPublishable(rfg.deobf(files("libs/extracells-1.7.10-2.3.14b200.jar")))
 
     // IC2 (local jar, deobfuscated for the dev runtime). Only used for development/testing.
     devOnlyNonPublishable(rfg.deobf(files("libs/industrialcraft-2-2.2.828-experimental.jar")))

@@ -20,6 +20,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import ru.beggar.berlit.block.BlockMolecularTransformer;
 import ru.beggar.berlit.block.BlockProcessingMachine;
+import ru.beggar.berlit.block.BlockReplicator;
 import ru.beggar.berlit.block.BlockSpawner;
 import ru.beggar.berlit.block.BlockSpawnerT2;
 import ru.beggar.berlit.block.BlockSuperChest;
@@ -33,9 +34,11 @@ import ru.beggar.berlit.machine.MachineRecipes;
 import ru.beggar.berlit.machine.MachineType;
 import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.recipe.MolecularRecipes;
+import ru.beggar.berlit.recipe.ReplicatorRecipes;
 import ru.beggar.berlit.spawner.EntityRegistry;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
+import ru.beggar.berlit.tileentity.TileEntityReplicator;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerT2;
 import ru.beggar.berlit.tileentity.TileEntitySuperChest;
@@ -61,6 +64,7 @@ public class Berlit {
     public static Berlit instance;
 
     public static BlockMolecularTransformer molecularTransformer;
+    public static BlockReplicator replicator;
     public static BlockTestGenerator testGenerator;
     public static BlockSpawner spawner;
     public static BlockSpawnerT2 spawnerT2;
@@ -110,6 +114,10 @@ public class Berlit {
         molecularTransformer = new BlockMolecularTransformer();
         GameRegistry.registerBlock(molecularTransformer, "berlit.molecular_transformer");
         GameRegistry.registerTileEntity(TileEntityMolecularTransformer.class, "berlit:molecular_transformer");
+
+        replicator = new BlockReplicator();
+        GameRegistry.registerBlock(replicator, "berlit.replicator");
+        GameRegistry.registerTileEntity(TileEntityReplicator.class, "berlit:replicator");
 
         testGenerator = new BlockTestGenerator();
         GameRegistry.registerBlock(testGenerator, "berlit.test_generator");
@@ -259,6 +267,7 @@ public class Berlit {
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
 
         MolecularRecipes.init();
+        ReplicatorRecipes.init();
         MachineRecipes.init();
         EntityRegistry.registerOptional();
         registerRecipes();
@@ -271,7 +280,8 @@ public class Berlit {
         if (!Loader.isModLoaded("MineTweaker3")) return;
 
         for (String className : new String[] { "ru.beggar.berlit.compat.MolecularTransformerTweaker",
-            "ru.beggar.berlit.compat.SpawnerTweaker", "ru.beggar.berlit.compat.MachinesTweaker" }) {
+            "ru.beggar.berlit.compat.SpawnerTweaker", "ru.beggar.berlit.compat.MachinesTweaker",
+            "ru.beggar.berlit.compat.ReplicatorTweaker" }) {
             try {
                 Class.forName(className)
                     .getMethod("register")
@@ -304,6 +314,18 @@ public class Berlit {
             Items.redstone,
             'M',
             Blocks.redstone_block);
+
+        GameRegistry.addRecipe(
+            new ItemStack(replicator),
+            "DED",
+            "EME",
+            "DED",
+            'D',
+            Items.diamond,
+            'E',
+            Items.emerald,
+            'M',
+            molecularTransformer);
 
         GameRegistry.addRecipe(
             new ItemStack(cobbleGenerator),

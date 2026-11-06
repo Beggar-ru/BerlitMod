@@ -1,10 +1,12 @@
 itemGroup.berlit=Берлит
 
 tile.berlit.molecular_transformer.name=Молекулярный трансформер
+tile.berlit.replicator.name=Репликатор
 tile.berlit.test_generator.name=Тестовый генератор
 tile.berlit.spawner.name=Спавнер сущностей
 
 container.berlit.molecular_transformer=Молекулярный трансформер
+container.berlit.replicator=Репликатор
 container.berlit.spawner=Спавнер сущностей
 
 item.berlit.entity_card.name=%s
@@ -43,6 +45,30 @@ item.berlit.stack_upgrade.tooltip=Перерабатывает целый ста
 nei.berlit.machines=Механизмы Berlit
 nei.berlit.operation.extruding=Выдавливание
 nei.berlit.operation.rolling=Прокатка
+
+nei.berlit.replicator=Репликатор
+nei.berlit.replicator.scan=Сканирование: %s
+nei.berlit.replicator.matter_per_item=UU-стоимость: %s mB/предмет
+nei.berlit.replicator.matter_per_stack=Целый стак: %s mB (%s шт.)
+
+berlit.gui.replicator.no_pattern=Шаблон не выбран
+berlit.gui.replicator.scan_hint=Положите предмет
+berlit.gui.replicator.cost=Цена: %s mB/шт.
+berlit.gui.replicator.pattern_index=Шаблон %s / %s
+berlit.gui.replicator.matter=Жидкая материя: %s / %s mB
+berlit.gui.replicator.matter_per_item=На предмет: %s mB
+berlit.gui.replicator.matter_per_stack=На стак: %s mB (%s шт.)
+berlit.gui.replicator.tank=Бак жидкой материи
+berlit.gui.replicator.info.scan=Положите предмет в слот сканирования — он сразу запомнится (предмет не расходуется).
+berlit.gui.replicator.info.fluid=UU-материя: положите ячейку UU-материи IC2 в слот жидкости или подключите трубу.
+berlit.gui.replicator.status.active=Репликация...
+berlit.gui.replicator.status.ready=Готов
+berlit.gui.replicator.status.no_value=У предмета нет UU-стоимости
+berlit.gui.replicator.status.output_full=Выход заполнен
+berlit.gui.replicator.status.no_matter=Нет жидкой материи
+berlit.gui.replicator.status.no_energy=Нет энергии
+berlit.gui.replicator.status.pattern_limit=Память шаблонов заполнена
+berlit.gui.replicator.status.no_pattern=Шаблон не выбран
 
 berlit.gui.info.energy=Энергия: %s / %s EU
 berlit.gui.info.input=Потребление: %s EU/t

@@ -17,6 +17,13 @@ public class ClientProxy extends CommonProxy {
                 Class.forName("ru.beggar.berlit.compat.nei.MachineNEI")
                     .getMethod("register")
                     .invoke(null);
+                try {
+                    Class.forName("ru.beggar.berlit.compat.nei.ReplicatorNEI")
+                        .getMethod("register")
+                        .invoke(null);
+                } catch (Throwable t) {
+                    Berlit.LOG.warn("Replicator NEI page is not available", t);
+                }
                 if (Loader.isModLoaded("Avaritia")) {
                     try {
                         Class.forName("ru.beggar.berlit.compat.nei.CompressorNEI")
