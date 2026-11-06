@@ -47,6 +47,11 @@ public class ItemSpawnerCore extends Item implements UpgradeRegistry.ISpawnerUpg
     }
 
     @Override
+    public boolean hasEffect(ItemStack stack) {
+        return true;
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
         UpgradeStats stats = getSpawnerUpgrade(stack);
