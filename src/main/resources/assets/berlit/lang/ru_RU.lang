@@ -105,3 +105,31 @@ tile.berlit.cobble_generator_mk3.name=Генератор булыжника MK I
 tile.berlit.nether_star_block.name=Блок звёзд Нижнего мира
 
 tile.berlit.fast_assembler.name=Ускоренный молекулярный сборщик
+
+tile.berlit.digital_macerator.name=Цифровой дробитель
+tile.berlit.digital_compressor.name=Цифровой компрессор
+tile.berlit.digital_metal_extruder.name=Цифровой экструдер
+tile.berlit.digital_metal_roller.name=Цифровой прокатный стан
+tile.berlit.digital_electric_furnace.name=Цифровая электропечь
+container.berlit.digital_macerator=Цифровой дробитель
+container.berlit.digital_compressor=Цифровой компрессор
+container.berlit.digital_metal_extruder=Цифровой экструдер
+container.berlit.digital_metal_roller=Цифровой прокатный стан
+container.berlit.digital_electric_furnace=Цифровая электропечь
+item.berlit.digital_pattern.name=Цифровой шаблон
+
+berlit.gui.digital.me=ME: %s
+berlit.gui.digital.online=В сети
+berlit.gui.digital.offline=Нет сети
+berlit.gui.digital.recipes=Рецептов: %s
+berlit.gui.digital.queue=Очередь: %s
+berlit.gui.digital.processing=Обработка: %s
+berlit.gui.digital.idle=Ожидание
+berlit.gui.digital.per_operation=Энергия на операцию: %s EU
+berlit.gui.digital.info.auto=Все рецепты автоматически экспортируются в ME-сеть; шаблоны не нужны.
+berlit.gui.digital.status.ready=Готов
+berlit.gui.digital.status.working=Работает...
+berlit.gui.digital.status.no_energy=Нет энергии
+berlit.gui.digital.status.no_recipes=Нет рецептов
+berlit.gui.digital.status.queue_full=Очередь заполнена
+berlit.gui.digital.status.offline=Нет ME-сети

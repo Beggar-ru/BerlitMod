@@ -1,5 +1,7 @@
 package ru.beggar.berlit.ae2;
 
+import java.util.List;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
@@ -9,12 +11,18 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.api.networking.crafting.ICraftingProviderHelper;
+import appeng.api.storage.data.IAEItemStack;
 import cpw.mods.fml.common.FMLLog;
 import fox.spiteful.avaritia.crafting.CompressorManager;
 import fox.spiteful.avaritia.crafting.ExtremeCraftingManager;
 import ic2.api.item.IC2Items;
 import ru.beggar.berlit.Berlit;
+import ru.beggar.berlit.machine.MachineRecipe;
+import ru.beggar.berlit.machine.MachineRecipes;
+import ru.beggar.berlit.machine.MachineType;
 import ru.beggar.berlit.machine.TileEntityNeutronCompressor;
 import ru.beggar.berlit.recipe.ReplicatorPattern;
 import ru.beggar.berlit.recipe.ReplicatorRecipes;
@@ -33,9 +41,92 @@ public final class Selftest {
         testUpgrades();
         testReplicator();
         testReplicatorMachine(world);
+        testDigitalMachines();
+        testDigitalProcessing(world);
         testAssembler(world);
         testCompressor(world);
         FMLLog.info("BERLIT_SELFTEST optional items: infinityFluidCell=%s", Berlit.infinityFluidCell != null);
+    }
+
+    /** Every digital machine must publish its whole recipe table to the AE2 crafting grid. */
+    private static void testDigitalMachines() {
+        int total = 0;
+        for (MachineType type : MachineType.values()) {
+            TileEntityDigitalMachine machine = new TileEntityDigitalMachine(type);
+            final java.util.List<ICraftingPatternDetails> patterns = new java.util.ArrayList<ICraftingPatternDetails>();
+
+            machine.provideCrafting(new ICraftingProviderHelper() {
+
+                @Override
+                public void addCraftingOption(ICraftingMedium medium, ICraftingPatternDetails details) {
+                    patterns.add(details);
+                }
+
+                @Override
+                public void setEmitable(IAEItemStack stack) {}
+            });
+
+            total += patterns.size();
+            FMLLog.info(
+                "BERLIT_SELFTEST digital %s: patterns=%s recipes=%s",
+                type.getId(),
+                patterns.size(),
+                machine.getRecipeCount());
+        }
+        FMLLog.info("BERLIT_SELFTEST digital total: %s", total);
+    }
+
+    /** Verifies that a generated digital pattern is processed and its output is queued. */
+    private static void testDigitalProcessing(World world) {
+        DigitalPatternDetails sample = null;
+        for (MachineRecipe recipe : MachineRecipes
+            .getRecipes(MachineType.MACERATOR, MachineType.MACERATOR.getDefaultMode())) {
+            for (ItemStack input : recipe.getInputs()) {
+                if (input != null && input.getItem() == Item.getItemFromBlock(Blocks.iron_ore)) {
+                    sample = new DigitalPatternDetails(
+                        MachineType.MACERATOR,
+                        input,
+                        recipe.getOutputs(),
+                        recipe.getEnergy());
+                    break;
+                }
+            }
+            if (sample != null) break;
+        }
+
+        if (sample == null) {
+            FMLLog.info("BERLIT_SELFTEST digital processing: no iron ore macerator recipe");
+            return;
+        }
+
+        int x = 1000;
+        int y = 64;
+        int z = 1012;
+        world.getChunkFromBlockCoords(x, z);
+
+        TileEntityDigitalMachine machine = new TileEntityDigitalMachine(MachineType.MACERATOR);
+        machine.setWorldObj(world);
+        machine.xCoord = x;
+        machine.yCoord = y;
+        machine.zCoord = z;
+        machine.queuePatternForTest(sample);
+
+        // The first tick initialises the job; inject energy after that.
+        machine.updateEntity();
+        machine.injectEnergy(ForgeDirection.UP, TileEntityDigitalMachine.ENERGY_CAPACITY, 512.0D);
+        for (int i = 0; i < 100; i++) {
+            machine.updateEntity();
+        }
+
+        List<ItemStack> pending = machine.getPendingOutputForTest();
+        ItemStack patternItem = sample.getPattern();
+        boolean reloaded = patternItem != null && patternItem.getItem() instanceof ICraftingPatternItem
+            && ((ICraftingPatternItem) patternItem.getItem()).getPatternForItem(patternItem, world) != null;
+        FMLLog.info(
+            "BERLIT_SELFTEST digital processing: pending=%s output=%s reloaded=%s",
+            pending.size(),
+            pending.isEmpty() ? null : pending.get(0),
+            reloaded);
     }
 
     /**

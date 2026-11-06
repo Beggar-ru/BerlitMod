@@ -2,6 +2,7 @@ package ru.beggar.berlit.machine;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -126,10 +127,7 @@ public final class MachineRecipes {
 
         RecipeOutput output = getOutput(type, mode, stack);
         if (output == null || output.items == null || output.items.isEmpty()) return null;
-        ItemStack result = output.items.get(0)
-            .copy();
-        if (result == null) return null;
-        return new MachineRecipe(stack, result, type.getEnergyPerItem());
+        return new MachineRecipe(Collections.singletonList(stack), output.items, type.getEnergyPerItem());
     }
 
     private static List<MachineRecipe> importedRecipes(MachineType type, int mode) {
@@ -159,13 +157,19 @@ public final class MachineRecipes {
                 RecipeOutput output = entry.getValue();
                 if (input == null || output == null || output.items == null || output.items.isEmpty()) continue;
 
-                List<ItemStack> inputs = input.getInputs();
-                if (inputs == null || inputs.isEmpty()) continue;
+                List<ItemStack> variants = input.getInputs();
+                if (variants == null || variants.isEmpty()) continue;
 
-                ItemStack inputStack = inputs.get(0);
-                ItemStack outputStack = output.items.get(0);
-                if (inputStack != null && outputStack != null) {
-                    result.add(new MachineRecipe(inputStack, outputStack, type.getEnergyPerItem()));
+                int amount = Math.max(1, input.getAmount());
+                List<ItemStack> inputs = new ArrayList<ItemStack>(variants.size());
+                for (ItemStack variant : variants) {
+                    if (variant == null) continue;
+                    ItemStack copy = variant.copy();
+                    copy.stackSize = amount;
+                    inputs.add(copy);
+                }
+                if (!inputs.isEmpty()) {
+                    result.add(new MachineRecipe(inputs, output.items, type.getEnergyPerItem()));
                 }
             }
         } catch (Throwable ignored) {

@@ -105,3 +105,31 @@ tile.berlit.cobble_generator_mk3.name=Cobblestone Generator MK III
 tile.berlit.nether_star_block.name=Block of Nether Stars
 
 tile.berlit.fast_assembler.name=Fast Molecular Assembler
+
+tile.berlit.digital_macerator.name=Digital Macerator
+tile.berlit.digital_compressor.name=Digital Compressor
+tile.berlit.digital_metal_extruder.name=Digital Metal Extruder
+tile.berlit.digital_metal_roller.name=Digital Metal Roller
+tile.berlit.digital_electric_furnace.name=Digital Electric Furnace
+container.berlit.digital_macerator=Digital Macerator
+container.berlit.digital_compressor=Digital Compressor
+container.berlit.digital_metal_extruder=Digital Metal Extruder
+container.berlit.digital_metal_roller=Digital Metal Roller
+container.berlit.digital_electric_furnace=Digital Electric Furnace
+item.berlit.digital_pattern.name=Digital Pattern
+
+berlit.gui.digital.me=ME: %s
+berlit.gui.digital.online=Online
+berlit.gui.digital.offline=Offline
+berlit.gui.digital.recipes=Recipes: %s
+berlit.gui.digital.queue=Queue: %s
+berlit.gui.digital.processing=Processing: %s
+berlit.gui.digital.idle=Idle
+berlit.gui.digital.per_operation=Energy per operation: %s EU
+berlit.gui.digital.info.auto=All recipes are exported to the ME network automatically; no pattern items are needed.
+berlit.gui.digital.status.ready=Ready
+berlit.gui.digital.status.working=Working...
+berlit.gui.digital.status.no_energy=No energy
+berlit.gui.digital.status.no_recipes=No recipes
+berlit.gui.digital.status.queue_full=Queue full
+berlit.gui.digital.status.offline=No ME network

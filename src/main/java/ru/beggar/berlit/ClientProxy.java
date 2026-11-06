@@ -24,6 +24,13 @@ public class ClientProxy extends CommonProxy {
                 } catch (Throwable t) {
                     Berlit.LOG.warn("Replicator NEI page is not available", t);
                 }
+                if (Berlit.digitalPattern != null) {
+                    try {
+                        codechicken.nei.api.API.hideItem(new net.minecraft.item.ItemStack(Berlit.digitalPattern));
+                    } catch (Throwable t) {
+                        Berlit.LOG.warn("Could not hide the digital pattern item in NEI", t);
+                    }
+                }
                 if (Loader.isModLoaded("Avaritia")) {
                     try {
                         Class.forName("ru.beggar.berlit.compat.nei.CompressorNEI")

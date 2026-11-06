@@ -38,6 +38,11 @@ public class GuiHandler implements IGuiHandler {
                 (ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) tile);
         }
         if (Loader.isModLoaded("appliedenergistics2")) {
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalMachine) {
+                return new ru.beggar.berlit.ae2.ContainerDigitalMachine(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityDigitalMachine) tile);
+            }
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
                 return new ru.beggar.berlit.ae2.ContainerPatternEncoder(
                     player.inventory,
@@ -88,6 +93,11 @@ public class GuiHandler implements IGuiHandler {
                 (ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) tile);
         }
         if (Loader.isModLoaded("appliedenergistics2")) {
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalMachine) {
+                return new ru.beggar.berlit.ae2.GuiDigitalMachine(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityDigitalMachine) tile);
+            }
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
                 return new ru.beggar.berlit.ae2.GuiPatternEncoder(
                     player.inventory,

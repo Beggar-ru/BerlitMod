@@ -24,6 +24,7 @@ src/main/java/ru/beggar/berlit/
   tileentity/            — тайлы (энергия, инвентари, прогресс, синхронизация)
   gui/                   — контейнеры и GUI (тёмная тема: BerlitGui/GuiTheme)
   machine/               — MachineType, MachineRecipe(s), импорт рецептов IC2
+  ae2/                   — AE2-интеграция: шаблоны, сборщики, цифровые машины
   recipe/                — рецепты молекулярного трансформера и репликатора
   spawner/               — сущности, дропы, ядра
   item/                  — карты сущностей, ускорители, ядра, stack upgrade
@@ -66,6 +67,13 @@ tools/                   — генераторы текстур/GUI и прев
   и CraftTweaker `mods.berlit.Replicator`. Энергия: 32 EU/t, буфер 100 000 EU, tier 4.
   Для заливки — IC2-ячейка UU-материи или `IFluidHandler`; `infinity_fluid_cell` — это
   AE2-ячейка ExtraCells, к репликатору отношения не имеет.
+- **Цифровые машины** (`berlit.digital_macerator/compressor/metal_extruder/metal_roller/
+  electric_furnace`): `TileEntityDigitalMachine` реализует AE2 `ICraftingProvider` и при
+  подключении к ME-сети сам публикует все рецепты своего `MachineType` как
+  `DigitalPatternDetails` — без шаблонов и кодировщика. `MachineRecipe` хранит все варианты
+  входов (ore dictionary) и все выходы; CT-рецепты имеют приоритет. Машина обрабатывает
+  очередь (до 64), питается EU 50 000 или AE, поддерживает IC2/Berlit-улучшения, возвращает
+  результат в ME-сеть. GUI — ME-статус, рецепты, очередь, прогресс, 4 слота улучшений.
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
@@ -123,8 +131,15 @@ BERLIT_SELFTEST upgrades: overclocker=true storage=true draconic=true chaotic=tr
 BERLIT_SELFTEST spawner cores: first=true duplicate=false other=true
 BERLIT_SELFTEST replicator: matter=45 stack=64 perStack=2880 fluid=true override=7 restored=45 ic2=115
 BERLIT_SELFTEST replicator machine: patterns=1 matter=45 tank=0 output=1xitem.diamond@0 progress=0
+BERLIT_SELFTEST digital macerator: patterns=75 recipes=75
+BERLIT_SELFTEST digital compressor: patterns=49 recipes=49
+BERLIT_SELFTEST digital metal_extruder: patterns=10 recipes=10
+BERLIT_SELFTEST digital metal_roller: patterns=14 recipes=14
+BERLIT_SELFTEST digital electric_furnace: patterns=55 recipes=55
+BERLIT_SELFTEST digital total: 203
+BERLIT_SELFTEST digital processing: pending=1 output=2xitem.ingotIron@0 reloaded=true
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
-BERLIT_SELFTEST compressor: cost=900 out=1xitem.avaritia_singularity@0 inputLeft=null
+BERLIT_SELFTEST compressor: cost=2400 out=1xitem.avaritia_singularity@0 inputLeft=null
 BERLIT_SELFTEST optional items: infinityFluidCell=true
 `
 

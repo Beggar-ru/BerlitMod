@@ -41,4 +41,29 @@ public enum MachineType {
     public String getTextureName() {
         return "berlit:machine_" + id;
     }
+
+    /** Registration id / unlocalized-name suffix of the digital version, e.g. {@code digital_macerator}. */
+    public String getDigitalId() {
+        return "digital_" + id;
+    }
+
+    public String getDigitalTitleKey() {
+        return "tile.berlit." + getDigitalId() + ".name";
+    }
+
+    public String getDigitalContainerKey() {
+        return "container.berlit." + getDigitalId();
+    }
+
+    public String getDigitalTextureName() {
+        return "berlit:" + getDigitalId();
+    }
+
+    public static MachineType byId(String id) {
+        if (id == null) return null;
+        for (MachineType type : values()) {
+            if (type.id.equals(id)) return type;
+        }
+        return null;
+    }
 }

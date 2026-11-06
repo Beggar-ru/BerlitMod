@@ -83,6 +83,9 @@ public class Berlit {
     public static ru.beggar.berlit.ae2.BlockAvaritiaAssembler avaritiaAssembler;
     public static ru.beggar.berlit.ae2.BlockFastAssembler fastAssembler;
     public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
+    public static net.minecraft.item.Item digitalPattern;
+    public static final java.util.Map<MachineType, net.minecraft.block.Block> digitalMachineBlocks = new java.util.EnumMap<MachineType, net.minecraft.block.Block>(
+        MachineType.class);
     public static ru.beggar.berlit.machine.BlockNeutronCompressor neutronCompressor;
     public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGenerator;
     public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGeneratorMk2;
@@ -194,6 +197,17 @@ public class Berlit {
             GameRegistry.registerBlock(fastAssembler, "berlit.fast_assembler");
             GameRegistry
                 .registerTileEntity(ru.beggar.berlit.ae2.TileEntityFastAssembler.class, "berlit:fast_assembler");
+
+            digitalPattern = new ru.beggar.berlit.ae2.ItemDigitalPattern();
+            GameRegistry.registerItem(digitalPattern, "digital_pattern");
+            GameRegistry
+                .registerTileEntity(ru.beggar.berlit.ae2.TileEntityDigitalMachine.class, "berlit:digital_machine");
+            for (MachineType machineType : MachineType.values()) {
+                ru.beggar.berlit.ae2.BlockDigitalMachine digital = new ru.beggar.berlit.ae2.BlockDigitalMachine(
+                    machineType);
+                GameRegistry.registerBlock(digital, "berlit." + machineType.getDigitalId());
+                digitalMachineBlocks.put(machineType, digital);
+            }
 
             avaritiaPattern = new ru.beggar.berlit.ae2.ItemAvaritiaPattern();
             GameRegistry.registerItem(avaritiaPattern, "avaritia_pattern");
@@ -527,6 +541,24 @@ public class Berlit {
                 Items.quartz,
                 'C',
                 Items.comparator);
+
+            for (MachineType machineType : MachineType.values()) {
+                net.minecraft.block.Block digital = digitalMachineBlocks.get(machineType);
+                BlockProcessingMachine base = machineBlocks.get(machineType);
+                if (digital == null || base == null) continue;
+
+                GameRegistry.addRecipe(
+                    new ItemStack(digital),
+                    "DCD",
+                    "CMC",
+                    "DCD",
+                    'D',
+                    Items.diamond,
+                    'C',
+                    Items.comparator,
+                    'M',
+                    base);
+            }
         }
 
         if (cpw.mods.fml.common.Loader.isModLoaded("Avaritia")
