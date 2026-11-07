@@ -74,6 +74,11 @@ tools/                   — генераторы текстур/GUI и прев
   входов (ore dictionary) и все выходы; CT-рецепты имеют приоритет. Машина обрабатывает
   очередь (до 64), питается EU 50 000 или AE, поддерживает IC2/Berlit-улучшения, возвращает
   результат в ME-сеть. GUI — ME-статус, рецепты, очередь, прогресс, 4 слота улучшений.
+  Рецепты «маленькой пыли» отфильтрованы, тестовые заглушки удалены (золотая пластина снова
+  импортируется). Кнопка `Recipes` открывает `GuiDigitalFilter`: ON/OFF для каждого рецепта,
+  фильтр глобальный по типу машины, хранится в `DigitalRecipeFilterData` (WorldSavedData) и
+  обновляет AE2-шаблоны через `MENetworkCraftingPatternChange`. NEI показывает по 3 рецепта
+  на странице (`MachineNEI`).
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
@@ -131,13 +136,14 @@ BERLIT_SELFTEST upgrades: overclocker=true storage=true draconic=true chaotic=tr
 BERLIT_SELFTEST spawner cores: first=true duplicate=false other=true
 BERLIT_SELFTEST replicator: matter=45 stack=64 perStack=2880 fluid=true override=7 restored=45 ic2=115
 BERLIT_SELFTEST replicator machine: patterns=1 matter=45 tank=0 output=1xitem.diamond@0 progress=0
-BERLIT_SELFTEST digital macerator: patterns=75 recipes=75
-BERLIT_SELFTEST digital compressor: patterns=49 recipes=49
+BERLIT_SELFTEST digital macerator: patterns=67 recipes=67
+BERLIT_SELFTEST digital compressor: patterns=37 recipes=37
 BERLIT_SELFTEST digital metal_extruder: patterns=10 recipes=10
 BERLIT_SELFTEST digital metal_roller: patterns=14 recipes=14
 BERLIT_SELFTEST digital electric_furnace: patterns=55 recipes=55
-BERLIT_SELFTEST digital total: 203
-BERLIT_SELFTEST digital processing: pending=1 output=2xitem.ingotIron@0 reloaded=true
+BERLIT_SELFTEST digital total: 183
+BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=true
+BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
 BERLIT_SELFTEST compressor: cost=2400 out=1xitem.avaritia_singularity@0 inputLeft=null
 BERLIT_SELFTEST optional items: infinityFluidCell=true

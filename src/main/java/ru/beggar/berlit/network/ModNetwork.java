@@ -18,5 +18,13 @@ public final class ModNetwork {
         INSTANCE.registerMessage(ReplicatorSyncHandler.class, PacketReplicatorSync.class, 5, Side.CLIENT);
         INSTANCE.registerMessage(PacketReplicatorAction.Handler.class, PacketReplicatorAction.class, 6, Side.SERVER);
         INSTANCE.registerMessage(DigitalSyncHandler.class, PacketDigitalSync.class, 7, Side.CLIENT);
+        INSTANCE.registerMessage(DigitalFilterSyncHandler.class, PacketDigitalFilterSync.class, 8, Side.CLIENT);
+        INSTANCE.registerMessage(
+            PacketDigitalFilterRequest.Handler.class,
+            PacketDigitalFilterRequest.class,
+            9,
+            Side.SERVER);
+        INSTANCE
+            .registerMessage(PacketDigitalFilterToggle.Handler.class, PacketDigitalFilterToggle.class, 10, Side.SERVER);
     }
 }

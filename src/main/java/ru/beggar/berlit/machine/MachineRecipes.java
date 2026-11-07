@@ -6,10 +6,9 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
@@ -30,27 +29,9 @@ public final class MachineRecipes {
     private MachineRecipes() {}
 
     public static void init() {
-        if (!RECIPES.isEmpty()) return;
-
-        // Placeholder defaults; real recipes come from IC2/FurnaceRecipes and CraftTweaker.
-        add(MachineType.MACERATOR, 0, new ItemStack(Blocks.iron_ore), new ItemStack(Items.iron_ingot, 2), 300);
-        add(MachineType.MACERATOR, 0, new ItemStack(Blocks.gold_ore), new ItemStack(Items.gold_ingot, 2), 300);
-
-        add(MachineType.COMPRESSOR, 0, new ItemStack(Items.redstone), new ItemStack(Blocks.redstone_block), 400);
-        add(MachineType.COMPRESSOR, 0, new ItemStack(Items.glowstone_dust, 4), new ItemStack(Blocks.glowstone), 400);
-
-        add(
-            MachineType.METAL_EXTRUDER,
-            MODE_EXTRUDING,
-            new ItemStack(Items.iron_ingot),
-            new ItemStack(Blocks.iron_block),
-            900);
-        add(
-            MachineType.METAL_ROLLER,
-            MODE_ROLLING,
-            new ItemStack(Items.gold_ingot),
-            new ItemStack(Blocks.gold_block),
-            900);
+        // Real recipes come from the IC2 managers / FurnaceRecipes; CraftTweaker adds overrides.
+        // Deliberately no placeholder recipes: they used to shadow the real imported recipe for
+        // the same input (for example gold ingot -> gold plate vs. the old gold block stub).
     }
 
     public static void add(MachineType type, int mode, ItemStack input, ItemStack output, int energy) {
@@ -168,7 +149,7 @@ public final class MachineRecipes {
                     copy.stackSize = amount;
                     inputs.add(copy);
                 }
-                if (!inputs.isEmpty()) {
+                if (!inputs.isEmpty() && !containsSmallDust(inputs) && !containsSmallDust(output.items)) {
                     result.add(new MachineRecipe(inputs, output.items, type.getEnergyPerItem()));
                 }
             }
@@ -206,6 +187,34 @@ public final class MachineRecipes {
 
     private static boolean matches(ItemStack a, ItemStack b) {
         return a.getItem() == b.getItem() && a.getItemDamage() == b.getItemDamage();
+    }
+
+    /**
+     * IC2's "small pile of dust" recipes turn a plate into eight tiny dusts. In AE2 they make
+     * the crafting graph loop (dust -> small dust -> plate -> dust) and are never what a player
+     * wants a digital machine to export, so they are skipped everywhere.
+     */
+    public static boolean isSmallDust(ItemStack stack) {
+        if (stack == null || stack.getItem() == null) return false;
+
+        String className = stack.getItem()
+            .getClass()
+            .getName();
+        if (className.contains("smallDust") || className.contains("SmallDust")) return true;
+
+        String name = stack.getUnlocalizedName();
+        if (name == null) return false;
+
+        String lower = name.toLowerCase(Locale.ENGLISH);
+        return lower.contains("dustsmall") || lower.contains("smalldust") || lower.contains("dust_small");
+    }
+
+    private static boolean containsSmallDust(List<ItemStack> stacks) {
+        if (stacks == null) return false;
+        for (ItemStack stack : stacks) {
+            if (isSmallDust(stack)) return true;
+        }
+        return false;
     }
 
     private static String key(int mode, ItemStack stack) {

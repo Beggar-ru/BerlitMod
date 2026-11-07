@@ -3,6 +3,7 @@ package ru.beggar.berlit.ae2;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
@@ -13,6 +14,7 @@ import ru.beggar.berlit.gui.BerlitGui;
 import ru.beggar.berlit.gui.GuiKit;
 import ru.beggar.berlit.gui.GuiTheme;
 import ru.beggar.berlit.gui.MachineLayout;
+import ru.beggar.berlit.gui.ThemedButton;
 
 public class GuiDigitalMachine extends BerlitGui {
 
@@ -21,6 +23,26 @@ public class GuiDigitalMachine extends BerlitGui {
     public GuiDigitalMachine(InventoryPlayer playerInventory, TileEntityDigitalMachine tile) {
         super(new ContainerDigitalMachine(playerInventory, tile));
         this.tile = tile;
+    }
+
+    @Override
+    public void initGui() {
+        super.initGui();
+        buttonList.add(
+            new ThemedButton(
+                0,
+                guiLeft + 140,
+                guiTop + MachineLayout.UPGRADE_Y,
+                48,
+                14,
+                StatCollector.translateToLocal("berlit.gui.digital.recipes_button")));
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) {
+        if (button.id == 0) {
+            mc.displayGuiScreen(new GuiDigitalFilter(tile));
+        }
     }
 
     @Override

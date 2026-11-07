@@ -3,15 +3,12 @@ package ru.beggar.berlit.ae2;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -31,6 +28,7 @@ import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProvider;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
 import appeng.api.networking.energy.IEnergyGrid;
+import appeng.api.networking.events.MENetworkCraftingPatternChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
@@ -44,8 +42,6 @@ import ic2.api.energy.event.EnergyTileLoadEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergySink;
 import ru.beggar.berlit.Berlit;
-import ru.beggar.berlit.machine.MachineRecipe;
-import ru.beggar.berlit.machine.MachineRecipes;
 import ru.beggar.berlit.machine.MachineType;
 import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.network.PacketDigitalSync;
@@ -96,6 +92,7 @@ public class TileEntityDigitalMachine extends TileEntity
     private int syncCounter;
     private int recipeCount;
     private int recipeRefreshCounter;
+    private int lastFilterRevision = -1;
     private int status = STATUS_OFFLINE;
     private boolean active;
     private boolean addedToEnergyNet;
@@ -188,6 +185,16 @@ public class TileEntityDigitalMachine extends TileEntity
         if (++recipeRefreshCounter >= 100) {
             recipeRefreshCounter = 0;
             refreshRecipeCount();
+        }
+
+        int filterRevision = DigitalRecipeFilter.getRevision();
+        if (filterRevision != lastFilterRevision) {
+            IGrid grid = networkGrid();
+            IGridNode node = getNode();
+            if (grid != null && node != null) {
+                lastFilterRevision = filterRevision;
+                grid.postEvent(new MENetworkCraftingPatternChange(this, node));
+            }
         }
 
         status = computeStatus();
@@ -335,42 +342,30 @@ public class TileEntityDigitalMachine extends TileEntity
         return UpgradeHelper.combine(stacks);
     }
 
-    private static String inputKey(ItemStack stack) {
-        return Item.getIdFromItem(stack.getItem()) + ":" + stack.getItemDamage();
-    }
-
     /**
-     * Registers every recipe of this machine, including every concrete ore-dictionary variant.
-     * Custom CraftTweaker recipes are first in {@link MachineRecipes#getRecipes}, so they win when
-     * an input is also present in the imported IC2 table.
+     * Registers every enabled recipe of this machine, including every concrete ore-dictionary
+     * variant. The global filter lets the player disable duplicated/unwanted patterns.
      */
     private int buildPatterns(ICraftingProviderHelper helper) {
-        Set<String> seen = new HashSet<String>();
         int count = 0;
 
-        for (MachineRecipe recipe : MachineRecipes.getRecipes(type, getMode())) {
-            if (recipe.getOutputs()
-                .isEmpty()) continue;
+        for (DigitalRecipeFilter.Entry entry : DigitalRecipeFilter.getEntries(type, getMode())) {
+            if (!DigitalRecipeFilter.isEnabled(worldObj, type, entry)) continue;
 
-            for (ItemStack input : recipe.getInputs()) {
-                if (input == null || input.stackSize <= 0) continue;
-                if (!seen.add(inputKey(input))) continue;
-
-                if (helper == null) {
-                    count++;
-                    continue;
-                }
-
-                DigitalPatternDetails details = new DigitalPatternDetails(
-                    type,
-                    input,
-                    recipe.getOutputs(),
-                    recipe.getEnergy());
-                if (!details.isValid()) continue;
-
-                helper.addCraftingOption(this, details);
+            if (helper == null) {
                 count++;
+                continue;
             }
+
+            DigitalPatternDetails details = new DigitalPatternDetails(
+                type,
+                entry.getInput(),
+                entry.getOutputs(),
+                entry.getEnergy());
+            if (!details.isValid()) continue;
+
+            helper.addCraftingOption(this, details);
+            count++;
         }
 
         recipeCount = count;

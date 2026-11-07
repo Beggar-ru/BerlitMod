@@ -42,6 +42,7 @@ public final class Selftest {
         testReplicator();
         testReplicatorMachine(world);
         testDigitalMachines();
+        testDigitalFilter(world);
         testDigitalProcessing(world);
         testAssembler(world);
         testCompressor(world);
@@ -74,6 +75,45 @@ public final class Selftest {
                 machine.getRecipeCount());
         }
         FMLLog.info("BERLIT_SELFTEST digital total: %s", total);
+    }
+
+    /** Verifies that the persistent filter really removes one exported pattern. */
+    private static void testDigitalFilter(World world) {
+        MachineType type = MachineType.MACERATOR;
+        List<DigitalRecipeFilter.Entry> entries = DigitalRecipeFilter.getEntries(type, type.getDefaultMode());
+        if (entries.isEmpty()) {
+            FMLLog.info("BERLIT_SELFTEST digital filter: no entries");
+            return;
+        }
+
+        DigitalRecipeFilter.Entry first = entries.get(0);
+        DigitalRecipeFilter.setEnabled(world, type, first.getKey(), false);
+        boolean disabled = !DigitalRecipeFilter.isEnabled(world, type, first);
+
+        TileEntityDigitalMachine machine = new TileEntityDigitalMachine(type);
+        machine.setWorldObj(world);
+        final int[] count = { 0 };
+        machine.provideCrafting(new ICraftingProviderHelper() {
+
+            @Override
+            public void addCraftingOption(ICraftingMedium medium, ICraftingPatternDetails details) {
+                count[0]++;
+            }
+
+            @Override
+            public void setEmitable(IAEItemStack stack) {}
+        });
+        int disabledCount = count[0];
+
+        DigitalRecipeFilter.setEnabled(world, type, first.getKey(), true);
+        boolean restored = DigitalRecipeFilter.isEnabled(world, type, first);
+
+        FMLLog.info(
+            "BERLIT_SELFTEST digital filter: entries=%s disabled=%s remaining=%s restored=%s",
+            entries.size(),
+            disabled,
+            disabledCount,
+            restored);
     }
 
     /** Verifies that a generated digital pattern is processed and its output is queued. */

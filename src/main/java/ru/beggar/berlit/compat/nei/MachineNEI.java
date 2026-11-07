@@ -1,9 +1,11 @@
 package ru.beggar.berlit.compat.nei;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 
@@ -17,8 +19,18 @@ import ru.beggar.berlit.machine.MachineRecipe;
 import ru.beggar.berlit.machine.MachineRecipes;
 import ru.beggar.berlit.machine.MachineType;
 
+/**
+ * NEI page for the Berlit processing machines.
+ *
+ * <p>
+ * Several recipes share one page (three rows) instead of one recipe per page. Each row has its own
+ * input and output; the machine icon and the EU value are shown once per row.
+ */
 @SideOnly(Side.CLIENT)
 public class MachineNEI extends TemplateRecipeHandler {
+
+    private static final int PER_PAGE = 3;
+    private static final int ROW_HEIGHT = 22;
 
     public static void register() {
         API.registerRecipeHandler(new MachineNEI());
@@ -29,33 +41,42 @@ public class MachineNEI extends TemplateRecipeHandler {
 
         private final MachineType type;
         private final int mode;
+        private final List<MachineRecipe> recipes;
         private final PositionedStack machine;
-        private final PositionedStack input;
-        private final PositionedStack output;
-        private final int energy;
+        private final List<PositionedStack> inputs = new ArrayList<PositionedStack>();
+        private final List<PositionedStack> outputs = new ArrayList<PositionedStack>();
 
-        public CachedMachineRecipe(MachineType type, int mode, MachineRecipe recipe) {
+        public CachedMachineRecipe(MachineType type, int mode, List<MachineRecipe> recipes) {
             this.type = type;
             this.mode = mode;
-            this.energy = recipe.getEnergy();
+            this.recipes = new ArrayList<MachineRecipe>(recipes);
             this.machine = new PositionedStack(new ItemStack(Berlit.machineBlocks.get(type)), 8, 20);
-            this.input = new PositionedStack(recipe.getInput(), 58, 20);
-            this.output = new PositionedStack(recipe.getOutput(), 112, 20);
+
+            for (int i = 0; i < recipes.size(); i++) {
+                MachineRecipe recipe = recipes.get(i);
+                inputs.add(new PositionedStack(recipe.getInput(), 58, 20 + i * ROW_HEIGHT));
+                outputs.add(new PositionedStack(recipe.getOutput(), 112, 20 + i * ROW_HEIGHT));
+            }
         }
 
         @Override
         public PositionedStack getResult() {
-            return output;
+            return outputs.isEmpty() ? null : outputs.get(0);
         }
 
         @Override
         public List<PositionedStack> getIngredients() {
-            return Collections.singletonList(input);
+            return inputs;
         }
 
         @Override
         public List<PositionedStack> getOtherStacks() {
-            return Collections.singletonList(machine);
+            List<PositionedStack> result = new ArrayList<PositionedStack>();
+            result.add(machine);
+            for (int i = 1; i < outputs.size(); i++) {
+                result.add(outputs.get(i));
+            }
+            return result;
         }
 
         public MachineType getMachineType() {
@@ -64,6 +85,10 @@ public class MachineNEI extends TemplateRecipeHandler {
 
         public int getMode() {
             return mode;
+        }
+
+        public List<MachineRecipe> getRecipes() {
+            return Collections.unmodifiableList(recipes);
         }
     }
 
@@ -90,12 +115,15 @@ public class MachineNEI extends TemplateRecipeHandler {
 
         for (MachineType type : MachineType.values()) {
             int mode = type.getDefaultMode();
+            List<MachineRecipe> matches = new ArrayList<MachineRecipe>();
             for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
                 ItemStack output = recipe.getOutput();
-                if (output.getItem() == result.getItem() && output.getItemDamage() == result.getItemDamage()) {
-                    arecipes.add(new CachedMachineRecipe(type, mode, recipe));
+                if (output != null && output.getItem() == result.getItem()
+                    && output.getItemDamage() == result.getItemDamage()) {
+                    matches.add(recipe);
                 }
             }
+            addPages(type, mode, matches);
         }
     }
 
@@ -104,52 +132,55 @@ public class MachineNEI extends TemplateRecipeHandler {
         if (ingredient == null) return;
 
         for (MachineType type : MachineType.values()) {
-            ItemStack machine = new ItemStack(Berlit.machineBlocks.get(type));
-            if (machine.getItem() != ingredient.getItem() || machine.getItemDamage() != ingredient.getItemDamage()) {
-                continue;
+            if (ingredient.getItem() == Item.getItemFromBlock(Berlit.machineBlocks.get(type))) {
+                addPages(
+                    type,
+                    type.getDefaultMode(),
+                    new ArrayList<MachineRecipe>(MachineRecipes.getRecipes(type, type.getDefaultMode())));
+                return;
             }
-
-            int mode = type.getDefaultMode();
-            for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
-                arecipes.add(new CachedMachineRecipe(type, mode, recipe));
-            }
-            return;
         }
 
         for (MachineType type : MachineType.values()) {
             int mode = type.getDefaultMode();
+            List<MachineRecipe> matches = new ArrayList<MachineRecipe>();
             for (MachineRecipe recipe : MachineRecipes.getRecipes(type, mode)) {
                 ItemStack input = recipe.getInput();
-                if (input.getItem() == ingredient.getItem() && input.getItemDamage() == ingredient.getItemDamage()) {
-                    arecipes.add(new CachedMachineRecipe(type, mode, recipe));
+                if (input != null && input.getItem() == ingredient.getItem()
+                    && input.getItemDamage() == ingredient.getItemDamage()) {
+                    matches.add(recipe);
                 }
             }
+            addPages(type, mode, matches);
+        }
+    }
+
+    private void addPages(MachineType type, int mode, List<MachineRecipe> recipes) {
+        if (recipes == null || recipes.isEmpty()) return;
+
+        for (int start = 0; start < recipes.size(); start += PER_PAGE) {
+            int end = Math.min(recipes.size(), start + PER_PAGE);
+            arecipes.add(new CachedMachineRecipe(type, mode, recipes.subList(start, end)));
         }
     }
 
     @Override
     public void drawExtras(int recipe) {
         if (recipe < 0 || recipe >= arecipes.size()) return;
+
         CachedMachineRecipe cached = (CachedMachineRecipe) arecipes.get(recipe);
         MachineType type = cached.getMachineType();
 
         Minecraft.getMinecraft().fontRenderer
             .drawString(StatCollector.translateToLocal(type.getTitleKey()), 8, 6, 0x404040);
 
-        String operation = operationKey(type);
-        if (operation != null) {
+        List<MachineRecipe> recipes = cached.getRecipes();
+        for (int i = 0; i < recipes.size(); i++) {
+            int rowY = 20 + i * ROW_HEIGHT;
+            MachineRecipe machineRecipe = recipes.get(i);
             Minecraft.getMinecraft().fontRenderer
-                .drawString(StatCollector.translateToLocal(operation), 8, 46, 0x606060);
+                .drawString("EU: " + machineRecipe.getEnergy(), i == 0 ? 30 : 8, rowY + 4, 0x404040);
+            Minecraft.getMinecraft().fontRenderer.drawString("->", 88, rowY + 4, 0x606060);
         }
-
-        Minecraft.getMinecraft().fontRenderer.drawString("->", 88, 22, 0x606060);
-        Minecraft.getMinecraft().fontRenderer.drawString("EU: " + cached.energy, 8, 34, 0x404040);
-    }
-
-    /** Names the IC2 operation shown on the page, for the two metal machines. */
-    private static String operationKey(MachineType type) {
-        if (type == MachineType.METAL_EXTRUDER) return "nei.berlit.operation.extruding";
-        if (type == MachineType.METAL_ROLLER) return "nei.berlit.operation.rolling";
-        return null;
     }
 }
