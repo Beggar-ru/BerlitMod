@@ -78,7 +78,14 @@ tools/                   — генераторы текстур/GUI и прев
   импортируется). Кнопка `Recipes` открывает `GuiDigitalFilter`: ON/OFF для каждого рецепта,
   фильтр глобальный по типу машины, хранится в `DigitalRecipeFilterData` (WorldSavedData) и
   обновляет AE2-шаблоны через `MENetworkCraftingPatternChange`. NEI показывает по 3 рецепта
-  на странице (`MachineNEI`).
+  на странице (`MachineNEI`). В окне фильтра есть поиск по названию входа/выхода.
+- **Печь**: vanilla-рецепты с `OreDictionary.WILDCARD_VALUE` (32767) нормализуются до damage 0;
+  без этого AE2 не находил сырую свинину для жарки.
+- **Обычные обработчики**: `TileEntityProcessingMachine` зарегистрирован в `GameRegistry`,
+  тип машины сохраняется в NBT. Раньше при сохранении мира было `missing a mapping`.
+- **Шаблоны Avaritia и сингулярностей** показывают в тултипе результат и закодированные входы.
+- **Ядра спавнера** стакаются до 64; в слоте улучшения всё ещё одно ядро каждого вида.
+- **Поиск** в `GuiDigitalFilter` фильтрует рецепты по отображаемому имени входа/выхода.
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
@@ -133,15 +140,17 @@ tools/                   — генераторы текстур/GUI и прев
 Запуск: $env:BERLIT_SELFTEST='1'; $env:JAVA_TOOL_OPTIONS='-Dfml.queryResult=confirm'; ./gradlew runServer запускает Selftest: добавляет тестовый 9×9-рецепт (81 железо → алмаз), прогоняет `pushPattern` и компрессор. Ожидаемые строки в логе:
 `
 BERLIT_SELFTEST upgrades: overclocker=true storage=true draconic=true chaotic=true
-BERLIT_SELFTEST spawner cores: first=true duplicate=false other=true
+BERLIT_SELFTEST spawner cores: first=true duplicate=false other=true stack=64
 BERLIT_SELFTEST replicator: matter=45 stack=64 perStack=2880 fluid=true override=7 restored=45 ic2=115
-BERLIT_SELFTEST replicator machine: patterns=1 matter=45 tank=0 output=1xitem.diamond@0 progress=0
+BERLIT_SELFTEST replicator machine: patterns=1 matter=45 tank=0 output=64xitem.diamond@0 progress=0
 BERLIT_SELFTEST digital macerator: patterns=67 recipes=67
 BERLIT_SELFTEST digital compressor: patterns=37 recipes=37
 BERLIT_SELFTEST digital metal_extruder: patterns=10 recipes=10
 BERLIT_SELFTEST digital metal_roller: patterns=14 recipes=14
 BERLIT_SELFTEST digital electric_furnace: patterns=55 recipes=55
 BERLIT_SELFTEST digital total: 183
+BERLIT_SELFTEST pork: damage0=true
+BERLIT_SELFTEST processing: saved=metal_roller loaded=metal_roller
 BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=true
 BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1

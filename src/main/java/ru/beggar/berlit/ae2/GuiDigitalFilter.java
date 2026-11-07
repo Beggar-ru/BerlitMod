@@ -3,9 +3,11 @@ package ru.beggar.berlit.ae2;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
@@ -27,21 +29,25 @@ import ru.beggar.berlit.network.PacketDigitalFilterToggle;
  */
 public class GuiDigitalFilter extends GuiScreen {
 
-    private static final int WIDTH = 260;
-    private static final int HEIGHT = 190;
+    private static final int WIDTH = 244;
+    private static final int HEIGHT = 224;
     private static final int PER_PAGE = 6;
     private static final int ROW_HEIGHT = 22;
+    private static final int ROW_START = 44;
 
     private final TileEntityDigitalMachine tile;
     private final MachineType machineType;
+    private final List<DigitalRecipeFilter.Entry> allEntries;
     private List<DigitalRecipeFilter.Entry> entries = new ArrayList<DigitalRecipeFilter.Entry>();
+    private GuiTextField search;
 
     private int page;
 
     public GuiDigitalFilter(TileEntityDigitalMachine tile) {
         this.tile = tile;
         this.machineType = tile.getMachineType();
-        this.entries = DigitalRecipeFilter.getEntries(machineType, tile.getMode());
+        this.allEntries = DigitalRecipeFilter.getEntries(machineType, tile.getMode());
+        this.entries = new ArrayList<DigitalRecipeFilter.Entry>(allEntries);
     }
 
     @Override
@@ -51,6 +57,11 @@ public class GuiDigitalFilter extends GuiScreen {
 
         int x = (width - WIDTH) / 2;
         int y = (height - HEIGHT) / 2;
+
+        search = new GuiTextField(fontRendererObj, x + 8, y + 22, WIDTH - 16, 14);
+        search.setMaxStringLength(64);
+        search.setTextColor(GuiTheme.TEXT);
+        search.setDisabledTextColour(GuiTheme.TEXT_DISABLED);
 
         buttonList.add(
             new ThemedButton(
@@ -91,6 +102,7 @@ public class GuiDigitalFilter extends GuiScreen {
     @Override
     public void updateScreen() {
         super.updateScreen();
+        if (search != null) search.updateCursorCounter();
 
         int pages = pages();
         for (Object object : buttonList) {
@@ -102,8 +114,37 @@ public class GuiDigitalFilter extends GuiScreen {
 
     /** Called by the filter sync packet after the server answers. */
     public void onFilterSync() {
-        entries = DigitalRecipeFilter.getEntries(machineType, tile.getMode());
+        applySearch();
+    }
+
+    private void applySearch() {
+        String query = search == null ? ""
+            : search.getText()
+                .trim()
+                .toLowerCase(Locale.ENGLISH);
+
+        entries = new ArrayList<DigitalRecipeFilter.Entry>();
+        for (DigitalRecipeFilter.Entry entry : allEntries) {
+            if (query.isEmpty() || matches(entry, query)) {
+                entries.add(entry);
+            }
+        }
+
         if (page >= pages()) page = Math.max(0, pages() - 1);
+    }
+
+    private static boolean matches(DigitalRecipeFilter.Entry entry, String query) {
+        if (entry.getInput()
+            .getDisplayName()
+            .toLowerCase(Locale.ENGLISH)
+            .contains(query)) return true;
+
+        for (ItemStack output : entry.getOutputs()) {
+            if (output.getDisplayName()
+                .toLowerCase(Locale.ENGLISH)
+                .contains(query)) return true;
+        }
+        return false;
     }
 
     private int pages() {
@@ -126,17 +167,27 @@ public class GuiDigitalFilter extends GuiScreen {
         String title = StatCollector.translateToLocalFormatted(
             "berlit.gui.digital.filter.title",
             StatCollector.translateToLocal(machineType.getDigitalTitleKey()));
-        fontRendererObj.drawString(fontRendererObj.trimStringToWidth(title, WIDTH - 110), x + 8, y + 6, GuiTheme.TITLE);
+        fontRendererObj.drawString(fontRendererObj.trimStringToWidth(title, WIDTH - 100), x + 8, y + 6, GuiTheme.TITLE);
 
         String pageText = StatCollector.translateToLocalFormatted("berlit.gui.digital.filter.page", page + 1, pages());
         fontRendererObj
             .drawString(pageText, x + WIDTH - 8 - fontRendererObj.getStringWidth(pageText), y + 6, GuiTheme.TEXT);
 
+        search.drawTextBox();
+        if (search.getText()
+            .isEmpty() && !search.isFocused()) {
+            fontRendererObj.drawString(
+                StatCollector.translateToLocal("berlit.gui.digital.filter.search"),
+                x + 12,
+                y + 26,
+                GuiTheme.TEXT_DISABLED);
+        }
+
         if (entries.isEmpty()) {
             fontRendererObj.drawString(
                 StatCollector.translateToLocal("berlit.gui.digital.filter.empty"),
                 x + 12,
-                y + 32,
+                y + 52,
                 GuiTheme.TEXT_DISABLED);
         } else {
             drawRows(x, y, mouseX, mouseY);
@@ -155,7 +206,7 @@ public class GuiDigitalFilter extends GuiScreen {
 
         for (int i = start; i < end; i++) {
             int row = i - start;
-            int rowY = y + 24 + row * ROW_HEIGHT;
+            int rowY = y + ROW_START + row * ROW_HEIGHT;
             DigitalRecipeFilter.Entry entry = entries.get(i);
 
             GuiKit.CELL.drawSprite(zLevel, x + 8, rowY, 18, 18);
@@ -180,7 +231,7 @@ public class GuiDigitalFilter extends GuiScreen {
 
             boolean enabled = !DigitalRecipeFilter.getDisabled(tile.getWorldObj(), machineType)
                 .contains(entry.getKey());
-            int tx = x + 204;
+            int tx = x + WIDTH - 52;
             drawRect(tx, rowY, tx + 44, rowY + 16, enabled ? 0xFF2E6B4F : 0xFF6B2E33);
             drawRect(tx, rowY, tx + 44, rowY + 1, enabled ? 0xFF6FE9C0 : 0xFFFF9A9A);
             fontRendererObj.drawString(
@@ -217,19 +268,27 @@ public class GuiDigitalFilter extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
+        int x = (width - WIDTH) / 2;
+        int y = (height - HEIGHT) / 2;
+
+        if (inside(mouseX, mouseY, search.xPosition, search.yPosition, search.width, search.height)) {
+            search.mouseClicked(mouseX, mouseY, button);
+            search.setFocused(true);
+            return;
+        }
+        search.setFocused(false);
+
         if (button != 0) {
             super.mouseClicked(mouseX, mouseY, button);
             return;
         }
 
-        int x = (width - WIDTH) / 2;
-        int y = (height - HEIGHT) / 2;
         int start = page * PER_PAGE;
         int end = Math.min(entries.size(), start + PER_PAGE);
 
         for (int i = start; i < end; i++) {
-            int rowY = y + 24 + (i - start) * ROW_HEIGHT;
-            if (inside(mouseX, mouseY, x + 204, rowY, 44, 16)) {
+            int rowY = y + ROW_START + (i - start) * ROW_HEIGHT;
+            if (inside(mouseX, mouseY, x + WIDTH - 52, rowY, 44, 16)) {
                 DigitalRecipeFilter.Entry entry = entries.get(i);
                 boolean enabled = !DigitalRecipeFilter.getDisabled(tile.getWorldObj(), machineType)
                     .contains(entry.getKey());
@@ -241,6 +300,15 @@ public class GuiDigitalFilter extends GuiScreen {
         }
 
         super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) {
+        if (search != null && search.isFocused() && search.textboxKeyTyped(typedChar, keyCode)) {
+            applySearch();
+            return;
+        }
+        super.keyTyped(typedChar, keyCode);
     }
 
     private static boolean inside(int mouseX, int mouseY, int x, int y, int width, int height) {

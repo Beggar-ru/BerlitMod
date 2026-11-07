@@ -63,6 +63,15 @@ public class BlockProcessingMachine extends BlockContainer {
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX,
         float hitY, float hitZ) {
+        // Old worlds briefly saved these blocks without a registered tile entity. Recreate a
+        // correctly typed tile when the player opens such a machine.
+        TileEntity tile = world.getTileEntity(x, y, z);
+        if (!(tile instanceof TileEntityProcessingMachine)
+            || ((TileEntityProcessingMachine) tile).getMachineType() != type) {
+            tile = new TileEntityProcessingMachine(type);
+            world.setTileEntity(x, y, z, tile);
+        }
+
         if (!world.isRemote) {
             player.openGui(Berlit.instance, 3, world, x, y, z);
         }

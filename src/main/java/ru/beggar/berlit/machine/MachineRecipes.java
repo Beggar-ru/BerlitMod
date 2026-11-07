@@ -12,6 +12,7 @@ import java.util.Map;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
+import net.minecraftforge.oredict.OreDictionary;
 
 import ic2.api.recipe.IMachineRecipeManager;
 import ic2.api.recipe.IRecipeInput;
@@ -122,7 +123,11 @@ public final class MachineRecipes {
                 ItemStack input = (ItemStack) entry.getKey();
                 ItemStack output = (ItemStack) entry.getValue();
                 if (input != null && output != null) {
-                    result.add(new MachineRecipe(input, output, type.getEnergyPerItem()));
+                    result.add(
+                        new MachineRecipe(
+                            normalizeWildcard(input),
+                            normalizeWildcard(output),
+                            type.getEnergyPerItem()));
                 }
             }
             return result;
@@ -187,6 +192,20 @@ public final class MachineRecipes {
 
     private static boolean matches(ItemStack a, ItemStack b) {
         return a.getItem() == b.getItem() && a.getItemDamage() == b.getItemDamage();
+    }
+
+    /**
+     * Vanilla stores some furnace inputs with {@link OreDictionary#WILDCARD_VALUE} (32767) as
+     * "any metadata". AE2 compares damage values exactly, so raw pork with damage 32767 never
+     * matched the player's raw pork with damage 0. Normalise wildcard entries to damage 0.
+     */
+    private static ItemStack normalizeWildcard(ItemStack stack) {
+        if (stack == null) return null;
+        if (stack.getItemDamage() != OreDictionary.WILDCARD_VALUE) return stack;
+
+        ItemStack copy = stack.copy();
+        copy.setItemDamage(0);
+        return copy;
     }
 
     /**

@@ -171,6 +171,9 @@ public class Berlit {
         electricFurnace = new BlockProcessingMachine(MachineType.ELECTRIC_FURNACE);
         GameRegistry.registerBlock(electricFurnace, "berlit.machine_electric_furnace");
         machineBlocks.put(MachineType.ELECTRIC_FURNACE, electricFurnace);
+        GameRegistry.registerTileEntity(
+            ru.beggar.berlit.tileentity.TileEntityProcessingMachine.class,
+            "berlit:processing_machine");
 
         netherStarBlock = new ru.beggar.berlit.block.BlockNetherStar();
         GameRegistry.registerBlock(netherStarBlock, "berlit.nether_star_block");

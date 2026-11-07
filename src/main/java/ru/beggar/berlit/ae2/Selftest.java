@@ -7,6 +7,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -27,6 +28,7 @@ import ru.beggar.berlit.machine.TileEntityNeutronCompressor;
 import ru.beggar.berlit.recipe.ReplicatorPattern;
 import ru.beggar.berlit.recipe.ReplicatorRecipes;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
+import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 import ru.beggar.berlit.tileentity.TileEntityReplicator;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
 import ru.beggar.berlit.upgrade.UpgradeHelper;
@@ -42,6 +44,7 @@ public final class Selftest {
         testReplicator();
         testReplicatorMachine(world);
         testDigitalMachines();
+        testProcessingPersistence();
         testDigitalFilter(world);
         testDigitalProcessing(world);
         testAssembler(world);
@@ -75,6 +78,38 @@ public final class Selftest {
                 machine.getRecipeCount());
         }
         FMLLog.info("BERLIT_SELFTEST digital total: %s", total);
+
+        boolean porkWildcardFixed = false;
+        for (MachineRecipe recipe : MachineRecipes
+            .getRecipes(MachineType.ELECTRIC_FURNACE, MachineType.ELECTRIC_FURNACE.getDefaultMode())) {
+            ItemStack input = recipe.getInput();
+            ItemStack output = recipe.getOutput();
+            if (input != null && output != null
+                && "item.porkchopRaw".equals(input.getUnlocalizedName())
+                && input.getItemDamage() == 0
+                && "item.porkchopCooked".equals(output.getUnlocalizedName())) {
+                porkWildcardFixed = true;
+                break;
+            }
+        }
+        FMLLog.info("BERLIT_SELFTEST pork: damage0=%s", porkWildcardFixed);
+    }
+
+    /** Verifies that the shared processing-machine tile keeps its machine type across NBT. */
+    private static void testProcessingPersistence() {
+        TileEntityProcessingMachine saved = new TileEntityProcessingMachine(MachineType.METAL_ROLLER);
+        NBTTagCompound nbt = new NBTTagCompound();
+        saved.writeToNBT(nbt);
+
+        TileEntityProcessingMachine loaded = new TileEntityProcessingMachine();
+        loaded.readFromNBT(nbt);
+
+        FMLLog.info(
+            "BERLIT_SELFTEST processing: saved=%s loaded=%s",
+            saved.getMachineType()
+                .getId(),
+            loaded.getMachineType()
+                .getId());
     }
 
     /** Verifies that the persistent filter really removes one exported pattern. */
@@ -274,10 +309,11 @@ public final class Selftest {
         boolean acceptsOther = spawner.canAcceptUpgrade(first + 1, tierTwo);
 
         FMLLog.info(
-            "BERLIT_SELFTEST spawner cores: first=%s duplicate=%s other=%s",
+            "BERLIT_SELFTEST spawner cores: first=%s duplicate=%s other=%s stack=%s",
             acceptsFirst,
             rejectsDuplicate,
-            acceptsOther);
+            acceptsOther,
+            new ItemStack(Berlit.spawnerCore1).getMaxStackSize());
     }
 
     private static void testAssembler(World world) {

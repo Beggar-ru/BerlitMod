@@ -36,7 +36,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
 
     public static final int ENERGY_CAPACITY = 8000;
 
-    private final MachineType type;
+    private MachineType type;
     private final ItemStack[] inventory = new ItemStack[SLOT_COUNT];
     private final List<ItemStack> batchOutputs = new ArrayList<ItemStack>();
 
@@ -504,6 +504,8 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
+        MachineType loadedType = MachineType.byId(nbt.getString("MachineType"));
+        if (loadedType != null) type = loadedType;
         energy = nbt.getInteger("Energy");
         mode = nbt.getInteger("Mode");
         progressExact = nbt.getDouble("ProgressExact");
@@ -519,6 +521,7 @@ public class TileEntityProcessingMachine extends TileEntity implements IEnergySi
     @Override
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
+        nbt.setString("MachineType", type.getId());
         nbt.setInteger("Energy", energy);
         nbt.setInteger("Mode", mode);
         nbt.setDouble("ProgressExact", progressExact);
