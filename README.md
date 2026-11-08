@@ -141,6 +141,10 @@ Metal Roller / Electric Furnace** (`berlit.digital_*`). Требуют AE2; бе
 - **NEI**: рецепты показывает существующая страница «Berlit Machines»; отдельные шаблоны для
   цифровых машин не требуются.
 
+## Подробное описание
+
+Механики, числа и связи между блоками собраны в [docs/MOD_MECHANICS.md](docs/MOD_MECHANICS.md).
+
 ## Лицензия
 
 MIT, см. [LICENSE](LICENSE).
