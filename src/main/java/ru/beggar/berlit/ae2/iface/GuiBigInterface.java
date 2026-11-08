@@ -40,13 +40,19 @@ public class GuiBigInterface extends GuiUpgradeable {
     @Override
     public void drawBG(int x, int y, int mouseX, int mouseY) {
         int width = this.xSize;
-        int height = this.ySize;
-        drawGradientRect(x, y, x + width, y + height, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
+        int inventoryTop = container.getInventoryTop() - 20;
+
         net.minecraft.client.Minecraft.getMinecraft()
             .getTextureManager()
             .bindTexture(GuiKit.KIT);
-        GuiKit.PANEL.draw(this.zLevel, x, y, width, height);
-        // thin rule under the title, like the machine screens
+
+        // content panel and a separate inventory panel, like the machine screens
+        drawGradientRect(x, y, x + width, y + inventoryTop - 8, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
+        GuiKit.PANEL.draw(this.zLevel, x, y, width, inventoryTop - 8);
+
+        drawGradientRect(x, y + inventoryTop, x + width, y + this.ySize, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
+        GuiKit.PANEL.draw(this.zLevel, x, y + inventoryTop, width, this.ySize - inventoryTop);
+
         drawRect(x + 8, y + 15, x + 146, y + 16, GuiTheme.FRAME_BORDER);
         drawRect(x + 8, y + 16, x + 146, y + 17, GuiTheme.FRAME_RULE);
 
@@ -88,7 +94,7 @@ public class GuiBigInterface extends GuiUpgradeable {
             fontRendererObj,
             StatCollector.translateToLocal("container.inventory"),
             8,
-            container.getGuiHeight() - 93,
+            container.getInventoryTop() - 14,
             GuiTheme.TEXT);
     }
 }

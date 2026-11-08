@@ -27,16 +27,6 @@ public class TileEntitySpawnerT2 extends TileEntitySpawnerBase {
     }
 
     @Override
-    public int getUpgradeSlotX(int index) {
-        return 64 + (index % 4) * 18;
-    }
-
-    @Override
-    public int getUpgradeSlotY(int index) {
-        return 92 + (index / 4) * 18;
-    }
-
-    @Override
     public String getTitleKey() {
         return "tile.berlit.spawner_t2.name";
     }
