@@ -49,6 +49,22 @@ public abstract class BlockCraftingCpuBlock extends AEBaseTileBlock {
         iconBottom = register.registerIcon("berlit:" + id + "_bottom");
     }
 
+    /**
+     * AE2 draws its own blocks through {@code WorldRender}, which only knows the classes AE2 registered;
+     * a custom block inheriting the default render id ends up drawn by nothing and looks untextured.
+     * Plain cube rendering with our own icons is both correct and cheap here, since these parts have no
+     * special renderer of their own.
+     */
+    @Override
+    public int getRenderType() {
+        return 0;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock() {
+        return true;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
