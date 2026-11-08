@@ -289,6 +289,20 @@ public final class Selftest {
             container18.getGuiHeight(),
             container27.getGuiHeight(),
             container36.getGuiHeight());
+
+        boolean settingsLoaded = true;
+        try {
+            java.lang.reflect.Method loadSettings = appeng.container.implementations.ContainerUpgradeable.class
+                .getDeclaredMethod("loadSettingsFromHost", appeng.api.util.IConfigManager.class);
+            loadSettings.setAccessible(true);
+            loadSettings.invoke(
+                container18,
+                tile18.getInterfaceDuality()
+                    .getConfigManager());
+        } catch (Throwable ignored) {
+            settingsLoaded = false;
+        }
+        FMLLog.info("BERLIT_SELFTEST big interface settings: loaded=%s", settingsLoaded);
     }
 
     /** Verifies that the persistent filter really removes one exported pattern. */

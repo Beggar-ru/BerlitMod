@@ -24,7 +24,7 @@ public class GuiBigInterface extends GuiUpgradeable {
 
     @Override
     protected String getBackground() {
-        return "berlit:textures/gui/kit.png";
+        return "gui/interface";
     }
 
     @Override
@@ -32,7 +32,9 @@ public class GuiBigInterface extends GuiUpgradeable {
         int width = this.xSize;
         int height = this.ySize;
         drawGradientRect(x, y, x + width, y + height, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
-        bindTexture("berlit:textures/gui/kit.png");
+        net.minecraft.client.Minecraft.getMinecraft()
+            .getTextureManager()
+            .bindTexture(GuiKit.KIT);
         GuiKit.PANEL.draw(this.zLevel, x, y, width, height);
 
         for (Object entry : this.inventorySlots.inventorySlots) {

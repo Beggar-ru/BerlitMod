@@ -2,6 +2,7 @@ package ru.beggar.berlit.ae2.iface;
 
 import net.minecraft.entity.player.InventoryPlayer;
 
+import appeng.api.util.IConfigManager;
 import appeng.container.implementations.ContainerUpgradeable;
 import appeng.container.slot.SlotFake;
 import appeng.container.slot.SlotNormal;
@@ -61,6 +62,15 @@ public abstract class ContainerBigInterface extends ContainerUpgradeable {
     protected void setupConfig() {
         setupUpgrades();
     }
+
+    /**
+     * The expanded interface GUI has no fuzzy/redstone/block-mode buttons. The base
+     * ContainerUpgradeable implementation nevertheless asks the DualityInterface config
+     * manager for those settings and crashes with "Expected a non-null value for
+     * FUZZY_MODE", so this screen deliberately loads none of them.
+     */
+    @Override
+    protected void loadSettingsFromHost(IConfigManager configManager) {}
 
     @Override
     public int availableUpgrades() {
