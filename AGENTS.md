@@ -193,7 +193,7 @@ BERLIT_SELFTEST spawner buffer: entity=skeleton buffered=4 stacks=2
 BERLIT_SELFTEST crafting cpu: storage=536870912 processor=729 coprocessors=729
 BERLIT_SELFTEST interface expand: before=9 expanded=true after=18
 BERLIT_SELFTEST big interfaces: blocks=18/27/36 parts=18/27/36
-BERLIT_SELFTEST big interface containers: slots=73/82/91 height=229/250/250
+BERLIT_SELFTEST big interface containers: slots=73/82/91 height=241/259/277
 BERLIT_SELFTEST big interface settings: loaded=true
 BERLIT_SELFTEST big interface crafting list: patterns=18
 BERLIT_SELFTEST cpu multiblock: cluster=true formed=true storage=536870912 coprocessors=729
