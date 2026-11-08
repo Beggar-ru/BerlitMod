@@ -36,6 +36,10 @@ public final class GuiTheme {
 
     public static final int BAR_TROUGH = 0xFF12151B;
 
+    public static final int BAR_FILL = 0xFF4FD6CD;
+
+    public static final int BAR_FILL_EDGE = 0xFF8CF6EE;
+
     /** Title rule under the header, dimmer than the frame. */
     public static final int FRAME_BORDER = 0xFF2C8C8A;
 

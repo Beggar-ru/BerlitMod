@@ -107,7 +107,7 @@ def inv_player(width, height):
     return slots, label
 
 
-def widget_screen(width, height, groups, text, buttons=(), arrows=()):
+def widget_screen(width, height, groups, text, buttons=(), arrows=(), bar=None):
     """Screen drawn at runtime from the 9-slice kit: no per-screen texture at all."""
     return {
         "style": "widget",
@@ -117,6 +117,7 @@ def widget_screen(width, height, groups, text, buttons=(), arrows=()):
         "text": text,
         "buttons": buttons,
         "arrows": list(arrows),
+        "bar": bar,
         "kit": {
             "texture": "gui/kit.png",
             "panel": (0, 0, 24, 8),
@@ -268,6 +269,21 @@ SCREENS = {
         ],
         buttons=[(140, 27, 22, 20, "one"), (140, 49, 22, 20, "stack")],
         arrows=[(69, 48), (105, 48)],
+    ),
+    "matter_generator": widget_screen(
+        190,
+        90,
+        [
+            ("input", [(52, 40)]),
+            ("output", [(122, 40)]),
+            ("player", inv_player(190, 90)[0]),
+        ],
+        [
+            ("title", 8, 6, 174, "tile.berlit.matter_generator_standard.name"),
+            inv_player(190, 90)[1],
+        ],
+        arrows=[(89, 48)],
+        bar=(19, 62, 152, 12),
     ),
     "super_chest": panel_screen(
         "gui/super_chest.png",

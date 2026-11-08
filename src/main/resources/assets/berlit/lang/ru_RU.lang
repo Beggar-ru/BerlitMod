@@ -186,3 +186,21 @@ berlit.gui.interface.patterns=Шаблоны
 berlit.gui.interface.config=Конфиг
 berlit.gui.interface.storage=Хранилище
 berlit.gui.interface.upgrades=Улучшение
+
+# solid matter
+item.berlit.matter_standard.name=Стандартная материя
+item.berlit.matter_violet.name=Фиолетовая материя
+item.berlit.matter_turquoise.name=Бирюзовая материя
+item.berlit.matter_emerald.name=Изумрудная материя
+item.berlit.matter_azure.name=Лазурная материя
+item.berlit.matter_amber.name=Янтарная материя
+item.berlit.matter_crimson.name=Алая материя
+item.berlit.matter_radiant.name=Сияющая материя
+tile.berlit.matter_generator_standard.name=Генератор стандартной материи
+tile.berlit.matter_generator_violet.name=Генератор фиолетовой материи
+tile.berlit.matter_generator_turquoise.name=Генератор бирюзовой материи
+tile.berlit.matter_generator_emerald.name=Генератор изумрудной материи
+tile.berlit.matter_generator_azure.name=Генератор лазурной материи
+tile.berlit.matter_generator_amber.name=Генератор янтарной материи
+tile.berlit.matter_generator_crimson.name=Генератор алой материи
+tile.berlit.matter_generator_radiant.name=Генератор сияющей материи

@@ -186,3 +186,21 @@ berlit.gui.interface.patterns=Patterns
 berlit.gui.interface.config=Config
 berlit.gui.interface.storage=Storage
 berlit.gui.interface.upgrades=Upgrade
+
+# solid matter
+item.berlit.matter_standard.name=Standard Matter
+item.berlit.matter_violet.name=Violet Matter
+item.berlit.matter_turquoise.name=Turquoise Matter
+item.berlit.matter_emerald.name=Emerald Matter
+item.berlit.matter_azure.name=Azure Matter
+item.berlit.matter_amber.name=Amber Matter
+item.berlit.matter_crimson.name=Crimson Matter
+item.berlit.matter_radiant.name=Radiant Matter
+tile.berlit.matter_generator_standard.name=Standard Matter Generator
+tile.berlit.matter_generator_violet.name=Violet Matter Generator
+tile.berlit.matter_generator_turquoise.name=Turquoise Matter Generator
+tile.berlit.matter_generator_emerald.name=Emerald Matter Generator
+tile.berlit.matter_generator_azure.name=Azure Matter Generator
+tile.berlit.matter_generator_amber.name=Amber Matter Generator
+tile.berlit.matter_generator_crimson.name=Crimson Matter Generator
+tile.berlit.matter_generator_radiant.name=Radiant Matter Generator

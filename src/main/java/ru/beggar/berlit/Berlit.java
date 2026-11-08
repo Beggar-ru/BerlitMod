@@ -18,6 +18,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import ru.beggar.berlit.block.BlockMatterGenerator;
 import ru.beggar.berlit.block.BlockMolecularTransformer;
 import ru.beggar.berlit.block.BlockProcessingMachine;
 import ru.beggar.berlit.block.BlockReplicator;
@@ -28,15 +29,18 @@ import ru.beggar.berlit.block.BlockTestGenerator;
 import ru.beggar.berlit.gui.GuiHandler;
 import ru.beggar.berlit.item.ItemAccelerator;
 import ru.beggar.berlit.item.ItemEntityCard;
+import ru.beggar.berlit.item.ItemMatter;
 import ru.beggar.berlit.item.ItemSpawnerCore;
 import ru.beggar.berlit.item.ItemStackUpgrade;
 import ru.beggar.berlit.machine.MachineRecipes;
 import ru.beggar.berlit.machine.MachineType;
+import ru.beggar.berlit.matter.MatterType;
 import ru.beggar.berlit.network.ModNetwork;
 import ru.beggar.berlit.recipe.MolecularRecipes;
 import ru.beggar.berlit.recipe.ReplicatorRecipes;
 import ru.beggar.berlit.spawner.EntityRegistry;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
+import ru.beggar.berlit.tileentity.TileEntityMatterGenerator;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntityReplicator;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
@@ -112,6 +116,8 @@ public class Berlit {
     public static ru.beggar.berlit.ae2.ItemInfinityCell infinityCell;
     public static net.minecraft.item.Item infinityFluidCell;
     public static ItemStackUpgrade stackUpgrade;
+    public static BlockMatterGenerator[] matterGenerators;
+    public static ItemMatter[] matterItems;
     public static ru.beggar.berlit.ae2.ItemAvaritiaPattern avaritiaPattern;
     public static ru.beggar.berlit.ae2.ItemSingularityPattern singularityPattern;
     public static ru.beggar.berlit.ae2.BlockSingularityEncoder singularityEncoder;
@@ -139,6 +145,16 @@ public class Berlit {
         testGenerator = new BlockTestGenerator();
         GameRegistry.registerBlock(testGenerator, "berlit.test_generator");
         GameRegistry.registerTileEntity(TileEntityTestGenerator.class, "berlit:test_generator");
+
+        matterGenerators = new BlockMatterGenerator[MatterType.values().length];
+        matterItems = new ItemMatter[MatterType.values().length];
+        for (MatterType type : MatterType.values()) {
+            matterGenerators[type.ordinal()] = new BlockMatterGenerator(type);
+            GameRegistry.registerBlock(matterGenerators[type.ordinal()], "berlit.matter_generator_" + type.getId());
+            matterItems[type.ordinal()] = new ItemMatter(type);
+            GameRegistry.registerItem(matterItems[type.ordinal()], "matter_" + type.getId());
+        }
+        GameRegistry.registerTileEntity(TileEntityMatterGenerator.class, "berlit:matter_generator");
 
         spawner = new BlockSpawner();
         GameRegistry.registerBlock(spawner, "berlit.spawner");
@@ -412,6 +428,34 @@ public class Berlit {
     }
 
     private void registerRecipes() {
+
+        for (MatterType type : MatterType.values()) {
+            int index = type.ordinal();
+            if (type.isFirst()) {
+                GameRegistry.addRecipe(
+                    new ItemStack(matterGenerators[index]),
+                    "IRI",
+                    "RMR",
+                    "IRI",
+                    'I',
+                    Items.iron_ingot,
+                    'R',
+                    Items.redstone,
+                    'M',
+                    Items.diamond);
+            } else {
+                MatterType previous = type.getPrevious();
+                GameRegistry.addRecipe(
+                    new ItemStack(matterGenerators[index]),
+                    "MMM",
+                    "MGM",
+                    "MMM",
+                    'M',
+                    matterItems[previous.ordinal()],
+                    'G',
+                    matterGenerators[previous.ordinal()]);
+            }
+        }
         GameRegistry.addRecipe(
             new ItemStack(molecularTransformer),
             "IRI",

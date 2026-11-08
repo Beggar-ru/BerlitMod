@@ -39,6 +39,11 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityMolecularTransformer) {
             return new ContainerMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
         }
+        if (tile instanceof ru.beggar.berlit.tileentity.TileEntityMatterGenerator) {
+            return new ru.beggar.berlit.gui.ContainerMatterGenerator(
+                player.inventory,
+                (ru.beggar.berlit.tileentity.TileEntityMatterGenerator) tile);
+        }
         if (tile instanceof TileEntityMolecularFarm) {
             return new ContainerMolecularFarm(player.inventory, (TileEntityMolecularFarm) tile);
         }
@@ -109,6 +114,11 @@ public class GuiHandler implements IGuiHandler {
 
         if (tile instanceof TileEntityMolecularTransformer) {
             return new GuiMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
+        }
+        if (tile instanceof ru.beggar.berlit.tileentity.TileEntityMatterGenerator) {
+            return new ru.beggar.berlit.gui.GuiMatterGenerator(
+                player.inventory,
+                (ru.beggar.berlit.tileentity.TileEntityMatterGenerator) tile);
         }
         if (tile instanceof TileEntityMolecularFarm) {
             return new GuiMolecularFarm(player.inventory, (TileEntityMolecularFarm) tile);

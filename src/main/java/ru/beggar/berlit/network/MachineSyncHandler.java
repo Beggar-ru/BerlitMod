@@ -7,6 +7,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import ru.beggar.berlit.tileentity.TileEntityMatterGenerator;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 
@@ -30,6 +31,9 @@ public class MachineSyncHandler implements IMessageHandler<PacketMachineSync, IM
                             message.recipeEnergy,
                             message.lastInput,
                             message.active);
+                    } else if (tile instanceof TileEntityMatterGenerator) {
+                        ((TileEntityMatterGenerator) tile)
+                            .setClientData(message.energy, message.progress, message.recipeEnergy, message.active);
                     } else if (tile instanceof TileEntityProcessingMachine) {
                         ((TileEntityProcessingMachine) tile).setClientData(
                             message.energy,

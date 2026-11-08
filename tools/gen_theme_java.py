@@ -54,6 +54,10 @@ public final class GuiTheme {{
 
     public static final int BAR_TROUGH = {bar_trough};
 
+    public static final int BAR_FILL = {bar_fill};
+
+    public static final int BAR_FILL_EDGE = {bar_fill_edge};
+
     /** Title rule under the header, dimmer than the frame. */
     public static final int FRAME_BORDER = {frame_border};
 
@@ -93,6 +97,8 @@ def main():
         bar_frame=argb(palette["progress"]["frame"]),
         bar_edge=argb(palette["progress"]["frame_edge"]),
         bar_trough=argb(palette["progress"]["trough"]),
+        bar_fill=argb(palette["progress"]["fill"]),
+        bar_fill_edge=argb(palette["progress"]["fill_edge"]),
     )
 
     with open(OUT, "w", encoding="utf-8", newline="\n") as handle:
