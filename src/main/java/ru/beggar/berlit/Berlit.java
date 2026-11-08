@@ -44,7 +44,12 @@ import ru.beggar.berlit.tileentity.TileEntitySpawnerT2;
 import ru.beggar.berlit.tileentity.TileEntitySuperChest;
 import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
 
-@Mod(modid = Berlit.MODID, name = Berlit.MOD_NAME, version = Tags.VERSION, acceptedMinecraftVersions = "[1.7.10]")
+@Mod(
+    modid = Berlit.MODID,
+    name = Berlit.MOD_NAME,
+    version = Tags.VERSION,
+    acceptedMinecraftVersions = "[1.7.10]",
+    dependencies = "after:appliedenergistics2")
 public class Berlit {
 
     public static final String MODID = "berlit";
@@ -87,6 +92,8 @@ public class Berlit {
     public static ru.beggar.berlit.ae2.BlockDigitalCraftingMachine digitalNeutronCompressor;
     public static ru.beggar.berlit.ae2.BlockCraftingStorageCustom[] craftingStorages;
     public static ru.beggar.berlit.ae2.BlockCraftingCoProcessor[] craftingProcessors;
+    public static ru.beggar.berlit.ae2.iface.BlockBigInterface[] bigInterfaces;
+    public static ru.beggar.berlit.ae2.iface.ItemBigInterfacePart bigInterfacePart;
     public static ru.beggar.berlit.ae2.BlockFastAssembler fastAssembler;
     public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
     public static net.minecraft.item.Item digitalPattern;
@@ -255,6 +262,24 @@ public class Berlit {
                 GameRegistry.registerBlock(block, "berlit." + processorIds[i]);
                 craftingProcessors[i] = block;
             }
+
+            String[] interfaceIds = { "big_interface_18", "big_interface_27", "big_interface_36" };
+            Class<? extends appeng.tile.misc.TileInterface>[] interfaceTiles = new Class[] {
+                ru.beggar.berlit.ae2.iface.TileBigInterface18.class,
+                ru.beggar.berlit.ae2.iface.TileBigInterface27.class,
+                ru.beggar.berlit.ae2.iface.TileBigInterface36.class };
+            bigInterfaces = new ru.beggar.berlit.ae2.iface.BlockBigInterface[interfaceIds.length];
+            for (int i = 0; i < interfaceIds.length; i++) {
+                ru.beggar.berlit.ae2.iface.BlockBigInterface block = new ru.beggar.berlit.ae2.iface.BlockBigInterface(
+                    interfaceIds[i],
+                    interfaceIds[i],
+                    interfaceTiles[i]);
+                GameRegistry.registerBlock(block, "berlit." + interfaceIds[i]);
+                GameRegistry.registerTileEntity(interfaceTiles[i], "berlit:" + interfaceIds[i]);
+                bigInterfaces[i] = block;
+            }
+            bigInterfacePart = new ru.beggar.berlit.ae2.iface.ItemBigInterfacePart();
+            GameRegistry.registerItem(bigInterfacePart, "berlit.big_interface_part");
 
             avaritiaPattern = new ru.beggar.berlit.ae2.ItemAvaritiaPattern();
             GameRegistry.registerItem(avaritiaPattern, "avaritia_pattern");
@@ -688,6 +713,51 @@ public class Berlit {
                 Items.emerald,
                 'M',
                 craftingProcessors[1]);
+
+            net.minecraft.item.ItemStack aeInterface = appeng.api.AEApi.instance()
+                .definitions()
+                .blocks()
+                .iface()
+                .maybeStack(1)
+                .orNull();
+            if (aeInterface != null) {
+                GameRegistry.addRecipe(
+                    new ItemStack(bigInterfaces[0]),
+                    "DQD",
+                    "QIQ",
+                    "DQD",
+                    'D',
+                    Items.diamond,
+                    'Q',
+                    Items.quartz,
+                    'I',
+                    aeInterface);
+                GameRegistry.addRecipe(
+                    new ItemStack(bigInterfaces[1]),
+                    "DED",
+                    "EME",
+                    "DED",
+                    'D',
+                    Items.diamond,
+                    'E',
+                    Items.emerald,
+                    'M',
+                    bigInterfaces[0]);
+                GameRegistry.addRecipe(
+                    new ItemStack(bigInterfaces[2]),
+                    "DGD",
+                    "GMG",
+                    "DGD",
+                    'D',
+                    Items.diamond,
+                    'G',
+                    Blocks.glowstone,
+                    'M',
+                    bigInterfaces[1]);
+                GameRegistry.addShapelessRecipe(new ItemStack(bigInterfacePart, 1, 0), new ItemStack(bigInterfaces[0]));
+                GameRegistry.addShapelessRecipe(new ItemStack(bigInterfacePart, 1, 1), new ItemStack(bigInterfaces[1]));
+                GameRegistry.addShapelessRecipe(new ItemStack(bigInterfacePart, 1, 2), new ItemStack(bigInterfaces[2]));
+            }
         }
 
         if (cpw.mods.fml.common.Loader.isModLoaded("Avaritia")

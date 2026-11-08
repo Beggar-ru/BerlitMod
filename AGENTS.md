@@ -112,6 +112,12 @@ tools/                   — генераторы текстур/GUI и прев
   `128M`, `256M`, `512M`) и 3 блока обработки (`9x`, `81x`, `729x`). Хранилища и
   co-processor'ы собираются в обычный мультиблок AE2 CPU; вес co-processor'а
   добавляется миксином в `CraftingCPUCluster`.
+- **Большие ME Интерфейсы** (`berlit.big_interface_18/27/36` + `big_interface_part`):
+  18/27/36 слотов шаблонов. Блоки и cable-part'ы используют штатный
+  `TileInterface`/`PartInterface`; `InterfacePatternExpander` рефлексией заменяет
+  приватный `patterns` в `DualityInterface` на `AppEngInternalInventory` нужного
+  размера. GUI — свой Berlit-стиль (`ContainerBigInterface18/27/36`,
+  `GuiBigInterface`), текстуры взяты/перерисованы из AE2 Additions.
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
@@ -142,6 +148,8 @@ tools/                   — генераторы текстур/GUI и прев
 
 Статус: **реализовано** (mixin выбран и внедрён):
 
+- `@Mod(... dependencies = "after:appliedenergistics2")`: Berlit создаёт блоки
+  `BlockInterface` после preInit AE2, иначе feature-check AE2 падает.
 - `mixins.berlit.json` + `MixinCraftingTreeProcess` / `MixinCraftingCPUCluster` — N×N инвентарь.
 - `ItemAvaritiaPattern` / `AvaritiaPatternDetails` — 9×9 AE2-шаблон; кодировщик `berlit.pattern_encoder`.
 - `TileEntityAvaritiaAssembler` — `IGridHost` + `ICraftingProvider` + `pushPattern` (`berlit.avaritia_assembler`).
@@ -181,6 +189,9 @@ BERLIT_SELFTEST farm: seeds=64 wheat=64 extraSeeds=64
 BERLIT_SELFTEST cobble: fullSlots=27
 BERLIT_SELFTEST spawner buffer: entity=skeleton buffered=4 stacks=2
 BERLIT_SELFTEST crafting cpu: storage=536870912 processor=729 coprocessors=729
+BERLIT_SELFTEST interface expand: before=9 expanded=true after=18
+BERLIT_SELFTEST big interfaces: blocks=18/27/36 parts=18/27/36
+BERLIT_SELFTEST big interface containers: slots=73/82/91 height=229/250/250
 BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=true
 BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
 BERLIT_SELFTEST digital custom: avaritiaPatterns=18 avaritiaProcessed=true compressorPatterns=8 compressorProcessed=true

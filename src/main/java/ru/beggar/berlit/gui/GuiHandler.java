@@ -9,6 +9,16 @@ import net.minecraft.world.World;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.network.IGuiHandler;
+import ru.beggar.berlit.ae2.iface.ContainerBigInterface18;
+import ru.beggar.berlit.ae2.iface.ContainerBigInterface27;
+import ru.beggar.berlit.ae2.iface.ContainerBigInterface36;
+import ru.beggar.berlit.ae2.iface.GuiBigInterface;
+import ru.beggar.berlit.ae2.iface.PartBigInterface18;
+import ru.beggar.berlit.ae2.iface.PartBigInterface27;
+import ru.beggar.berlit.ae2.iface.PartBigInterface36;
+import ru.beggar.berlit.ae2.iface.TileBigInterface18;
+import ru.beggar.berlit.ae2.iface.TileBigInterface27;
+import ru.beggar.berlit.ae2.iface.TileBigInterface36;
 import ru.beggar.berlit.tileentity.TileEntityMolecularFarm;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
@@ -20,6 +30,11 @@ public class GuiHandler implements IGuiHandler {
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(x, y, z);
+
+        if (Loader.isModLoaded("appliedenergistics2")) {
+            Object bigInterface = bigInterfaceContainer(player, tile);
+            if (bigInterface != null) return bigInterface;
+        }
 
         if (tile instanceof TileEntityMolecularTransformer) {
             return new ContainerMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
@@ -87,6 +102,11 @@ public class GuiHandler implements IGuiHandler {
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(x, y, z);
 
+        if (Loader.isModLoaded("appliedenergistics2")) {
+            Object bigInterface = bigInterfaceGui(player, tile);
+            if (bigInterface != null) return bigInterface;
+        }
+
         if (tile instanceof TileEntityMolecularTransformer) {
             return new GuiMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
         }
@@ -146,6 +166,49 @@ public class GuiHandler implements IGuiHandler {
                 player.inventory,
                 (ru.beggar.berlit.machine.TileEntityNeutronCompressor) tile);
         }
+        return null;
+    }
+
+    private static appeng.helpers.IInterfaceHost findBigInterface(TileEntity tile) {
+        if (tile instanceof TileBigInterface18 || tile instanceof TileBigInterface27
+            || tile instanceof TileBigInterface36) {
+            return (appeng.helpers.IInterfaceHost) tile;
+        }
+        if (tile instanceof appeng.api.parts.IPartHost) {
+            appeng.api.parts.IPartHost host = (appeng.api.parts.IPartHost) tile;
+            for (net.minecraftforge.common.util.ForgeDirection direction : net.minecraftforge.common.util.ForgeDirection
+                .values()) {
+                appeng.api.parts.IPart part = host.getPart(direction);
+                if (part instanceof PartBigInterface18 || part instanceof PartBigInterface27
+                    || part instanceof PartBigInterface36) {
+                    return (appeng.helpers.IInterfaceHost) part;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Object bigInterfaceContainer(EntityPlayer player, TileEntity tile) {
+        appeng.helpers.IInterfaceHost host = findBigInterface(tile);
+        if (host == null) return null;
+        int patterns = host.getInterfaceDuality()
+            .getPatterns()
+            .getSizeInventory();
+        if (patterns == 18) return new ContainerBigInterface18(player.inventory, host);
+        if (patterns == 27) return new ContainerBigInterface27(player.inventory, host);
+        if (patterns == 36) return new ContainerBigInterface36(player.inventory, host);
+        return null;
+    }
+
+    private static Object bigInterfaceGui(EntityPlayer player, TileEntity tile) {
+        appeng.helpers.IInterfaceHost host = findBigInterface(tile);
+        if (host == null) return null;
+        int patterns = host.getInterfaceDuality()
+            .getPatterns()
+            .getSizeInventory();
+        if (patterns == 18) return new GuiBigInterface(new ContainerBigInterface18(player.inventory, host));
+        if (patterns == 27) return new GuiBigInterface(new ContainerBigInterface27(player.inventory, host));
+        if (patterns == 36) return new GuiBigInterface(new ContainerBigInterface36(player.inventory, host));
         return null;
     }
 }

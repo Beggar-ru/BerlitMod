@@ -52,6 +52,8 @@ public final class Selftest {
         testCobbleGenerator(world);
         testSpawnerBuffer(world);
         testCraftingCpu(world);
+        testInterfaceExpansion();
+        testBigInterfaces();
         testDigitalFilter(world);
         testDigitalProcessing(world);
         testDigitalCraftingMachines(world);
@@ -219,6 +221,74 @@ public final class Selftest {
                 ? ((ru.beggar.berlit.ae2.TileEntityCraftingCoProcessor) processor).getOperations()
                 : null,
             coProcessors);
+    }
+
+    /** Verifies that the standard AE2 interface can be expanded to a larger pattern inventory. */
+    private static void testInterfaceExpansion() {
+        appeng.tile.misc.TileInterface tile = new appeng.tile.misc.TileInterface();
+        int before = tile.getInterfaceDuality()
+            .getPatterns()
+            .getSizeInventory();
+        boolean expanded = InterfacePatternExpander.expand(tile, 18);
+        int after = tile.getInterfaceDuality()
+            .getPatterns()
+            .getSizeInventory();
+        FMLLog.info("BERLIT_SELFTEST interface expand: before=%s expanded=%s after=%s", before, expanded, after);
+    }
+
+    /** Verifies the three block and three cable-part interface sizes. */
+    private static void testBigInterfaces() {
+        ru.beggar.berlit.ae2.iface.TileBigInterface18 tile18 = new ru.beggar.berlit.ae2.iface.TileBigInterface18();
+        ru.beggar.berlit.ae2.iface.TileBigInterface27 tile27 = new ru.beggar.berlit.ae2.iface.TileBigInterface27();
+        ru.beggar.berlit.ae2.iface.TileBigInterface36 tile36 = new ru.beggar.berlit.ae2.iface.TileBigInterface36();
+
+        net.minecraft.item.ItemStack partStack = new net.minecraft.item.ItemStack(Berlit.bigInterfacePart);
+        ru.beggar.berlit.ae2.iface.PartBigInterface18 part18 = new ru.beggar.berlit.ae2.iface.PartBigInterface18(
+            partStack);
+        ru.beggar.berlit.ae2.iface.PartBigInterface27 part27 = new ru.beggar.berlit.ae2.iface.PartBigInterface27(
+            partStack);
+        ru.beggar.berlit.ae2.iface.PartBigInterface36 part36 = new ru.beggar.berlit.ae2.iface.PartBigInterface36(
+            partStack);
+
+        FMLLog.info(
+            "BERLIT_SELFTEST big interfaces: blocks=%s/%s/%s parts=%s/%s/%s",
+            tile18.getInterfaceDuality()
+                .getPatterns()
+                .getSizeInventory(),
+            tile27.getInterfaceDuality()
+                .getPatterns()
+                .getSizeInventory(),
+            tile36.getInterfaceDuality()
+                .getPatterns()
+                .getSizeInventory(),
+            part18.getInterfaceDuality()
+                .getPatterns()
+                .getSizeInventory(),
+            part27.getInterfaceDuality()
+                .getPatterns()
+                .getSizeInventory(),
+            part36.getInterfaceDuality()
+                .getPatterns()
+                .getSizeInventory());
+
+        net.minecraft.entity.player.InventoryPlayer inventory = new net.minecraft.entity.player.InventoryPlayer(null);
+        ru.beggar.berlit.ae2.iface.ContainerBigInterface18 container18 = new ru.beggar.berlit.ae2.iface.ContainerBigInterface18(
+            inventory,
+            tile18);
+        ru.beggar.berlit.ae2.iface.ContainerBigInterface27 container27 = new ru.beggar.berlit.ae2.iface.ContainerBigInterface27(
+            inventory,
+            tile27);
+        ru.beggar.berlit.ae2.iface.ContainerBigInterface36 container36 = new ru.beggar.berlit.ae2.iface.ContainerBigInterface36(
+            inventory,
+            tile36);
+        FMLLog.info(
+            "BERLIT_SELFTEST big interface containers: slots=%s/%s/%s height=%s/%s/%s",
+            container18.inventorySlots.size(),
+            container27.inventorySlots.size(),
+            container36.inventorySlots.size(),
+            container18.getGuiHeight(),
+            container27.getGuiHeight(),
+            container36.getGuiHeight());
     }
 
     /** Verifies that the persistent filter really removes one exported pattern. */
