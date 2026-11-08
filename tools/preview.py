@@ -407,13 +407,79 @@ def render_screen(name, screen, scale=4, overlay=True):
     return canvas
 
 
-def save_sheet(name, screen, scale=4, overlay=True):
+def draw_coordinate_grid(sheet, offset_y, width, height, scale, step):
+    """Ruler over the mockup: light lines every `step` GUI pixels, strong ones every 5 steps."""
+    draw = ImageDraw.Draw(sheet)
+    ruler = font(11)
+
+    for x in range(0, width + 1, step):
+        px = x * scale
+        strong = x % (step * 5) == 0
+        draw.line(
+            [(px, offset_y), (px, offset_y + height * scale)],
+            fill=(120, 200, 195, 150 if strong else 55),
+        )
+        if strong:
+            draw.text((px + 2, offset_y + 2), str(x), fill=(210, 235, 232, 230), font=ruler)
+
+    for y in range(0, height + 1, step):
+        py = offset_y + y * scale
+        strong = y % (step * 5) == 0
+        draw.line(
+            [(0, py), (width * scale, py)],
+            fill=(120, 200, 195, 150 if strong else 55),
+        )
+        if strong:
+            draw.text((2, py + 1), str(y), fill=(210, 235, 232, 230), font=ruler)
+
+
+def describe_screen(name, screen):
+    """Human-readable list of everything the screen is made of, with its coordinates."""
+    lines = [f"# {name}", ""]
+
+    for index, panel in enumerate(screen.get("panels", [])):
+        x, y, w, h = panel
+        lines.append(f"панель {index + 1}: x={x} y={y} w={w} h={h}")
+
+    for group, slots in screen.get("groups", []):
+        if slots:
+            first = slots[0]
+            lines.append(f"слоты '{group}': {len(slots)} шт., первый x={first[0]} y={first[1]}")
+            if len(slots) > 1:
+                lines.append("    все: " + ", ".join(f"({x},{y})" for x, y in slots))
+
+    for entry in screen.get("text", []):
+        name_key = entry[0]
+        x, y, w = entry[1], entry[2], entry[3]
+        lines.append(f"текст '{name_key}': x={x} y={y} ширина={w}")
+
+    for button in screen.get("buttons", []):
+        x, y, w, h, label = button[:5]
+        lines.append(f"кнопка '{label}': x={x} y={y} w={w} h={h}")
+
+    for x, y in screen.get("arrows", []):
+        lines.append(f"стрелка: центр x={x} y={y}")
+
+    bar = screen.get("bar")
+    if bar:
+        lines.append(f"полоса прогресса: x={bar[0]} y={bar[1]} w={bar[2]} h={bar[3]}")
+
+    info = screen.get("info")
+    if info:
+        lines.append(f"значок информации: x={info[0]} y={info[1]} размер={info[2]}")
+
+    return "\n".join(lines) + "\n"
+
+
+def save_sheet(name, screen, scale=4, overlay=True, grid=0):
     canvas = render_screen(name, screen, scale=scale, overlay=overlay)
     width, height = canvas.size
     header = font(16)
     bar = 26
     sheet = checkerboard(width, height + bar, cell=16)
     sheet.alpha_composite(canvas, (0, bar))
+    if grid:
+        draw_coordinate_grid(sheet, bar, screen["canvas"][0], screen["canvas"][1], scale, grid)
     ImageDraw.Draw(sheet).text(
         (6, 5),
         f"{name}  <-  {screen.get('texture', 'drawn from the kit')}  ({scale}x)",
@@ -422,6 +488,8 @@ def save_sheet(name, screen, scale=4, overlay=True):
     )
     os.makedirs(OUT_DIR, exist_ok=True)
     suffix = "" if overlay else "_clean"
+    if grid:
+        suffix += "_grid"
     out = os.path.join(OUT_DIR, f"gui_{name}_{scale}x{suffix}.png")
     sheet.save(out)
     return out
@@ -855,7 +923,18 @@ def cmd_gui(args):
     for name in names:
         if name not in SCREENS:
             raise SystemExit(f"unknown screen '{name}'; known: {', '.join(SCREENS)}")
-        print("written", save_sheet(name, SCREENS[name], scale=args.gui_scale, overlay=not args.clean))
+        print(
+            "written",
+            save_sheet(name, SCREENS[name], scale=args.gui_scale, overlay=not args.clean, grid=args.grid_step if args.grid else 0))
+        if args.grid:
+            table = describe_screen(name, SCREENS[name])
+            print()
+            print(table)
+            # the console mangles Cyrillic on Windows, so the table also lands next to the image
+            target = os.path.join(OUT_DIR, f"gui_{name}_{args.gui_scale}x_grid.txt")
+            with open(target, "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(table)
+            print("written", target)
     return 0
 
 
@@ -872,6 +951,8 @@ def main(argv=None):
     gui.add_argument("names", nargs="*", help="screen names (default: all)")
     gui.add_argument("--gui-scale", type=int, default=4)
     gui.add_argument("--clean", action="store_true", help="no slot overlay, just the artwork")
+    gui.add_argument("--grid", action="store_true", help="coordinate ruler plus an element table")
+    gui.add_argument("--grid-step", type=int, default=10, help="ruler step in GUI pixels (default 10)")
     gui.set_defaults(func=cmd_gui)
 
     check = sub.add_parser("check", help="lint textures, slots and translations")
