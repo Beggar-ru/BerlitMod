@@ -52,8 +52,10 @@ public final class Selftest {
         testCobbleGenerator(world);
         testSpawnerBuffer(world);
         testCraftingCpu(world);
+        testCpuMultiblock(world);
         testInterfaceExpansion();
         testBigInterfaces();
+        testBigInterfaceCraftingList(world);
         testDigitalFilter(world);
         testDigitalProcessing(world);
         testDigitalCraftingMachines(world);
@@ -234,6 +236,132 @@ public final class Selftest {
             .getPatterns()
             .getSizeInventory();
         FMLLog.info("BERLIT_SELFTEST interface expand: before=%s expanded=%s after=%s", before, expanded, after);
+    }
+
+    /** Builds a CPU from a standard core, our 512M storage and our 729x co-processor. */
+    private static void testCpuMultiblock(World world) {
+        int x = 2040;
+        int y = 64;
+        int z = 2040;
+        world.getChunkFromBlockCoords(x, z);
+
+        net.minecraft.item.ItemStack coreStack = appeng.api.AEApi.instance()
+            .definitions()
+            .blocks()
+            .craftingUnit()
+            .maybeStack(1)
+            .orNull();
+        if (coreStack == null) {
+            FMLLog.info("BERLIT_SELFTEST cpu multiblock: no AE2 crafting unit");
+            return;
+        }
+
+        net.minecraft.block.Block coreBlock = net.minecraft.block.Block.getBlockFromItem(coreStack.getItem());
+        world.setBlock(x, y, z, coreBlock);
+        world.setBlock(x + 1, y, z, Berlit.craftingStorages[8]);
+        world.setBlock(x + 2, y, z, Berlit.craftingProcessors[2]);
+
+        appeng.tile.crafting.TileCraftingTile core = (appeng.tile.crafting.TileCraftingTile) world
+            .getTileEntity(x, y, z);
+        appeng.tile.crafting.TileCraftingTile storage = (appeng.tile.crafting.TileCraftingTile) world
+            .getTileEntity(x + 1, y, z);
+        appeng.tile.crafting.TileCraftingTile processor = (appeng.tile.crafting.TileCraftingTile) world
+            .getTileEntity(x + 2, y, z);
+        if (core == null || storage == null || processor == null) {
+            FMLLog.info("BERLIT_SELFTEST cpu multiblock: missing tiles");
+            return;
+        }
+
+        core.updateMultiBlock();
+        storage.updateMultiBlock();
+        processor.updateMultiBlock();
+
+        appeng.me.cluster.implementations.CraftingCPUCluster cluster = (appeng.me.cluster.implementations.CraftingCPUCluster) core
+            .getCluster();
+        FMLLog.info(
+            "BERLIT_SELFTEST cpu multiblock: cluster=%s formed=%s storage=%s coprocessors=%s",
+            cluster != null,
+            cluster != null && core.isFormed(),
+            cluster == null ? -1 : cluster.getAvailableStorage(),
+            cluster == null ? -1 : cluster.getCoProcessors());
+        if (cluster != null) {
+            cluster.destroy();
+        }
+
+        int x2 = x + 5;
+        world.setBlock(x2, y, z, Berlit.craftingStorages[8]);
+        world.setBlock(x2 + 1, y, z, Berlit.craftingProcessors[2]);
+        net.minecraft.item.ItemStack cellStack = appeng.api.AEApi.instance()
+            .definitions()
+            .blocks()
+            .energyCellCreative()
+            .maybeStack(1)
+            .orNull();
+        if (cellStack != null) {
+            net.minecraft.block.Block cellBlock = net.minecraft.block.Block.getBlockFromItem(cellStack.getItem());
+            world.setBlock(x2 + 2, y, z, cellBlock);
+        }
+        appeng.tile.crafting.TileCraftingTile storageOnly = (appeng.tile.crafting.TileCraftingTile) world
+            .getTileEntity(x2, y, z);
+        appeng.tile.crafting.TileCraftingTile processorOnly = (appeng.tile.crafting.TileCraftingTile) world
+            .getTileEntity(x2 + 1, y, z);
+        if (storageOnly != null && processorOnly != null) {
+            storageOnly.updateMultiBlock();
+            processorOnly.updateMultiBlock();
+            appeng.me.cluster.implementations.CraftingCPUCluster noCoreCluster = (appeng.me.cluster.implementations.CraftingCPUCluster) storageOnly
+                .getCluster();
+            FMLLog.info(
+                "BERLIT_SELFTEST cpu multiblock no-core: cluster=%s active=%s storage=%s coprocessors=%s",
+                noCoreCluster != null,
+                noCoreCluster != null && noCoreCluster.isActive(),
+                noCoreCluster == null ? -1 : noCoreCluster.getAvailableStorage(),
+                noCoreCluster == null ? -1 : noCoreCluster.getCoProcessors());
+            if (noCoreCluster != null) {
+                noCoreCluster.destroy();
+            }
+        }
+    }
+
+    /** Verifies that all 18 pattern slots reach DualityInterface's crafting list. */
+    private static void testBigInterfaceCraftingList(World world) {
+        ru.beggar.berlit.ae2.iface.TileBigInterface18 tile = new ru.beggar.berlit.ae2.iface.TileBigInterface18();
+        tile.setWorldObj(world);
+        tile.xCoord = 2060;
+        tile.yCoord = 64;
+        tile.zCoord = 2060;
+
+        ItemStack[] grid = new ItemStack[81];
+        grid[0] = new ItemStack(net.minecraft.init.Items.iron_ingot);
+        ItemStack pattern = ru.beggar.berlit.ae2.ItemAvaritiaPattern
+            .create(grid, new ItemStack(net.minecraft.init.Items.diamond));
+        for (int slot = 0; slot < 18; slot++) {
+            tile.getInterfaceDuality()
+                .getPatterns()
+                .setInventorySlotContents(slot, pattern.copy());
+        }
+
+        int listed = -1;
+        try {
+            java.lang.reflect.Field proxy = appeng.helpers.DualityInterface.class.getDeclaredField("gridProxy");
+            proxy.setAccessible(true);
+            Object dualityProxy = proxy.get(tile.getInterfaceDuality());
+            java.lang.reflect.Field ready = appeng.me.helpers.AENetworkProxy.class.getDeclaredField("isReady");
+            ready.setAccessible(true);
+            ready.set(dualityProxy, true);
+
+            java.lang.reflect.Method update = appeng.helpers.DualityInterface.class
+                .getDeclaredMethod("updateCraftingList");
+            update.setAccessible(true);
+            update.invoke(tile.getInterfaceDuality());
+
+            java.lang.reflect.Field list = appeng.helpers.DualityInterface.class.getDeclaredField("craftingList");
+            list.setAccessible(true);
+            Object value = list.get(tile.getInterfaceDuality());
+            listed = value instanceof java.util.List ? ((java.util.List<?>) value).size() : 0;
+        } catch (Throwable ignored) {
+            listed = -2;
+        }
+        FMLLog.info("BERLIT_SELFTEST big interface crafting list: patterns=%s", listed);
     }
 
     /** Verifies the three block and three cable-part interface sizes. */
