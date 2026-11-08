@@ -1,14 +1,21 @@
-"""Generates the solid matter item icons and generator casings (8 kinds each)."""
+"""Recolours the IC2 scrap icon into the eight solid matter kinds.
+
+The shape, outline and shading come from `itemScrap.png` in the IC2 jar: only the colour is
+mapped, through a luminance ramp, so every kind keeps the same silhouette.
+"""
 
 from __future__ import annotations
 
+import io
 import os
+import zipfile
 
-from PIL import Image, ImageDraw
+from PIL import Image
 
-ROOT = r"C:\main_mod\src\main\resources\assets\berlit\textures"
-OUT_ITEMS = os.path.join(ROOT, "items")
-OUT_BLOCKS = os.path.join(ROOT, "blocks")
+ROOT = r"C:\main_mod"
+IC2 = os.path.join(ROOT, "libs", "industrialcraft-2-2.2.828-experimental.jar")
+SCRAP = "assets/ic2/textures/items/itemScrap.png"
+OUT = os.path.join(ROOT, "src", "main", "resources", "assets", "berlit", "textures", "items")
 
 MATTER = [
     ("standard", (232, 236, 242)),
@@ -21,84 +28,50 @@ MATTER = [
     ("radiant", (255, 242, 176)),
 ]
 
-OUTLINE = (18, 21, 26)
-CASING = (46, 51, 64)
-CASING_EDGE = (20, 23, 29)
-CASING_INNER = (54, 59, 72)
-CYAN = (44, 140, 138)
+
+def luminance(pixel):
+    return 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2]
 
 
-def shade(colour, factor):
-    return tuple(max(0, min(255, int(channel * factor))) for channel in colour)
+def mix(first, second, t):
+    return tuple(round(first[i] + (second[i] - first[i]) * t) for i in range(3))
 
 
-def draw_crystal(image, colour):
-    """16x16 rhombus with a light top-left facet and a dark bottom-right one."""
-    draw = ImageDraw.Draw(image)
-    centre_x, centre_y, radius = 8, 8, 6
-    body = colour
-    light = shade(colour, 1.25)
-    dark = shade(colour, 0.62)
+def ramp(colour, level):
+    """Map a 0..255 lightness onto a dark -> base -> light ramp of the target colour."""
+    dark = tuple(channel * 0.42 for channel in colour)
+    light = tuple(min(255, channel * 1.32) for channel in colour)
+    if level < 128:
+        return mix(dark, colour, level / 128.0)
+    return mix(colour, light, (level - 128) / 127.0)
 
-    for y in range(16):
-        for x in range(16):
-            distance = abs(x - centre_x) + abs(y - centre_y)
-            if distance > radius:
+
+def recolour(source, colour):
+    image = source.copy()
+    pixels = image.load()
+    for y in range(image.size[1]):
+        for x in range(image.size[0]):
+            r, g, b, a = pixels[x, y]
+            if a == 0:
                 continue
-            if distance == radius:
-                draw.point((x, y), fill=OUTLINE + (255,))
-            elif x - centre_x < y - centre_y:
-                draw.point((x, y), fill=dark + (255,))
-            elif x - centre_x > y - centre_y:
-                draw.point((x, y), fill=light + (255,))
-            else:
-                draw.point((x, y), fill=body + (255,))
-
-    # small sparkle on the upper facet
-    draw.point((6, 5), fill=(255, 255, 255, 230))
-    draw.point((7, 4), fill=(255, 255, 255, 160))
-
-
-def draw_casing(image, colour):
-    """16x16 machine casing with a coloured core, matching the Berlit slate palette."""
-    draw = ImageDraw.Draw(image)
-    draw.rectangle([0, 0, 15, 15], fill=CASING + (255,))
-    draw.rectangle([0, 0, 15, 15], outline=CASING_EDGE + (255,))
-    draw.rectangle([2, 2, 13, 13], fill=CASING_INNER + (255,))
-
-    # cyan rule along the top edge
-    draw.line([(1, 1), (14, 1)], fill=CYAN + (255,))
-
-    # coloured core
-    for y in range(16):
-        for x in range(16):
-            distance = abs(x - 8) + abs(y - 8)
-            if distance > 3:
-                continue
-            if distance == 3:
-                draw.point((x, y), fill=CASING_EDGE + (255,))
-            elif x - 8 < y - 8:
-                draw.point((x, y), fill=shade(colour, 0.7) + (255,))
-            else:
-                draw.point((x, y), fill=colour + (255,))
-
-    draw.point((7, 6), fill=(255, 255, 255, 200))
+            level = int(max(0, min(255, luminance((r, g, b)) * 1.55)))
+            pixels[x, y] = ramp(colour, level) + (a,)
+    return image
 
 
 def main():
-    os.makedirs(OUT_ITEMS, exist_ok=True)
-    os.makedirs(OUT_BLOCKS, exist_ok=True)
+    if not os.path.isfile(IC2):
+        raise SystemExit(f"IC2 jar not found: {IC2}")
+
+    with zipfile.ZipFile(IC2) as jar:
+        base = Image.open(io.BytesIO(jar.read(SCRAP))).convert("RGBA")
+    if base.size != (16, 16):
+        raise SystemExit(f"unexpected scrap size {base.size}")
 
     for name, colour in MATTER:
-        item = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-        draw_crystal(item, colour)
-        item.save(os.path.join(OUT_ITEMS, f"matter_{name}.png"))
+        recolour(base, colour).save(os.path.join(OUT, f"matter_{name}.png"))
 
-        block = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-        draw_casing(block, colour)
-        block.save(os.path.join(OUT_BLOCKS, f"matter_generator_{name}.png"))
-
-    print(f"written 8 item icons and 8 casings")
+    print("written 8 matter icons from IC2 scrap")
 
 
 if __name__ == "__main__":
