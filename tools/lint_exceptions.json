@@ -7,6 +7,7 @@
     "blocks/nether_star_block.png": "32x32 nether star block",
     "blocks/spawner_*.png": "32x32 spawner casing (top/side/bottom, both tiers)",
     "blocks/digital_spawner_*.png": "32x32 digital spawner casing (top/side/bottom)",
+    "blocks/replicator_*.png": "32x32 replicator casing (top/side/bottom)",
     "items/matter_*.png": "32x32 solid matter items",
     "items/infinity_*.png": "32x32 infinity cells",
     "items/spawner_core_*.png": "32x32 spawner cores (T1-T3)",
