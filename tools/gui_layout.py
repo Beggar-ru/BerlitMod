@@ -58,9 +58,9 @@ def player_inventory(x0=20, top=166, hotbar=222):
 
 
 def machine_upgrades(count=4):
-    """Upgrade slots under the progress bar, centred on the machine panel."""
-    x0 = (MACHINE_W - SLOT * 4) // 2
-    return [(x0 + SLOT * (i % 4), 92 + SLOT * (i // 4)) for i in range(count)]
+    """Upgrade slots in one row under the progress bar, centred on the machine panel."""
+    x0 = (MACHINE_W - SLOT * count) // 2
+    return [(x0 + SLOT * i, 92) for i in range(count)]
 
 
 def inventory_slots(width):
@@ -182,7 +182,7 @@ SCREENS = {
     "spawner": machine_screen(
         "gui/spawner.png",
         [
-            ("entity", [(38, 22)]),
+            ("entity", [(92, 22)]),
             ("upgrade", machine_upgrades(7)),
             ("player", player_inventory()),
         ],
@@ -196,7 +196,7 @@ SCREENS = {
     "spawner_t2": machine_screen(
         "gui/spawner_t2.png",
         [
-            ("entity", grid(20, 22, 5, 2)),
+            ("entity", grid(56, 22, 5, 2)),
             ("upgrade", machine_upgrades(7)),
             ("player", player_inventory()),
         ],

@@ -15,8 +15,18 @@ public class GuiBigInterface extends GuiUpgradeable {
     public GuiBigInterface(ContainerBigInterface container) {
         super(container);
         this.container = container;
-        this.xSize = 211;
+        // The pattern grid is 9 columns wide, so 178px hugs it with even margins. AE2 still places its
+        // upgrade slot at 187, which would fall outside; it is moved into the title row instead.
+        this.xSize = 178;
         this.ySize = container.getGuiHeight();
+
+        for (Object entry : this.inventorySlots.inventorySlots) {
+            Slot slot = (Slot) entry;
+            if (slot.xDisplayPosition >= this.xSize) {
+                slot.xDisplayPosition = 152;
+                slot.yDisplayPosition = 6;
+            }
+        }
     }
 
     @Override
@@ -36,6 +46,9 @@ public class GuiBigInterface extends GuiUpgradeable {
             .getTextureManager()
             .bindTexture(GuiKit.KIT);
         GuiKit.PANEL.draw(this.zLevel, x, y, width, height);
+        // thin rule under the title, like the machine screens
+        drawRect(x + 8, y + 15, x + 146, y + 16, GuiTheme.FRAME_BORDER);
+        drawRect(x + 8, y + 16, x + 146, y + 17, GuiTheme.FRAME_RULE);
 
         for (Object entry : this.inventorySlots.inventorySlots) {
             Slot slot = (Slot) entry;

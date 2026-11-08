@@ -55,12 +55,13 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
         return getEntitySlotCount();
     }
 
+    /** Seven slots in a single row, centred under the progress bar. */
     public int getUpgradeSlotX(int index) {
-        return 64 + (index % 4) * 18;
+        return 37 + index * 18;
     }
 
     public int getUpgradeSlotY(int index) {
-        return 92 + (index / 4) * 18;
+        return 92;
     }
 
     public int getSlotCount() {
