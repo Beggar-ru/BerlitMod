@@ -8,6 +8,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -49,6 +50,8 @@ public final class Selftest {
         testProcessingPersistence();
         testMolecularFarm(world);
         testCobbleGenerator(world);
+        testSpawnerBuffer(world);
+        testCraftingCpu(world);
         testDigitalFilter(world);
         testDigitalProcessing(world);
         testDigitalCraftingMachines(world);
@@ -151,6 +154,71 @@ public final class Selftest {
             }
         }
         FMLLog.info("BERLIT_SELFTEST cobble: fullSlots=%s", full);
+    }
+
+    /** Verifies the spawner buffer gets drops even when there is no adjacent inventory. */
+    private static void testSpawnerBuffer(World world) {
+        java.util.Iterator<ru.beggar.berlit.spawner.EntityDefinition> iterator = ru.beggar.berlit.spawner.EntityRegistry
+            .all()
+            .iterator();
+        if (!iterator.hasNext()) {
+            FMLLog.info("BERLIT_SELFTEST spawner buffer: no entity definitions");
+            return;
+        }
+
+        ru.beggar.berlit.spawner.EntityDefinition definition = iterator.next();
+        TileEntitySpawner spawner = new TileEntitySpawner();
+        spawner.setWorldObj(world);
+        spawner.xCoord = 2008;
+        spawner.yCoord = 64;
+        spawner.zCoord = 2008;
+        spawner.setInventorySlotContents(0, ru.beggar.berlit.item.ItemEntityCard.create(definition.getId()));
+        for (int i = 0; i < 400; i++) spawner.updateEntity();
+
+        FMLLog.info(
+            "BERLIT_SELFTEST spawner buffer: entity=%s buffered=%s stacks=%s",
+            definition.getId(),
+            spawner.getBufferedItemCount(),
+            spawner.getBufferedStackCount());
+    }
+
+    /** Verifies custom CPU storage/co-processor blocks expose their configured capacities. */
+    private static void testCraftingCpu(World world) {
+        int x = 2020;
+        int y = 64;
+        int z = 2020;
+        world.getChunkFromBlockCoords(x, z);
+        world.setBlock(x, y, z, Berlit.craftingStorages[8]);
+        TileEntity storage = world.getTileEntity(x, y, z);
+
+        world.setBlock(x + 2, y, z, Berlit.craftingProcessors[2]);
+        TileEntity processor = world.getTileEntity(x + 2, y, z);
+
+        int coProcessors = -1;
+        if (processor instanceof ru.beggar.berlit.ae2.TileEntityCraftingCoProcessor) {
+            try {
+                appeng.me.cluster.implementations.CraftingCPUCluster cluster = new appeng.me.cluster.implementations.CraftingCPUCluster(
+                    new appeng.api.util.WorldCoord(x + 2, y, z),
+                    new appeng.api.util.WorldCoord(x + 3, y + 1, z + 1));
+                java.lang.reflect.Method addTile = appeng.me.cluster.implementations.CraftingCPUCluster.class
+                    .getDeclaredMethod("addTile", appeng.tile.crafting.TileCraftingTile.class);
+                addTile.setAccessible(true);
+                addTile.invoke(cluster, processor);
+                coProcessors = cluster.getCoProcessors();
+            } catch (Throwable ignored) {
+                coProcessors = -2;
+            }
+        }
+
+        FMLLog.info(
+            "BERLIT_SELFTEST crafting cpu: storage=%s processor=%s coprocessors=%s",
+            storage instanceof ru.beggar.berlit.ae2.TileEntityCraftingStorage
+                ? ((ru.beggar.berlit.ae2.TileEntityCraftingStorage) storage).getStorageBytes()
+                : null,
+            processor instanceof ru.beggar.berlit.ae2.TileEntityCraftingCoProcessor
+                ? ((ru.beggar.berlit.ae2.TileEntityCraftingCoProcessor) processor).getOperations()
+                : null,
+            coProcessors);
     }
 
     /** Verifies that the persistent filter really removes one exported pattern. */

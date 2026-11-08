@@ -7,7 +7,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import ru.beggar.berlit.tileentity.TileEntitySpawner;
+import ru.beggar.berlit.tileentity.TileEntitySpawnerBase;
 
 public class SpawnerSyncHandler implements IMessageHandler<PacketSpawnerSync, IMessage> {
 
@@ -22,8 +22,9 @@ public class SpawnerSyncHandler implements IMessageHandler<PacketSpawnerSync, IM
                     if (world == null) return;
 
                     TileEntity tile = world.getTileEntity(message.x, message.y, message.z);
-                    if (tile instanceof TileEntitySpawner) {
-                        ((TileEntitySpawner) tile).setClientData(message.cycle, message.interval, message.active);
+                    if (tile instanceof TileEntitySpawnerBase) {
+                        ((TileEntitySpawnerBase) tile)
+                            .setClientData(message.cycle, message.interval, message.active, message.buffered);
                     }
                 }
             });

@@ -68,6 +68,7 @@ public class Berlit {
     public static BlockTestGenerator testGenerator;
     public static BlockSpawner spawner;
     public static BlockSpawnerT2 spawnerT2;
+    public static ru.beggar.berlit.block.BlockDigitalSpawner digitalSpawner;
     public static ItemEntityCard entityCard;
     public static ItemAccelerator acceleratorT2;
     public static ItemAccelerator acceleratorT3;
@@ -84,6 +85,8 @@ public class Berlit {
     public static ru.beggar.berlit.ae2.BlockAvaritiaAssembler avaritiaAssembler;
     public static ru.beggar.berlit.ae2.BlockDigitalCraftingMachine digitalAvaritiaAssembler;
     public static ru.beggar.berlit.ae2.BlockDigitalCraftingMachine digitalNeutronCompressor;
+    public static ru.beggar.berlit.ae2.BlockCraftingStorageCustom[] craftingStorages;
+    public static ru.beggar.berlit.ae2.BlockCraftingCoProcessor[] craftingProcessors;
     public static ru.beggar.berlit.ae2.BlockFastAssembler fastAssembler;
     public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
     public static net.minecraft.item.Item digitalPattern;
@@ -214,6 +217,43 @@ public class Berlit {
                     machineType);
                 GameRegistry.registerBlock(digital, "berlit." + machineType.getDigitalId());
                 digitalMachineBlocks.put(machineType, digital);
+            }
+
+            digitalSpawner = new ru.beggar.berlit.block.BlockDigitalSpawner();
+            GameRegistry.registerBlock(digitalSpawner, "berlit.digital_spawner");
+            GameRegistry.registerTileEntity(
+                ru.beggar.berlit.tileentity.TileEntityDigitalSpawner.class,
+                "berlit:digital_spawner");
+
+            GameRegistry
+                .registerTileEntity(ru.beggar.berlit.ae2.TileEntityCraftingStorage.class, "berlit:crafting_storage");
+            GameRegistry.registerTileEntity(
+                ru.beggar.berlit.ae2.TileEntityCraftingCoProcessor.class,
+                "berlit:crafting_co_processor");
+
+            String[] storageIds = { "crafting_storage_256k", "crafting_storage_1m", "crafting_storage_4m",
+                "crafting_storage_16m", "crafting_storage_32m", "crafting_storage_64m", "crafting_storage_128m",
+                "crafting_storage_256m", "crafting_storage_512m" };
+            int[] storageBytes = { 256 * 1024, 1024 * 1024, 4 * 1024 * 1024, 16 * 1024 * 1024, 32 * 1024 * 1024,
+                64 * 1024 * 1024, 128 * 1024 * 1024, 256 * 1024 * 1024, 512 * 1024 * 1024 };
+            craftingStorages = new ru.beggar.berlit.ae2.BlockCraftingStorageCustom[storageIds.length];
+            for (int i = 0; i < storageIds.length; i++) {
+                ru.beggar.berlit.ae2.BlockCraftingStorageCustom block = new ru.beggar.berlit.ae2.BlockCraftingStorageCustom(
+                    storageIds[i],
+                    storageBytes[i]);
+                GameRegistry.registerBlock(block, "berlit." + storageIds[i]);
+                craftingStorages[i] = block;
+            }
+
+            String[] processorIds = { "crafting_processor_9", "crafting_processor_81", "crafting_processor_729" };
+            int[] processorOps = { 9, 81, 729 };
+            craftingProcessors = new ru.beggar.berlit.ae2.BlockCraftingCoProcessor[processorIds.length];
+            for (int i = 0; i < processorIds.length; i++) {
+                ru.beggar.berlit.ae2.BlockCraftingCoProcessor block = new ru.beggar.berlit.ae2.BlockCraftingCoProcessor(
+                    processorIds[i],
+                    processorOps[i]);
+                GameRegistry.registerBlock(block, "berlit." + processorIds[i]);
+                craftingProcessors[i] = block;
             }
 
             avaritiaPattern = new ru.beggar.berlit.ae2.ItemAvaritiaPattern();
@@ -577,6 +617,77 @@ public class Berlit {
                     'M',
                     base);
             }
+
+            GameRegistry.addRecipe(
+                new ItemStack(digitalSpawner),
+                "DCD",
+                "CMC",
+                "DCD",
+                'D',
+                Items.diamond,
+                'C',
+                Items.comparator,
+                'M',
+                spawnerT2);
+
+            GameRegistry.addRecipe(
+                new ItemStack(craftingStorages[0]),
+                "QGQ",
+                "GDG",
+                "QGQ",
+                'Q',
+                Items.quartz,
+                'G',
+                Blocks.glowstone,
+                'D',
+                Items.diamond);
+            for (int i = 1; i < craftingStorages.length; i++) {
+                GameRegistry.addRecipe(
+                    new ItemStack(craftingStorages[i]),
+                    "DQD",
+                    "QMQ",
+                    "DQD",
+                    'D',
+                    Items.diamond,
+                    'Q',
+                    Items.quartz,
+                    'M',
+                    craftingStorages[i - 1]);
+            }
+
+            GameRegistry.addRecipe(
+                new ItemStack(craftingProcessors[0]),
+                "IRI",
+                "RCR",
+                "IRI",
+                'I',
+                Items.iron_ingot,
+                'R',
+                Items.redstone,
+                'C',
+                Items.comparator);
+            GameRegistry.addRecipe(
+                new ItemStack(craftingProcessors[1]),
+                "DQD",
+                "QMQ",
+                "DQD",
+                'D',
+                Items.diamond,
+                'Q',
+                Items.quartz,
+                'M',
+                craftingProcessors[0]);
+            GameRegistry.addRecipe(
+                new ItemStack(craftingProcessors[2]),
+                "DED",
+                "EME",
+                "DED",
+                'D',
+                Items.diamond,
+                'E',
+                Items.emerald,
+                'M',
+                craftingProcessors[1]);
         }
 
         if (cpw.mods.fml.common.Loader.isModLoaded("Avaritia")

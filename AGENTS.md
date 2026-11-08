@@ -106,6 +106,12 @@ tools/                   — генераторы текстур/GUI и прев
   wheat + seeds, carrot, potato, pumpkin seeds → pumpkin + seeds, melon seeds → melon + seeds,
   nether wart, cocoa beans, sugar cane. NEI-страница и CraftTweaker
   `mods.berlit.MolecularFarm` (addRecipe/removeRecipe).
+- **Спавнер T3 цифровой** (`berlit.digital_spawner`): 10×10 сущностей, сам скидывает
+  дроп в ME-сеть; у всех спавнеров есть внутренний буфер на 9 стаков.
+- **AE2 CPU-компоненты**: 9 хранилищ крафта (`256K`, `1M`, `4M`, `16M`, `32M`, `64M`,
+  `128M`, `256M`, `512M`) и 3 блока обработки (`9x`, `81x`, `729x`). Хранилища и
+  co-processor'ы собираются в обычный мультиблок AE2 CPU; вес co-processor'а
+  добавляется миксином в `CraftingCPUCluster`.
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
@@ -173,6 +179,8 @@ BERLIT_SELFTEST pork: damage0=true
 BERLIT_SELFTEST processing: saved=metal_roller loaded=metal_roller
 BERLIT_SELFTEST farm: seeds=64 wheat=64 extraSeeds=64
 BERLIT_SELFTEST cobble: fullSlots=27
+BERLIT_SELFTEST spawner buffer: entity=skeleton buffered=4 stacks=2
+BERLIT_SELFTEST crafting cpu: storage=536870912 processor=729 coprocessors=729
 BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=true
 BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
 BERLIT_SELFTEST digital custom: avaritiaPatterns=18 avaritiaProcessed=true compressorPatterns=8 compressorProcessed=true

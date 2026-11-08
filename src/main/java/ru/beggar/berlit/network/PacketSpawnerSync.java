@@ -11,16 +11,18 @@ public class PacketSpawnerSync implements IMessage {
     public int cycle;
     public int interval;
     public boolean active;
+    public int buffered;
 
     public PacketSpawnerSync() {}
 
-    public PacketSpawnerSync(int x, int y, int z, int cycle, int interval, boolean active) {
+    public PacketSpawnerSync(int x, int y, int z, int cycle, int interval, boolean active, int buffered) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.cycle = cycle;
         this.interval = interval;
         this.active = active;
+        this.buffered = buffered;
     }
 
     @Override
@@ -31,6 +33,7 @@ public class PacketSpawnerSync implements IMessage {
         cycle = buf.readInt();
         interval = buf.readInt();
         active = buf.readBoolean();
+        buffered = buf.readInt();
     }
 
     @Override
@@ -41,5 +44,6 @@ public class PacketSpawnerSync implements IMessage {
         buf.writeInt(cycle);
         buf.writeInt(interval);
         buf.writeBoolean(active);
+        buf.writeInt(buffered);
     }
 }

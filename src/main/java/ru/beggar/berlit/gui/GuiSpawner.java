@@ -41,7 +41,8 @@ public class GuiSpawner extends BerlitGui {
             mouseY,
             Arrays.asList(
                 StatCollector.translateToLocalFormatted("berlit.gui.spawner.entities", tile.getTotalEntityCount()),
-                StatCollector.translateToLocalFormatted("berlit.gui.info.interval", tile.getInterval())));
+                StatCollector.translateToLocalFormatted("berlit.gui.info.interval", tile.getInterval()),
+                StatCollector.translateToLocalFormatted("berlit.gui.spawner.buffer", tile.getBufferedItemCount())));
     }
 
     @Override

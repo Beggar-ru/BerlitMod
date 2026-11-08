@@ -18,15 +18,19 @@ import ru.beggar.berlit.spawner.EntityDrop;
 import ru.beggar.berlit.spawner.EntityRegistry;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
 import ru.beggar.berlit.spawner.UpgradeStats;
+import ru.beggar.berlit.util.InventoryUtils;
 
 public abstract class TileEntitySpawnerBase extends TileEntity implements IInventory {
 
     public static final int UPGRADE_SLOTS = 7;
+    public static final int BUFFER_SLOTS = 9;
 
     protected final ItemStack[] inventory;
     private final int[] cycles;
     private final int[] intervals;
+    protected final ItemStack[] buffer = new ItemStack[BUFFER_SLOTS];
     private int syncCounter;
+    private int clientBuffered;
 
     protected TileEntitySpawnerBase(int entitySlots) {
         inventory = new ItemStack[entitySlots + UPGRADE_SLOTS];
@@ -87,6 +91,8 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
             }
         }
 
+        flushBuffer();
+
         if (++syncCounter >= 10) {
             syncCounter = 0;
             syncToClients();
@@ -117,9 +123,70 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
                     .copy();
                 part.stackSize = batch;
                 total -= batch;
-                outputToInventories(part);
+                storeBuffer(part);
             }
         }
+    }
+
+    /** Keeps a small internal buffer so drops are not lost when no destination is ready. */
+    private void storeBuffer(ItemStack stack) {
+        ItemStack remaining = stack.copy();
+
+        for (int i = 0; i < BUFFER_SLOTS && remaining.stackSize > 0; i++) {
+            ItemStack slot = buffer[i];
+            if (slot == null) continue;
+            if (slot.getItem() != remaining.getItem() || slot.getItemDamage() != remaining.getItemDamage()) continue;
+
+            int space = Math.min(64, slot.getMaxStackSize()) - slot.stackSize;
+            if (space <= 0) continue;
+            int moved = Math.min(space, remaining.stackSize);
+            slot.stackSize += moved;
+            remaining.stackSize -= moved;
+        }
+
+        for (int i = 0; i < BUFFER_SLOTS && remaining.stackSize > 0; i++) {
+            if (buffer[i] != null) continue;
+            ItemStack copy = remaining.copy();
+            copy.stackSize = Math.min(64, remaining.stackSize);
+            buffer[i] = copy;
+            remaining.stackSize -= copy.stackSize;
+        }
+
+        if (remaining.stackSize > 0) outputToInventories(remaining);
+        markDirty();
+    }
+
+    /** Moves buffered drops into adjacent inventories. Keeps leftovers in the buffer. */
+    protected void flushBuffer() {
+        boolean changed = false;
+        for (int i = 0; i < BUFFER_SLOTS; i++) {
+            if (buffer[i] == null) continue;
+            ItemStack remaining = InventoryUtils.insertIntoNeighbours(worldObj, this, buffer[i]);
+            if (remaining == null) {
+                buffer[i] = null;
+            } else if (remaining.stackSize != buffer[i].stackSize) {
+                buffer[i] = remaining;
+            }
+            changed = true;
+        }
+        if (changed) markDirty();
+    }
+
+    public int getBufferedItemCount() {
+        if (worldObj != null && worldObj.isRemote) return clientBuffered;
+        int total = 0;
+        for (ItemStack stack : buffer) {
+            if (stack != null) total += stack.stackSize;
+        }
+        return total;
+    }
+
+    public int getBufferedStackCount() {
+        int total = 0;
+        for (ItemStack stack : buffer) {
+            if (stack != null) total++;
+        }
+        return total;
     }
 
     private void outputToInventories(ItemStack stack) {
@@ -284,12 +351,13 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
         return getActiveSlot() >= 0;
     }
 
-    public void setClientData(int cycle, int interval, boolean active) {
+    public void setClientData(int cycle, int interval, boolean active, int buffered) {
         int slot = getActiveSlot();
         if (slot >= 0 && interval > 0) {
             cycles[slot] = cycle;
             intervals[slot] = interval;
         }
+        clientBuffered = buffered;
     }
 
     private void syncToClients() {
@@ -300,8 +368,9 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
         for (Object object : worldObj.playerEntities) {
             EntityPlayerMP player = (EntityPlayerMP) object;
             if (player.getDistanceSq(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D) <= 4096.0D) {
-                ModNetwork.INSTANCE
-                    .sendTo(new PacketSpawnerSync(xCoord, yCoord, zCoord, cycle, interval, isActive()), player);
+                ModNetwork.INSTANCE.sendTo(
+                    new PacketSpawnerSync(xCoord, yCoord, zCoord, cycle, interval, isActive(), getBufferedItemCount()),
+                    player);
             }
         }
     }
@@ -412,6 +481,13 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
             cycles[i] = cyclesTag.getCompoundTagAt(i)
                 .getInteger("C");
         }
+
+        NBTTagList bufferTag = nbt.getTagList("Buffer", 10);
+        for (int i = 0; i < bufferTag.tagCount(); i++) {
+            NBTTagCompound tag = bufferTag.getCompoundTagAt(i);
+            int slot = tag.getByte("Slot") & 255;
+            if (slot >= 0 && slot < BUFFER_SLOTS) buffer[slot] = ItemStack.loadItemStackFromNBT(tag);
+        }
     }
 
     @Override
@@ -435,5 +511,15 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
             cyclesTag.appendTag(tag);
         }
         nbt.setTag("Cycles", cyclesTag);
+
+        NBTTagList bufferTag = new NBTTagList();
+        for (int i = 0; i < BUFFER_SLOTS; i++) {
+            if (buffer[i] == null) continue;
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setByte("Slot", (byte) i);
+            buffer[i].writeToNBT(tag);
+            bufferTag.appendTag(tag);
+        }
+        nbt.setTag("Buffer", bufferTag);
     }
 }
