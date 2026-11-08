@@ -79,10 +79,20 @@ def recolour(image, stops):
     return result
 
 
+# Faces edited by hand live next to the references and win over the generated ones, so a
+# correction survives a regeneration run.
+HAND_DIR = os.path.join(REFERENCE, "hand")
+
+
 def macerator(name, stops):
-    """Reference faces recoloured to the mod palette."""
+    """Reference faces recoloured to the mod palette, unless a hand-edited face exists."""
     for kind in ("side", "top", "bottom"):
-        recolour(reference_face(kind), stops).save(os.path.join(BLOCKS, f"{name}_{kind}.png"))
+        target = os.path.join(BLOCKS, f"{name}_{kind}.png")
+        hand = os.path.join(HAND_DIR, f"{name}_{kind}.png")
+        if os.path.isfile(hand):
+            Image.open(hand).convert("RGBA").save(target)
+        else:
+            recolour(reference_face(kind), stops).save(target)
 
 # The metal former was split into two blocks; the accent tells them apart.
 # Macerator keeps the IC2 silhouette: steel body, slightly cooler than vanilla IC2.
