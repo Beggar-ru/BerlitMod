@@ -11,9 +11,9 @@ import ru.beggar.berlit.upgrade.UpgradeHelper;
 
 public class ContainerDigitalMachine extends Container {
 
-    private final TileEntityDigitalMachine tile;
+    private final DigitalMachineView tile;
 
-    public ContainerDigitalMachine(InventoryPlayer playerInventory, TileEntityDigitalMachine tile) {
+    public ContainerDigitalMachine(InventoryPlayer playerInventory, DigitalMachineView tile) {
         this.tile = tile;
 
         for (int i = 0; i < TileEntityDigitalMachine.UPGRADE_SLOTS; i++) {

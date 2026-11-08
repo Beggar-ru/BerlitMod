@@ -157,3 +157,7 @@ berlit.gui.farm.seeds=Семена: %s
 berlit.gui.farm.hint=Семена не расходуются; выход растёт от размера стака.
 nei.berlit.molecular_farm=Молекулярная ферма
 nei.berlit.molecular_farm.per_seed=Показано на 1 семя
+tile.berlit.digital_avaritia_assembler.name=Цифровой сборщик Avaritia
+tile.berlit.digital_neutron_compressor.name=Цифровой нейтронный компрессор
+container.berlit.digital_avaritia_assembler=Цифровой сборщик Avaritia
+container.berlit.digital_neutron_compressor=Цифровой нейтронный компрессор

@@ -51,6 +51,7 @@ public final class Selftest {
         testCobbleGenerator(world);
         testDigitalFilter(world);
         testDigitalProcessing(world);
+        testDigitalCraftingMachines(world);
         testAssembler(world);
         testCompressor(world);
         FMLLog.info("BERLIT_SELFTEST optional items: infinityFluidCell=%s", Berlit.infinityFluidCell != null);
@@ -354,6 +355,46 @@ public final class Selftest {
             rejectsDuplicate,
             acceptsOther,
             new ItemStack(Berlit.spawnerCore1).getMaxStackSize());
+    }
+
+    /** Verifies that the custom digital machines export and process their automatic patterns. */
+    private static void testDigitalCraftingMachines(World world) {
+        TileEntityDigitalAvaritiaAssembler avaritia = new TileEntityDigitalAvaritiaAssembler();
+        avaritia.setWorldObj(world);
+        avaritia.xCoord = 2000;
+        avaritia.yCoord = 64;
+        avaritia.zCoord = 2000;
+        java.util.List<ICraftingPatternDetails> avaritiaPatterns = avaritia.getPatternsForTest();
+        boolean avaritiaProcessed = false;
+        if (!avaritiaPatterns.isEmpty()) {
+            avaritia.queuePatternForTest(avaritiaPatterns.get(0));
+            avaritia.injectEnergy(ForgeDirection.UP, TileEntityDigitalCrafting.ENERGY_CAPACITY, 512.0D);
+            for (int i = 0; i < 150; i++) avaritia.updateEntity();
+            avaritiaProcessed = !avaritia.getPendingOutputForTest()
+                .isEmpty();
+        }
+
+        TileEntityDigitalNeutronCompressor compressor = new TileEntityDigitalNeutronCompressor();
+        compressor.setWorldObj(world);
+        compressor.xCoord = 2004;
+        compressor.yCoord = 64;
+        compressor.zCoord = 2004;
+        java.util.List<ICraftingPatternDetails> compressorPatterns = compressor.getPatternsForTest();
+        boolean compressorProcessed = false;
+        if (!compressorPatterns.isEmpty()) {
+            compressor.queuePatternForTest(compressorPatterns.get(0));
+            compressor.injectEnergy(ForgeDirection.UP, TileEntityDigitalCrafting.ENERGY_CAPACITY, 512.0D);
+            for (int i = 0; i < 150; i++) compressor.updateEntity();
+            compressorProcessed = !compressor.getPendingOutputForTest()
+                .isEmpty();
+        }
+
+        FMLLog.info(
+            "BERLIT_SELFTEST digital custom: avaritiaPatterns=%s avaritiaProcessed=%s compressorPatterns=%s compressorProcessed=%s",
+            avaritiaPatterns.size(),
+            avaritiaProcessed,
+            compressorPatterns.size(),
+            compressorProcessed);
     }
 
     private static void testAssembler(World world) {

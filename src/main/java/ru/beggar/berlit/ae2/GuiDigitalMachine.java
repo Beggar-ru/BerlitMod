@@ -18,9 +18,9 @@ import ru.beggar.berlit.gui.ThemedButton;
 
 public class GuiDigitalMachine extends BerlitGui {
 
-    private final TileEntityDigitalMachine tile;
+    private final DigitalMachineView tile;
 
-    public GuiDigitalMachine(InventoryPlayer playerInventory, TileEntityDigitalMachine tile) {
+    public GuiDigitalMachine(InventoryPlayer playerInventory, DigitalMachineView tile) {
         super(new ContainerDigitalMachine(playerInventory, tile));
         this.tile = tile;
     }
@@ -28,20 +28,22 @@ public class GuiDigitalMachine extends BerlitGui {
     @Override
     public void initGui() {
         super.initGui();
-        buttonList.add(
-            new ThemedButton(
-                0,
-                guiLeft + 140,
-                guiTop + MachineLayout.UPGRADE_Y,
-                48,
-                14,
-                StatCollector.translateToLocal("berlit.gui.digital.recipes_button")));
+        if (tile.getFilterMachineType() != null) {
+            buttonList.add(
+                new ThemedButton(
+                    0,
+                    guiLeft + 140,
+                    guiTop + MachineLayout.UPGRADE_Y,
+                    48,
+                    14,
+                    StatCollector.translateToLocal("berlit.gui.digital.recipes_button")));
+        }
     }
 
     @Override
     protected void actionPerformed(GuiButton button) {
-        if (button.id == 0) {
-            mc.displayGuiScreen(new GuiDigitalFilter(tile));
+        if (button.id == 0 && tile instanceof TileEntityDigitalMachine) {
+            mc.displayGuiScreen(new GuiDigitalFilter((TileEntityDigitalMachine) tile));
         }
     }
 
@@ -49,13 +51,7 @@ public class GuiDigitalMachine extends BerlitGui {
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        fontRendererObj.drawString(
-            StatCollector.translateToLocal(
-                tile.getMachineType()
-                    .getDigitalTitleKey()),
-            8,
-            6,
-            GuiTheme.TITLE);
+        fontRendererObj.drawString(StatCollector.translateToLocal(tile.getGuiTitleKey()), 8, 6, GuiTheme.TITLE);
 
         boolean online = tile.getStatus() != TileEntityDigitalMachine.STATUS_OFFLINE;
         fontRendererObj

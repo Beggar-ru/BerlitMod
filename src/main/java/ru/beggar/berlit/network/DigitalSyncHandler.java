@@ -35,6 +35,32 @@ public class DigitalSyncHandler implements IMessageHandler<PacketDigitalSync, IM
                             message.lastInput,
                             message.active,
                             message.output);
+                    } else if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalAvaritiaAssembler) {
+                        ((ru.beggar.berlit.ae2.TileEntityDigitalAvaritiaAssembler) tile).setClientData(
+                            message.energy,
+                            message.maxEnergy,
+                            message.progressTicks,
+                            message.requiredTicks,
+                            message.requiredEnergy,
+                            message.queueSize,
+                            message.recipeCount,
+                            message.status,
+                            message.lastInput,
+                            message.active,
+                            message.output);
+                    } else if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalNeutronCompressor) {
+                        ((ru.beggar.berlit.ae2.TileEntityDigitalNeutronCompressor) tile).setClientData(
+                            message.energy,
+                            message.maxEnergy,
+                            message.progressTicks,
+                            message.requiredTicks,
+                            message.requiredEnergy,
+                            message.queueSize,
+                            message.recipeCount,
+                            message.status,
+                            message.lastInput,
+                            message.active,
+                            message.output);
                     }
                 }
             });

@@ -58,7 +58,7 @@ import ru.beggar.berlit.util.InventoryUtils;
  * the result back into the network. The four upgrade slots work exactly like the other machines.
  */
 public class TileEntityDigitalMachine extends TileEntity
-    implements IGridHost, IActionHost, ICraftingProvider, IEnergySink, IInventory {
+    implements IGridHost, IActionHost, ICraftingProvider, IEnergySink, IInventory, DigitalMachineView {
 
     public static final int UPGRADE_SLOTS = 4;
 
@@ -119,6 +119,16 @@ public class TileEntityDigitalMachine extends TileEntity
     }
 
     public MachineType getMachineType() {
+        return type;
+    }
+
+    @Override
+    public String getGuiTitleKey() {
+        return type.getDigitalTitleKey();
+    }
+
+    @Override
+    public MachineType getFilterMachineType() {
         return type;
     }
 

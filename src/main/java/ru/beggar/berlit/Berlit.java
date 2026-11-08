@@ -82,6 +82,8 @@ public class Berlit {
     public static BlockSuperChest superChest;
     public static int molecularTransformerRenderId = -1;
     public static ru.beggar.berlit.ae2.BlockAvaritiaAssembler avaritiaAssembler;
+    public static ru.beggar.berlit.ae2.BlockDigitalCraftingMachine digitalAvaritiaAssembler;
+    public static ru.beggar.berlit.ae2.BlockDigitalCraftingMachine digitalNeutronCompressor;
     public static ru.beggar.berlit.ae2.BlockFastAssembler fastAssembler;
     public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
     public static net.minecraft.item.Item digitalPattern;
@@ -248,6 +250,22 @@ public class Berlit {
             GameRegistry.registerTileEntity(
                 ru.beggar.berlit.machine.TileEntityNeutronCompressor.class,
                 "berlit:neutron_compressor");
+
+            digitalAvaritiaAssembler = new ru.beggar.berlit.ae2.BlockDigitalCraftingMachine(
+                ru.beggar.berlit.ae2.BlockDigitalCraftingMachine.Kind.AVARITIA,
+                "avaritia_assembler");
+            GameRegistry.registerBlock(digitalAvaritiaAssembler, "berlit.digital_avaritia_assembler");
+            GameRegistry.registerTileEntity(
+                ru.beggar.berlit.ae2.TileEntityDigitalAvaritiaAssembler.class,
+                "berlit:digital_avaritia_assembler");
+
+            digitalNeutronCompressor = new ru.beggar.berlit.ae2.BlockDigitalCraftingMachine(
+                ru.beggar.berlit.ae2.BlockDigitalCraftingMachine.Kind.COMPRESSOR,
+                "neutron_compressor");
+            GameRegistry.registerBlock(digitalNeutronCompressor, "berlit.digital_neutron_compressor");
+            GameRegistry.registerTileEntity(
+                ru.beggar.berlit.ae2.TileEntityDigitalNeutronCompressor.class,
+                "berlit:digital_neutron_compressor");
         }
 
         cobbleGenerator = new ru.beggar.berlit.machine.BlockCobbleGenerator();
@@ -574,6 +592,30 @@ public class Berlit {
                 Items.quartz,
                 'C',
                 Blocks.piston);
+
+            GameRegistry.addRecipe(
+                new ItemStack(digitalAvaritiaAssembler),
+                "DCD",
+                "CMC",
+                "DCD",
+                'D',
+                Items.diamond,
+                'C',
+                Items.comparator,
+                'M',
+                avaritiaAssembler);
+
+            GameRegistry.addRecipe(
+                new ItemStack(digitalNeutronCompressor),
+                "DCD",
+                "CMC",
+                "DCD",
+                'D',
+                Items.diamond,
+                'C',
+                Items.comparator,
+                'M',
+                neutronCompressor);
         }
 
         GameRegistry.addShapelessRecipe(new ItemStack(easterCoin), Items.gold_ingot, Items.redstone);

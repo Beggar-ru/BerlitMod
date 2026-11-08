@@ -48,6 +48,16 @@ public class GuiHandler implements IGuiHandler {
                     player.inventory,
                     (ru.beggar.berlit.ae2.TileEntityDigitalMachine) tile);
             }
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalAvaritiaAssembler) {
+                return new ru.beggar.berlit.ae2.ContainerDigitalMachine(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityDigitalAvaritiaAssembler) tile);
+            }
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalNeutronCompressor) {
+                return new ru.beggar.berlit.ae2.ContainerDigitalMachine(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityDigitalNeutronCompressor) tile);
+            }
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
                 return new ru.beggar.berlit.ae2.ContainerPatternEncoder(
                     player.inventory,
@@ -103,6 +113,16 @@ public class GuiHandler implements IGuiHandler {
                 return new ru.beggar.berlit.ae2.GuiDigitalMachine(
                     player.inventory,
                     (ru.beggar.berlit.ae2.TileEntityDigitalMachine) tile);
+            }
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalAvaritiaAssembler) {
+                return new ru.beggar.berlit.ae2.GuiDigitalMachine(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityDigitalAvaritiaAssembler) tile);
+            }
+            if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalNeutronCompressor) {
+                return new ru.beggar.berlit.ae2.GuiDigitalMachine(
+                    player.inventory,
+                    (ru.beggar.berlit.ae2.TileEntityDigitalNeutronCompressor) tile);
             }
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityPatternEncoder) {
                 return new ru.beggar.berlit.ae2.GuiPatternEncoder(

@@ -80,6 +80,13 @@ tools/                   — генераторы текстур/GUI и прев
   фильтр глобальный по типу машины, хранится в `DigitalRecipeFilterData` (WorldSavedData) и
   обновляет AE2-шаблоны через `MENetworkCraftingPatternChange`. NEI показывает по 3 рецепта
   на странице (`MachineNEI`). В окне фильтра есть поиск по названию входа/выхода.
+- **Цифровой сборщик Avaritia** (`berlit.digital_avaritia_assembler`): сам экспортирует
+  все 9×9-рецепты `ExtremeCraftingManager` как AE2-шаблоны (`AvaritiaPatternDetails`), без
+  кодировщика и слотов шаблонов. Обрабатывает очередь, EU/AE, 4 улучшения; результат — в ME
+  или соседний инвентарь.
+- **Цифровой нейтронный компрессор** (`berlit.digital_neutron_compressor`): сам экспортирует
+  все рецепты `CompressorManager` (`SingularityPatternDetails`) с ценой из рецепта; тот же
+  набор улучшений/энергии/выхода.
 - **Печь**: vanilla-рецепты с `OreDictionary.WILDCARD_VALUE` (32767) нормализуются до damage 0;
   без этого AE2 не находил сырую свинину для жарки.
 - **Обычные обработчики**: `TileEntityProcessingMachine` зарегистрирован в `GameRegistry`,
@@ -168,6 +175,7 @@ BERLIT_SELFTEST farm: seeds=64 wheat=64 extraSeeds=64
 BERLIT_SELFTEST cobble: fullSlots=27
 BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=true
 BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
+BERLIT_SELFTEST digital custom: avaritiaPatterns=18 avaritiaProcessed=true compressorPatterns=8 compressorProcessed=true
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
 BERLIT_SELFTEST compressor: cost=2400 out=1xitem.avaritia_singularity@0 inputLeft=null
 BERLIT_SELFTEST optional items: infinityFluidCell=true

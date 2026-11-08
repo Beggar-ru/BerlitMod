@@ -157,3 +157,7 @@ berlit.gui.farm.seeds=Seeds: %s
 berlit.gui.farm.hint=Seeds are not consumed; output scales with stack size.
 nei.berlit.molecular_farm=Molecular Farm
 nei.berlit.molecular_farm.per_seed=Shown per 1 seed
+tile.berlit.digital_avaritia_assembler.name=Digital Avaritia Assembler
+tile.berlit.digital_neutron_compressor.name=Digital Neutron Compressor
+container.berlit.digital_avaritia_assembler=Digital Avaritia Assembler
+container.berlit.digital_neutron_compressor=Digital Neutron Compressor
