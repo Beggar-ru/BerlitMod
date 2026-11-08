@@ -47,6 +47,28 @@ public class BlockBigInterface extends BlockInterface {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(net.minecraft.world.IBlockAccess world, int x, int y, int z, int side) {
+        return icon;
+    }
+
+    /**
+     * AE2 renders its own interface through {@code RenderBlockInterface}, which expects the icons AE2
+     * registers in {@code BlockInterface.registerBlockIcons} - a method this class replaces with its own
+     * texture. The renderer then draws nothing and the block looks untextured. Returning the plain cube
+     * render id hands the block to the vanilla renderer, which uses {@link #getIcon(int, int)}.
+     */
+    @Override
+    public int getRenderType() {
+        return 0;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock() {
+        return true;
+    }
+
+    @Override
     public boolean onActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY,
         float hitZ) {
         if (player.isSneaking()) return false;
