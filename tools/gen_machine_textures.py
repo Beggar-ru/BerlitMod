@@ -1,8 +1,6 @@
 """Generates processing machine block and stack upgrade textures."""
 
-import io
 import os
-import zipfile
 
 from PIL import Image, ImageDraw
 
@@ -37,19 +35,24 @@ def machine(name, accent):
 
 
 machine("machine_compressor", (90, 140, 220, 255))
-# --- macerator: IC2 shape, Berlit colours ----------------------------------
-IC2_JAR = os.path.join(ROOT, "libs", "industrialcraft-2-2.2.828-experimental.jar")
-IC2_MACERATOR = "assets/ic2/textures/blocks/machine/blockMacerator.png"
-# The IC2 sheet holds 32x32 faces: index 1 has the rotor, index 0 is the plain casing.
-IC2_ROTOR = 32
-IC2_CASING = 0
+# --- macerator: reference faces from docs/reference/ic2/red ----------------
+# The three reference files are third-party art kept outside git, so they are read at
+# generation time and never copied into the repository.
+REFERENCE = os.path.join(ROOT, "docs", "reference", "ic2", "red")
+REFERENCE_FACES = {
+    "side": "лицевая.png",
+    "top": "вверх.png",
+    "bottom": "боковая, низ, зад.png",
+}
 
 
-def ic2_face(offset):
-    """One 32x32 face from the IC2 macerator sheet."""
-    with zipfile.ZipFile(IC2_JAR) as jar:
-        sheet = Image.open(io.BytesIO(jar.read(IC2_MACERATOR))).convert("RGBA")
-    return sheet.crop((offset, 0, offset + 32, 32))
+def reference_face(kind, size=16):
+    """One face from the reference set, scaled to the size the mod uses."""
+    path = os.path.join(REFERENCE, REFERENCE_FACES[kind])
+    if not os.path.isfile(path):
+        raise SystemExit(f"reference face not found: {path}")
+    face = Image.open(path).convert("RGBA")
+    return face.resize((size, size), Image.NEAREST)
 
 
 def ramp_pixel(pixel, stops):
@@ -77,19 +80,15 @@ def recolour(image, stops):
 
 
 def macerator(name, stops):
-    """IC2 macerator faces, recoloured and downsampled to the 16x16 the mod uses."""
-    rotor = recolour(ic2_face(IC2_ROTOR), stops).resize((16, 16), Image.NEAREST)
-    casing = recolour(ic2_face(IC2_CASING), stops).resize((16, 16), Image.NEAREST)
-    rotor.save(os.path.join(BLOCKS, name + "_side.png"))
-    casing.save(os.path.join(BLOCKS, name + "_top.png"))
-    casing.save(os.path.join(BLOCKS, name + "_bottom.png"))
-
+    """Reference faces recoloured to the mod palette."""
+    for kind in ("side", "top", "bottom"):
+        recolour(reference_face(kind), stops).save(os.path.join(BLOCKS, f"{name}_{kind}.png"))
 
 # The metal former was split into two blocks; the accent tells them apart.
 # Macerator keeps the IC2 silhouette: steel body, slightly cooler than vanilla IC2.
 macerator("machine_macerator", ((0, (20, 23, 29)), (140, (74, 84, 104)), (255, (198, 208, 222))))
 # Digital version uses the interface palette: dark slate casing, glowing cyan rotor.
-macerator("digital_macerator", ((0, (111, 233, 224)), (120, (44, 140, 138)), (255, (38, 42, 52))))
+macerator("digital_macerator", ((0, (150, 246, 238)), (70, (44, 140, 138)), (150, (44, 52, 66)), (255, (30, 34, 44))))
 
 machine("machine_metal_extruder", (190, 170, 70, 255))
 machine("machine_metal_roller", (120, 165, 205, 255))
