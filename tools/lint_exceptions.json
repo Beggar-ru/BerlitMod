@@ -8,7 +8,9 @@
     "blocks/spawner_*.png": "32x32 spawner casing (top/side/bottom, both tiers)",
     "items/infinity_*.png": "32x32 infinity cells",
     "items/spawner_core_*.png": "32x32 spawner cores (T1-T3)",
-    "blocks/machine_macerator_*.png": "32x32 hand-redrawn macerator faces"
+    "blocks/machine_macerator_*.png": "32x32 hand-redrawn macerator faces",
+    "items/avaritia_pattern.png": "32x32 pattern item, redrawn by the 0.29.1 update",
+    "items/singularity_pattern.png": "32x32 pattern item, redrawn by the 0.29.1 update"
   },
   "opaque_items": {}
 }
