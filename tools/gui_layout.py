@@ -128,8 +128,8 @@ def widget_screen(width, height, groups, text, buttons=(), arrows=(), bar=None):
     }
 
 
-def machine_widget_screen(groups, text):
-    """Machine screen drawn from the kit: 200x140 panel with bar and info badge, plus inventory."""
+def machine_widget_screen(groups, text, arrows=((100, 40),), info=(176, 116, 14)):
+    """Machine screen drawn from the kit: 200x140 panel with bar, plus inventory."""
     return {
         "style": "widget",
         "canvas": (200, 246),
@@ -137,9 +137,9 @@ def machine_widget_screen(groups, text):
         "groups": groups,
         "text": text,
         "buttons": [],
-        "arrows": [(100, 40)],
+        "arrows": list(arrows),
         "bar": (12, 62, 176, 12),
-        "info": (176, 116, 14),
+        "info": info,
         "kit": {
             "texture": "gui/kit.png",
             "panel": (0, 0, 24, 8),
@@ -180,8 +180,7 @@ SCREENS = {
             INVENTORY_LABEL,
         ],
     ),
-    "spawner": machine_screen(
-        "gui/spawner.png",
+    "spawner": machine_widget_screen(
         [
             ("entity", [(92, 22)]),
             ("upgrade", machine_upgrades(7)),
@@ -193,10 +192,10 @@ SCREENS = {
             ("cycle", 130, 78, 58, None),
             INVENTORY_LABEL,
         ],
-        info=False,
+        arrows=(),
+        info=None,
     ),
-    "spawner_t2": machine_screen(
-        "gui/spawner_t2.png",
+    "spawner_t2": machine_widget_screen(
         [
             ("entity", grid(56, 22, 5, 2)),
             ("upgrade", machine_upgrades(7)),
@@ -208,7 +207,8 @@ SCREENS = {
             ("cycle", 130, 78, 58, None),
             INVENTORY_LABEL,
         ],
-        info=False,
+        arrows=(),
+        info=None,
     ),
     # --- AE2 / Avaritia screens -------------------------------------------
     "avaritia_assembler": widget_screen(

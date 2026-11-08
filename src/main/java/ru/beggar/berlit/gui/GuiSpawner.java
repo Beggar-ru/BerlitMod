@@ -1,7 +1,6 @@
 package ru.beggar.berlit.gui;
 
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
@@ -11,12 +10,10 @@ import ru.beggar.berlit.tileentity.TileEntitySpawnerBase;
 public class GuiSpawner extends BerlitGui {
 
     private final TileEntitySpawnerBase tile;
-    private final ResourceLocation texture;
 
     public GuiSpawner(InventoryPlayer playerInventory, TileEntitySpawnerBase tile) {
         super(new ContainerSpawner(playerInventory, tile));
         this.tile = tile;
-        this.texture = new ResourceLocation(tile.getGuiTexture());
     }
 
     @Override
@@ -39,11 +36,32 @@ public class GuiSpawner extends BerlitGui {
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager()
-            .bindTexture(texture);
+            .bindTexture(GuiKit.KIT);
 
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        drawPanels(x, y);
-        drawProgressBar(x, y, tile.getCycleScaled(100));
+
+        drawKitPanel(x, y, PANEL_WIDTH, MACHINE_HEIGHT);
+        drawKitPanel(x + INVENTORY_X, y + INVENTORY_TOP, INVENTORY_WIDTH, INVENTORY_HEIGHT);
+
+        drawRect(x + 8, y + 15, x + PANEL_WIDTH - 9, y + 16, GuiTheme.FRAME_BORDER);
+        drawRect(x + 8, y + 16, x + PANEL_WIDTH - 9, y + 17, GuiTheme.FRAME_RULE);
+
+        // cells follow the container, so the two screen sizes need no separate coordinates
+        for (Object entry : this.inventorySlots.inventorySlots) {
+            net.minecraft.inventory.Slot slot = (net.minecraft.inventory.Slot) entry;
+            drawKitCell(x, y, slot.xDisplayPosition, slot.yDisplayPosition);
+        }
+
+        drawProgressTrough(x, y);
+
+        int percent = tile.getCycleScaled(100);
+        if (percent > 0) {
+            int tx = x + MachineLayout.TROUGH_X;
+            int ty = y + MachineLayout.TROUGH_Y;
+            int filled = Math.max(1, MachineLayout.TROUGH_WIDTH * percent / 100);
+            drawRect(tx, ty, tx + filled, ty + MachineLayout.TROUGH_HEIGHT, GuiTheme.BAR_FILL);
+            drawRect(tx, ty, tx + filled, ty + 1, GuiTheme.BAR_FILL_EDGE);
+        }
     }
 }

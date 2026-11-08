@@ -27,11 +27,6 @@ public class TileEntitySpawner extends TileEntitySpawnerBase {
     }
 
     @Override
-    public String getGuiTexture() {
-        return "berlit:textures/gui/spawner.png";
-    }
-
-    @Override
     public String getTitleKey() {
         return "tile.berlit.spawner.name";
     }

@@ -133,11 +133,6 @@ public class TileEntityDigitalSpawner extends TileEntitySpawnerT2 implements IGr
     }
 
     @Override
-    public String getGuiTexture() {
-        return "berlit:textures/gui/spawner_t3.png";
-    }
-
-    @Override
     public String getTitleKey() {
         return "tile.berlit.digital_spawner.name";
     }

@@ -47,8 +47,6 @@ public abstract class TileEntitySpawnerBase extends TileEntity implements IInven
 
     public abstract int getEntitySlotY(int index);
 
-    public abstract String getGuiTexture();
-
     public abstract String getTitleKey();
 
     public int getUpgradeSlotStart() {
