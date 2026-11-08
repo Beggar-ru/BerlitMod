@@ -138,7 +138,22 @@ if ($Task.Count -gt 0) {
     if ($Task[0] -in @('preview', 'pv')) {
         & $python $pvPath @($Task | Select-Object -Skip 1)
     } else {
-        & $gwPath --no-watch-fs @Task
+        # Running the script with the session helper's name in front is a common
+        # slip: ".\tools\dev-env.ps1 gw runClient" would otherwise ask Gradle for
+        # a task called "gw". Drop the prefix and carry on.
+        # Wrap in @() so a single task stays an array: splatting a bare string
+        # hands Gradle one argument per character.
+        $gradleArgs = @(
+            if ($Task[0] -in @('gw', 'gradlew', 'gradle')) {
+                $Task | Select-Object -Skip 1
+            } else { $Task }
+        )
+
+        if ($gradleArgs.Count -eq 0) {
+            Write-Host 'Usage: .\tools\dev-env.ps1 <gradle task>, for example runClient or build'
+            exit 0
+        }
+        & $gwPath --no-watch-fs @gradleArgs
     }
     exit $LASTEXITCODE
 }
@@ -149,6 +164,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     Write-Host 'Usage:'
     Write-Host '  .\tools\dev-env.ps1 build            # run a Gradle task'
     Write-Host '  .\tools\dev-env.ps1 runClient'
+    Write-Host '  .\tools\dev-env.ps1 gw runClient     # a leading gw/gradlew is ignored'
     Write-Host '  .\tools\dev-env.ps1 preview check    # run a preview.py command'
     Write-Host ''
     Write-Host 'Or load the environment into this session (note the leading dot):'
