@@ -1,0 +1,13 @@
+{
+  "_comment": "Textures that intentionally do not follow the 16x16 / transparent-background rules. Globs are relative to assets/berlit/textures. Keep this list short and explain each entry.",
+  "hd": {
+    "blocks/fast_assembler.png": "32x32 fast assembler casing",
+    "blocks/fast_assembler_top.png": "32x32 fast assembler top",
+    "blocks/molecular_transformer_model.png": "512x256 texture for the TESR transformer model",
+    "blocks/nether_star_block.png": "32x32 nether star block",
+    "blocks/spawner_*.png": "32x32 spawner casing (top/side/bottom, both tiers)",
+    "items/infinity_*.png": "32x32 infinity cells",
+    "items/spawner_core_*.png": "32x32 spawner cores (T1-T3)"
+  },
+  "opaque_items": {}
+}

@@ -17,6 +17,8 @@ Requires Pillow only (same as the gen_*.py scripts).
 from __future__ import annotations
 
 import argparse
+import fnmatch
+import json
 import os
 import re
 import sys
@@ -784,7 +786,22 @@ def check_nei(report):
                         and item_y <= text_y + 8:
                     report.error(where, f"text at ({text_x},{text_y}) overlaps the item at ({item_x},{item_y})")
 
+def load_exceptions():
+    """Globs of textures that deliberately break the block/item rules (tools/lint_exceptions.json)."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lint_exceptions.json")
+    if not os.path.isfile(path):
+        return {"hd": {}, "opaque_items": {}}
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+    return {key: {k: v for k, v in data.get(key, {}).items() if not k.startswith("_")} for key in ("hd", "opaque_items")}
+
+
+def excused(relative, patterns):
+    return any(fnmatch.fnmatch(relative, pattern) for pattern in patterns)
+
+
 def check_item_textures(report):
+    exceptions = load_exceptions()
     for group in ("blocks", "items"):
         directory = os.path.join(TEX, group)
         if not os.path.isdir(directory):
@@ -794,13 +811,13 @@ def check_item_textures(report):
                 continue
             relative = f"{group}/{file_name}"
             with Image.open(os.path.join(directory, file_name)) as image:
-                if image.size != (16, 16):
+                if image.size != (16, 16) and not excused(relative, exceptions["hd"]):
                     report.warn(relative, f"size is {image.size[0]}x{image.size[1]}, block/item textures are 16x16")
                 rgba = image.convert("RGBA")
                 low, high = rgba.getchannel("A").getextrema()
                 if high == 0:
                     report.error(relative, "texture is fully transparent (invisible in game)")
-                if group == "items" and low == 255:
+                if group == "items" and low == 255 and not excused(relative, exceptions["opaque_items"]):
                     report.warn(relative, "item texture is fully opaque; items normally have a transparent background")
 
 
