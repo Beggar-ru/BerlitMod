@@ -1,6 +1,8 @@
 """Generates processing machine block and stack upgrade textures."""
 
+import io
 import os
+import zipfile
 
 from PIL import Image, ImageDraw
 
@@ -34,9 +36,61 @@ def machine(name, accent):
     bottom.save(os.path.join(BLOCKS, name + "_bottom.png"))
 
 
-machine("machine_macerator", (200, 90, 60, 255))
 machine("machine_compressor", (90, 140, 220, 255))
+# --- macerator: IC2 shape, Berlit colours ----------------------------------
+IC2_JAR = os.path.join(ROOT, "libs", "industrialcraft-2-2.2.828-experimental.jar")
+IC2_MACERATOR = "assets/ic2/textures/blocks/machine/blockMacerator.png"
+# The IC2 sheet holds 32x32 faces: index 1 has the rotor, index 0 is the plain casing.
+IC2_ROTOR = 32
+IC2_CASING = 0
+
+
+def ic2_face(offset):
+    """One 32x32 face from the IC2 macerator sheet."""
+    with zipfile.ZipFile(IC2_JAR) as jar:
+        sheet = Image.open(io.BytesIO(jar.read(IC2_MACERATOR))).convert("RGBA")
+    return sheet.crop((offset, 0, offset + 32, 32))
+
+
+def ramp_pixel(pixel, stops):
+    """Map the pixel lightness onto a colour ramp, keeping alpha and therefore the silhouette."""
+    level = pixel[0] * 0.299 + pixel[1] * 0.587 + pixel[2] * 0.114
+    level = max(0.0, min(255.0, level))
+    for index in range(len(stops) - 1):
+        low_level, low_colour = stops[index]
+        high_level, high_colour = stops[index + 1]
+        if level <= high_level or index == len(stops) - 2:
+            span = max(1.0, high_level - low_level)
+            mix = max(0.0, min(1.0, (level - low_level) / span))
+            colour = tuple(round(low_colour[c] + (high_colour[c] - low_colour[c]) * mix) for c in range(3))
+            return colour + (pixel[3],)
+    return pixel
+
+
+def recolour(image, stops):
+    result = image.copy()
+    pixels = result.load()
+    for y in range(result.size[1]):
+        for x in range(result.size[0]):
+            pixels[x, y] = ramp_pixel(pixels[x, y], stops)
+    return result
+
+
+def macerator(name, stops):
+    """IC2 macerator faces, recoloured and downsampled to the 16x16 the mod uses."""
+    rotor = recolour(ic2_face(IC2_ROTOR), stops).resize((16, 16), Image.NEAREST)
+    casing = recolour(ic2_face(IC2_CASING), stops).resize((16, 16), Image.NEAREST)
+    rotor.save(os.path.join(BLOCKS, name + "_side.png"))
+    casing.save(os.path.join(BLOCKS, name + "_top.png"))
+    casing.save(os.path.join(BLOCKS, name + "_bottom.png"))
+
+
 # The metal former was split into two blocks; the accent tells them apart.
+# Macerator keeps the IC2 silhouette: steel body, slightly cooler than vanilla IC2.
+macerator("machine_macerator", ((0, (20, 23, 29)), (140, (74, 84, 104)), (255, (198, 208, 222))))
+# Digital version uses the interface palette: dark slate casing, glowing cyan rotor.
+macerator("digital_macerator", ((0, (111, 233, 224)), (120, (44, 140, 138)), (255, (38, 42, 52))))
+
 machine("machine_metal_extruder", (190, 170, 70, 255))
 machine("machine_metal_roller", (120, 165, 205, 255))
 machine("machine_electric_furnace", (220, 120, 60, 255))
@@ -77,7 +131,6 @@ def digital_machine(name, accent):
 machine("replicator", (170, 110, 230, 255))
 
 # Digital machines: one circuit-board texture per Berlit processing machine.
-digital_machine("digital_macerator", (220, 120, 60, 255))
 digital_machine("digital_compressor", (90, 140, 220, 255))
 digital_machine("digital_metal_extruder", (190, 170, 70, 255))
 digital_machine("digital_metal_roller", (120, 165, 205, 255))
