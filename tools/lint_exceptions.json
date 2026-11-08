@@ -6,6 +6,8 @@
     "blocks/molecular_transformer_model.png": "512x256 texture for the TESR transformer model",
     "blocks/nether_star_block.png": "32x32 nether star block",
     "blocks/spawner_*.png": "32x32 spawner casing (top/side/bottom, both tiers)",
+    "blocks/digital_spawner_*.png": "32x32 digital spawner casing (top/side/bottom)",
+    "items/matter_*.png": "32x32 solid matter items",
     "items/infinity_*.png": "32x32 infinity cells",
     "items/spawner_core_*.png": "32x32 spawner cores (T1-T3)",
     "blocks/machine_macerator_*.png": "32x32 hand-redrawn macerator faces",

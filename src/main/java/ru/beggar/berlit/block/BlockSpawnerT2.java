@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ru.beggar.berlit.Berlit;
+import ru.beggar.berlit.Config;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerT2;
 
 public class BlockSpawnerT2 extends BlockContainer {
@@ -41,7 +42,32 @@ public class BlockSpawnerT2 extends BlockContainer {
     public void registerBlockIcons(IIconRegister register) {
         iconSide = register.registerIcon("berlit:spawner_t2_side");
         iconTop = register.registerIcon("berlit:spawner_t2_top");
-        iconBottom = register.registerIcon("berlit:spawner_t2_bottom");
+        iconBottom = iconTop;
+    }
+
+    @Override
+    public boolean isOpaqueCube() {
+        return !Config.transparentSpawners;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock() {
+        return !Config.transparentSpawners;
+    }
+
+    @Override
+    public int getRenderBlockPass() {
+        return Config.transparentSpawners ? 1 : 0;
+    }
+
+    @Override
+    public boolean canRenderInPass(int pass) {
+        return Config.transparentSpawners ? pass == 1 : pass == 0;
+    }
+
+    @Override
+    public int getLightOpacity() {
+        return Config.transparentSpawners ? 0 : 255;
     }
 
     @Override

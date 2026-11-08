@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ru.beggar.berlit.Berlit;
+import ru.beggar.berlit.Config;
 import ru.beggar.berlit.tileentity.TileEntityDigitalSpawner;
 
 /** Digital tier-3 entity spawner with direct ME output. */
@@ -42,7 +43,32 @@ public class BlockDigitalSpawner extends BlockContainer {
     public void registerBlockIcons(IIconRegister register) {
         iconSide = register.registerIcon("berlit:digital_spawner_side");
         iconTop = register.registerIcon("berlit:digital_spawner_top");
-        iconBottom = register.registerIcon("berlit:digital_spawner_bottom");
+        iconBottom = iconTop;
+    }
+
+    @Override
+    public boolean isOpaqueCube() {
+        return !Config.transparentSpawners;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock() {
+        return !Config.transparentSpawners;
+    }
+
+    @Override
+    public int getRenderBlockPass() {
+        return Config.transparentSpawners ? 1 : 0;
+    }
+
+    @Override
+    public boolean canRenderInPass(int pass) {
+        return Config.transparentSpawners ? pass == 1 : pass == 0;
+    }
+
+    @Override
+    public int getLightOpacity() {
+        return Config.transparentSpawners ? 0 : 255;
     }
 
     @Override

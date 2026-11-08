@@ -118,6 +118,9 @@ tools/                   — генераторы текстур/GUI и прев
   приватный `patterns` в `DualityInterface` на `AppEngInternalInventory` нужного
   размера. GUI — свой Berlit-стиль (`ContainerBigInterface18/27/36`,
   `GuiBigInterface`), текстуры взяты/перерисованы из AE2 Additions.
+- **Спавнеры**: стороны рисуются одной side-текстурой, верх и низ — top-текстурой.
+  `Config.transparentSpawners` (по умолчанию `true`) включает glass-like alpha-проход,
+  чтобы дырки решётки были прозрачными.
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
