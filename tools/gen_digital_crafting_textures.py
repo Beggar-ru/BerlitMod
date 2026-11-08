@@ -1,21 +1,17 @@
 import os
 
+import sys
+
 from PIL import Image, ImageDraw
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import digital_faces  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BLOCKS = os.path.join(ROOT, "src", "main", "resources", "assets", "berlit", "textures", "blocks")
 DIGITAL_HAND = os.path.join(ROOT, "docs", "reference", "ic2", "red", "hand")
 
 
-def digital_from_hand(name):
-    """Copies the hand-drawn digital faces if they exist; returns True when it did."""
-    copied = False
-    for kind in ("side", "top", "bottom"):
-        hand = os.path.join(DIGITAL_HAND, f"digital_macerator_{kind}.png")
-        if os.path.isfile(hand):
-            Image.open(hand).convert("RGBA").save(os.path.join(BLOCKS, f"{name}_{kind}.png"))
-            copied = True
-    return copied
 
 
 DARK = (22, 25, 29, 255)
@@ -75,7 +71,7 @@ for name, accent, grid in (
     ("digital_avaritia_assembler", GOLD, True),
     ("digital_neutron_compressor", RED, False),
 ):
-    if digital_from_hand(name):
+    if digital_faces.build(name, accent):
         continue
     side(accent).save(f"{base}/{name}_side.png")
     top(accent, grid).save(f"{base}/{name}_top.png")

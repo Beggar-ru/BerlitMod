@@ -3,9 +3,12 @@ package ru.beggar.berlit.ae2;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 import cpw.mods.fml.relauncher.Side;
@@ -60,12 +63,28 @@ public class BlockDigitalCraftingMachine extends BlockContainer {
         iconBottom = register.registerIcon(texture + "_bottom");
     }
 
+    /**
+     * The digital machines share one casing, and only the front carries the machine's own face:
+     * metadata stores which side the player placed it against, everything else shows the casing.
+     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
-        if (side == 0) return iconBottom;
         if (side == 1) return iconTop;
-        return iconSide;
+        if (meta < 2) return side == 0 ? iconBottom : iconSide;
+        return side == meta ? iconSide : iconBottom;
+    }
+
+    @Override
+    public int damageDropped(int meta) {
+        return 0;
+    }
+
+    @Override
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase placer, ItemStack stack) {
+        int yaw = MathHelper.floor_double(placer.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+        int[] front = { 2, 5, 3, 4 };
+        world.setBlockMetadataWithNotify(x, y, z, front[yaw], 2);
     }
 
     @Override

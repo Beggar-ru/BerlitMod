@@ -2,7 +2,12 @@
 
 import os
 
+import sys
+
 from PIL import Image, ImageDraw
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import digital_faces  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BLOCKS = os.path.join(ROOT, "src", "main", "resources", "assets", "berlit", "textures", "blocks")
@@ -104,23 +109,11 @@ machine("machine_metal_extruder", (190, 170, 70, 255))
 machine("machine_metal_roller", (120, 165, 205, 255))
 machine("machine_electric_furnace", (220, 120, 60, 255))
 # UU matter replicator: violet accent, its own names (replicator_side/top/bottom).
-# --- digital machines: the hand-drawn set wins over the procedural circuit board
-DIGITAL_HAND = os.path.join(REFERENCE, "hand")
-
-
-def digital_from_hand(name):
-    """Copies the hand-drawn digital faces if they exist; returns True when it did."""
-    copied = False
-    for kind in ("side", "top", "bottom"):
-        hand = os.path.join(DIGITAL_HAND, f"digital_macerator_{kind}.png")
-        if os.path.isfile(hand):
-            Image.open(hand).convert("RGBA").save(os.path.join(BLOCKS, f"{name}_{kind}.png"))
-            copied = True
-    return copied
-
-
 def digital_machine(name, accent):
-    """Dark circuit-board machine texture with a cyan digital frame and a type accent."""
+    """Hand-drawn casing with a generated front; falls back to the procedural board."""
+    if digital_faces.build(name, accent):
+        return
+
     side = Image.new("RGBA", (16, 16), (24, 28, 38, 255))
     d = ImageDraw.Draw(side)
     d.rectangle([0, 0, 15, 15], outline=(8, 10, 14, 255))
@@ -155,14 +148,10 @@ def digital_machine(name, accent):
 machine("replicator", (170, 110, 230, 255))
 
 # Digital machines: one circuit-board texture per Berlit processing machine.
-if not digital_from_hand("digital_compressor"):
-    digital_machine("digital_compressor", (90, 140, 220, 255))
-if not digital_from_hand("digital_metal_extruder"):
-    digital_machine("digital_metal_extruder", (190, 170, 70, 255))
-if not digital_from_hand("digital_metal_roller"):
-    digital_machine("digital_metal_roller", (120, 165, 205, 255))
-if not digital_from_hand("digital_electric_furnace"):
-    digital_machine("digital_electric_furnace", (220, 80, 60, 255))
+digital_machine("digital_compressor", (90, 140, 220, 255))
+digital_machine("digital_metal_extruder", (190, 170, 70, 255))
+digital_machine("digital_metal_roller", (120, 165, 205, 255))
+digital_machine("digital_electric_furnace", (220, 80, 60, 255))
 
 # Stack upgrade icon.
 img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))

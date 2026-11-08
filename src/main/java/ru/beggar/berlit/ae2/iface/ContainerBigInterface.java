@@ -82,7 +82,8 @@ public abstract class ContainerBigInterface extends ContainerUpgradeable {
     }
 
     public int getPatternLabelY() {
-        return getPatternY() - 10;
+        // a clear 3px gap above the first cell, so the text never touches the grid
+        return getPatternY() - 13;
     }
 
     @Override
