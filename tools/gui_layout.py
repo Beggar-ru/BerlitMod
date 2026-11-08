@@ -150,7 +150,7 @@ def machine_widget_screen(groups, text):
     }
 
 
-def machine_screen(texture, groups, text):
+def machine_screen(texture, groups, text, info=True):
     return {
         "style": "machine",
         "texture": texture,
@@ -158,6 +158,7 @@ def machine_screen(texture, groups, text):
         "panels": [(0, 0, MACHINE_W, MACHINE_H), (MACHINE_INV_X, MACHINE_H + INV_GAP, INV_W, INV_H)],
         "groups": groups,
         "text": text,
+        "info": info,
     }
 
 
@@ -192,6 +193,7 @@ SCREENS = {
             ("cycle", 130, 78, 58, None),
             INVENTORY_LABEL,
         ],
+        info=False,
     ),
     "spawner_t2": machine_screen(
         "gui/spawner_t2.png",
@@ -206,6 +208,7 @@ SCREENS = {
             ("cycle", 130, 78, 58, None),
             INVENTORY_LABEL,
         ],
+        info=False,
     ),
     # --- AE2 / Avaritia screens -------------------------------------------
     "avaritia_assembler": widget_screen(

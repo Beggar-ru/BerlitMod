@@ -51,7 +51,8 @@ def build_machine(screen):
         theme.draw_flow_arrow(image, layout.MACHINE_W // 2, 40)
 
     theme.paste_slots(image, slots_of(screen, "input", "output", "upgrade", "entity"))
-    theme.draw_info_icon(image, layout.INFO_ICON)
+    if screen.get("info", True):
+        theme.draw_info_icon(image, layout.INFO_ICON)
     theme.draw_frame(image)
     theme.draw_inner_shadow(image)
     theme.draw_corner_brackets(image)

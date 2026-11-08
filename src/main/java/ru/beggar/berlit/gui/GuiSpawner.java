@@ -1,7 +1,5 @@
 package ru.beggar.berlit.gui;
 
-import java.util.Arrays;
-
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
@@ -35,14 +33,6 @@ public class GuiSpawner extends BerlitGui {
 
         // The cycle bar fills the trough, so the number sits at the right edge.
         drawRightAligned(tile.getCycleScaled(100) + "%", 186, 78, GuiTheme.ACCENT);
-
-        drawInfoTooltip(
-            mouseX,
-            mouseY,
-            Arrays.asList(
-                StatCollector.translateToLocalFormatted("berlit.gui.spawner.entities", tile.getTotalEntityCount()),
-                StatCollector.translateToLocalFormatted("berlit.gui.info.interval", tile.getInterval()),
-                StatCollector.translateToLocalFormatted("berlit.gui.spawner.buffer", tile.getBufferedItemCount())));
     }
 
     @Override
