@@ -80,6 +80,7 @@ public class Berlit {
     public static BlockProcessingMachine metalRoller;
     public static BlockProcessingMachine electricFurnace;
     public static BlockSuperChest superChest;
+    public static int molecularTransformerRenderId = -1;
     public static ru.beggar.berlit.ae2.BlockAvaritiaAssembler avaritiaAssembler;
     public static ru.beggar.berlit.ae2.BlockFastAssembler fastAssembler;
     public static ru.beggar.berlit.ae2.BlockPatternEncoder patternEncoder;
@@ -90,6 +91,7 @@ public class Berlit {
     public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGenerator;
     public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGeneratorMk2;
     public static ru.beggar.berlit.machine.BlockCobbleGenerator cobbleGeneratorMk3;
+    public static ru.beggar.berlit.machine.BlockMolecularFarm molecularFarm;
     public static ru.beggar.berlit.item.ItemEasterCoin easterCoin;
     public static ru.beggar.berlit.item.ItemGarlic garlic;
     public static ru.beggar.berlit.item.ItemGreenJacket greenJacket;
@@ -248,14 +250,20 @@ public class Berlit {
                 "berlit:neutron_compressor");
         }
 
-        cobbleGenerator = new ru.beggar.berlit.machine.BlockCobbleGenerator(0);
+        cobbleGenerator = new ru.beggar.berlit.machine.BlockCobbleGenerator();
         GameRegistry.registerBlock(cobbleGenerator, "berlit.cobble_generator");
         GameRegistry
             .registerTileEntity(ru.beggar.berlit.tileentity.TileEntityCobbleGenerator.class, "berlit:cobble_generator");
+        // Hidden legacy IDs: old worlds keep their blocks, but only the single tier above is obtainable.
         cobbleGeneratorMk2 = new ru.beggar.berlit.machine.BlockCobbleGenerator(1);
         GameRegistry.registerBlock(cobbleGeneratorMk2, "berlit.cobble_generator_mk2");
         cobbleGeneratorMk3 = new ru.beggar.berlit.machine.BlockCobbleGenerator(2);
         GameRegistry.registerBlock(cobbleGeneratorMk3, "berlit.cobble_generator_mk3");
+
+        molecularFarm = new ru.beggar.berlit.machine.BlockMolecularFarm();
+        GameRegistry.registerBlock(molecularFarm, "berlit.molecular_farm");
+        GameRegistry
+            .registerTileEntity(ru.beggar.berlit.tileentity.TileEntityMolecularFarm.class, "berlit:molecular_farm");
         stackUpgrade = new ItemStackUpgrade();
         GameRegistry.registerItem(stackUpgrade, "stack_upgrade");
 
@@ -286,6 +294,7 @@ public class Berlit {
         MolecularRecipes.init();
         ReplicatorRecipes.init();
         MachineRecipes.init();
+        ru.beggar.berlit.farm.FarmRecipes.init();
         EntityRegistry.registerOptional();
         registerRecipes();
         registerCraftTweaker();
@@ -298,7 +307,7 @@ public class Berlit {
 
         for (String className : new String[] { "ru.beggar.berlit.compat.MolecularTransformerTweaker",
             "ru.beggar.berlit.compat.SpawnerTweaker", "ru.beggar.berlit.compat.MachinesTweaker",
-            "ru.beggar.berlit.compat.ReplicatorTweaker" }) {
+            "ru.beggar.berlit.compat.ReplicatorTweaker", "ru.beggar.berlit.compat.MolecularFarmTweaker" }) {
             try {
                 Class.forName(className)
                     .getMethod("register")
@@ -357,28 +366,16 @@ public class Berlit {
             Blocks.furnace);
 
         GameRegistry.addRecipe(
-            new ItemStack(cobbleGeneratorMk2),
-            "GDG",
-            "DMD",
-            "GDG",
-            'G',
-            Items.gold_ingot,
-            'D',
-            Items.diamond,
-            'M',
-            cobbleGenerator);
-
-        GameRegistry.addRecipe(
-            new ItemStack(cobbleGeneratorMk3),
-            "GEG",
-            "EME",
-            "GEG",
-            'G',
-            Items.gold_ingot,
-            'E',
-            Items.emerald,
-            'M',
-            cobbleGeneratorMk2);
+            new ItemStack(molecularFarm),
+            "IRI",
+            "RFR",
+            "IRI",
+            'I',
+            Items.iron_ingot,
+            'R',
+            Items.redstone,
+            'F',
+            Items.wheat_seeds);
 
         GameRegistry.addRecipe(
             new ItemStack(testGenerator),

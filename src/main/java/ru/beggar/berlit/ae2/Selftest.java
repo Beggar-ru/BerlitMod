@@ -28,6 +28,8 @@ import ru.beggar.berlit.machine.TileEntityNeutronCompressor;
 import ru.beggar.berlit.recipe.ReplicatorPattern;
 import ru.beggar.berlit.recipe.ReplicatorRecipes;
 import ru.beggar.berlit.spawner.UpgradeRegistry;
+import ru.beggar.berlit.tileentity.TileEntityCobbleGenerator;
+import ru.beggar.berlit.tileentity.TileEntityMolecularFarm;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 import ru.beggar.berlit.tileentity.TileEntityReplicator;
 import ru.beggar.berlit.tileentity.TileEntitySpawner;
@@ -45,6 +47,8 @@ public final class Selftest {
         testReplicatorMachine(world);
         testDigitalMachines();
         testProcessingPersistence();
+        testMolecularFarm(world);
+        testCobbleGenerator(world);
         testDigitalFilter(world);
         testDigitalProcessing(world);
         testAssembler(world);
@@ -110,6 +114,42 @@ public final class Selftest {
                 .getId(),
             loaded.getMachineType()
                 .getId());
+    }
+
+    /** Verifies the farm keeps seeds and scales the harvest with the seed stack. */
+    private static void testMolecularFarm(World world) {
+        TileEntityMolecularFarm farm = new TileEntityMolecularFarm();
+        farm.setWorldObj(world);
+        farm.setInventorySlotContents(0, new ItemStack(Items.wheat_seeds, 64));
+        for (int i = 0; i < TileEntityMolecularFarm.TICKS_PER_HARVEST; i++) {
+            farm.updateEntity();
+        }
+
+        ItemStack seeds = farm.getStackInSlot(0);
+        ItemStack wheat = farm.getStackInSlot(1);
+        ItemStack extraSeeds = farm.getStackInSlot(2);
+        FMLLog.info(
+            "BERLIT_SELFTEST farm: seeds=%s wheat=%s extraSeeds=%s",
+            seeds == null ? null : seeds.stackSize,
+            wheat == null ? null : wheat.stackSize,
+            extraSeeds == null ? null : extraSeeds.stackSize);
+    }
+
+    /** Verifies the single cobble generator tier fills all 27 slots with 64 cobblestone. */
+    private static void testCobbleGenerator(World world) {
+        TileEntityCobbleGenerator generator = new TileEntityCobbleGenerator();
+        generator.setWorldObj(world);
+        generator.updateEntity();
+
+        int full = 0;
+        for (int i = 0; i < TileEntityCobbleGenerator.SLOT_COUNT; i++) {
+            ItemStack stack = generator.getStackInSlot(i);
+            if (stack != null && stack.getItem() == Item.getItemFromBlock(Blocks.cobblestone)
+                && stack.stackSize == 64) {
+                full++;
+            }
+        }
+        FMLLog.info("BERLIT_SELFTEST cobble: fullSlots=%s", full);
     }
 
     /** Verifies that the persistent filter really removes one exported pattern. */

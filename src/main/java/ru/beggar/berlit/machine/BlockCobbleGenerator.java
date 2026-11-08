@@ -13,9 +13,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import ru.beggar.berlit.Berlit;
 import ru.beggar.berlit.tileentity.TileEntityCobbleGenerator;
 
+/** Single-tier cobblestone generator with a 27-slot chest inventory. */
 public class BlockCobbleGenerator extends BlockContainer {
 
-    private final int tier;
     private final String textureName;
 
     @SideOnly(Side.CLIENT)
@@ -25,25 +25,24 @@ public class BlockCobbleGenerator extends BlockContainer {
     @SideOnly(Side.CLIENT)
     private IIcon iconSide;
 
-    public BlockCobbleGenerator(int tier) {
-        super(Material.iron);
-        this.tier = Math.max(0, Math.min(TileEntityCobbleGenerator.TIER_COUNT - 1, tier));
-        this.textureName = this.tier == 0 ? "cobble_generator" : "cobble_generator_mk" + (this.tier + 1);
+    public BlockCobbleGenerator() {
+        this(0);
+    }
 
+    /** Tier 0 is the only obtainable block. Tiers 1/2 remain hidden legacy IDs for old worlds. */
+    public BlockCobbleGenerator(int legacyTier) {
+        super(Material.iron);
+        this.textureName = legacyTier == 0 ? "cobble_generator" : "cobble_generator_mk" + (legacyTier + 1);
         setHardness(5.0F);
         setResistance(10.0F);
         setStepSound(soundTypeMetal);
         setBlockName("berlit." + textureName);
-        setCreativeTab(Berlit.TAB);
-    }
-
-    public int getTier() {
-        return tier;
+        if (legacyTier == 0) setCreativeTab(Berlit.TAB);
     }
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
-        return new TileEntityCobbleGenerator(tier);
+        return new TileEntityCobbleGenerator();
     }
 
     @Override

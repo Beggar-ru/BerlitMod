@@ -99,8 +99,8 @@ tooltip.berlit.easter_coin=Value: -1 (negative)
 item.berlit.infinity_cell.name=Infinity Item Cell (63 types)
 item.berlit.infinity_fluid_cell.name=Infinity Fluid Cell (5 types)
 tile.berlit.cobble_generator.name=Cobblestone Generator
-tile.berlit.cobble_generator_mk2.name=Cobblestone Generator MK II
-tile.berlit.cobble_generator_mk3.name=Cobblestone Generator MK III
+tile.berlit.cobble_generator_mk2.name=Cobblestone Generator (legacy)
+tile.berlit.cobble_generator_mk3.name=Cobblestone Generator (legacy)
 
 tile.berlit.nether_star_block.name=Block of Nether Stars
 
@@ -151,3 +151,9 @@ item.berlit.pattern.more=... and %s more
 item.berlit.singularity_pattern.input=Input: %sx %s
 item.berlit.singularity_pattern.cost=Cost: %s
 berlit.gui.digital.filter.search=Search...
+tile.berlit.molecular_farm.name=Molecular Farm
+container.berlit.molecular_farm=Molecular Farm
+berlit.gui.farm.seeds=Seeds: %s
+berlit.gui.farm.hint=Seeds are not consumed; output scales with stack size.
+nei.berlit.molecular_farm=Molecular Farm
+nei.berlit.molecular_farm.per_seed=Shown per 1 seed

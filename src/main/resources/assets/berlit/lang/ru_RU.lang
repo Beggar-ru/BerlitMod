@@ -99,8 +99,8 @@ tooltip.berlit.easter_coin=Стоимость: -1 (отрицательная)
 item.berlit.infinity_cell.name=Бесконечная ячейка предметов (63 типа)
 item.berlit.infinity_fluid_cell.name=Бесконечная ячейка жидкостей (5 типов)
 tile.berlit.cobble_generator.name=Генератор булыжника
-tile.berlit.cobble_generator_mk2.name=Генератор булыжника MK II
-tile.berlit.cobble_generator_mk3.name=Генератор булыжника MK III
+tile.berlit.cobble_generator_mk2.name=Генератор булыжника (старый)
+tile.berlit.cobble_generator_mk3.name=Генератор булыжника (старый)
 
 tile.berlit.nether_star_block.name=Блок звёзд Нижнего мира
 
@@ -151,3 +151,9 @@ item.berlit.pattern.more=... и ещё %s
 item.berlit.singularity_pattern.input=Вход: %sx %s
 item.berlit.singularity_pattern.cost=Стоимость: %s
 berlit.gui.digital.filter.search=Поиск...
+tile.berlit.molecular_farm.name=Молекулярная ферма
+container.berlit.molecular_farm=Молекулярная ферма
+berlit.gui.farm.seeds=Семена: %s
+berlit.gui.farm.hint=Семена не расходуются; выход растёт от размера стака.
+nei.berlit.molecular_farm=Молекулярная ферма
+nei.berlit.molecular_farm.per_seed=Показано на 1 семя

@@ -29,6 +29,28 @@ public class BlockMolecularTransformer extends BlockContainer {
         setStepSound(soundTypeMetal);
         setBlockName("berlit.molecular_transformer");
         setCreativeTab(Berlit.TAB);
+        useNeighborBrightness = true;
+        setLightLevel(0.15F);
+    }
+
+    @Override
+    public boolean renderAsNormalBlock() {
+        return false;
+    }
+
+    @Override
+    public int getRenderType() {
+        return Berlit.molecularTransformerRenderId;
+    }
+
+    @Override
+    public boolean isOpaqueCube() {
+        return false;
+    }
+
+    @Override
+    public int getLightOpacity() {
+        return 0;
     }
 
     @Override

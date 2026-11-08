@@ -1,11 +1,15 @@
 package ru.beggar.berlit.gui;
 
+import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.network.IGuiHandler;
+import ru.beggar.berlit.tileentity.TileEntityMolecularFarm;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 import ru.beggar.berlit.tileentity.TileEntityProcessingMachine;
 import ru.beggar.berlit.tileentity.TileEntitySpawnerBase;
@@ -20,6 +24,9 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityMolecularTransformer) {
             return new ContainerMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
         }
+        if (tile instanceof TileEntityMolecularFarm) {
+            return new ContainerMolecularFarm(player.inventory, (TileEntityMolecularFarm) tile);
+        }
         if (tile instanceof ru.beggar.berlit.tileentity.TileEntityReplicator) {
             return new ContainerReplicator(player.inventory, (ru.beggar.berlit.tileentity.TileEntityReplicator) tile);
         }
@@ -33,9 +40,7 @@ public class GuiHandler implements IGuiHandler {
             return new ContainerSuperChest(player.inventory, (TileEntitySuperChest) tile);
         }
         if (tile instanceof ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) {
-            return new ContainerCobbleGenerator(
-                player.inventory,
-                (ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) tile);
+            return new ContainerChest(player.inventory, (IInventory) tile);
         }
         if (Loader.isModLoaded("appliedenergistics2")) {
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalMachine) {
@@ -75,6 +80,9 @@ public class GuiHandler implements IGuiHandler {
         if (tile instanceof TileEntityMolecularTransformer) {
             return new GuiMolecularTransformer(player.inventory, (TileEntityMolecularTransformer) tile);
         }
+        if (tile instanceof TileEntityMolecularFarm) {
+            return new GuiMolecularFarm(player.inventory, (TileEntityMolecularFarm) tile);
+        }
         if (tile instanceof ru.beggar.berlit.tileentity.TileEntityReplicator) {
             return new GuiReplicator(player.inventory, (ru.beggar.berlit.tileentity.TileEntityReplicator) tile);
         }
@@ -88,9 +96,7 @@ public class GuiHandler implements IGuiHandler {
             return new GuiSuperChest(player.inventory, (TileEntitySuperChest) tile);
         }
         if (tile instanceof ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) {
-            return new GuiCobbleGenerator(
-                player.inventory,
-                (ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) tile);
+            return new GuiChest(player.inventory, (IInventory) tile);
         }
         if (Loader.isModLoaded("appliedenergistics2")) {
             if (tile instanceof ru.beggar.berlit.ae2.TileEntityDigitalMachine) {

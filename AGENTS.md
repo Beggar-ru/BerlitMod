@@ -30,6 +30,7 @@ src/main/java/ru/beggar/berlit/
   item/                  — карты сущностей, ускорители, ядра, stack upgrade
   upgrade/               — UpgradeHelper (IC2-модули + свои ускорители)
   network/               — SimpleNetworkWrapper-пакеты (синхронизация GUI)
+  farm/                  — FarmRecipe(s): рецепты молекулярной фермы
   compat/                — CraftTweaker, NEI
   util/                  — InventoryUtils, ReplicatorFluid
 tools/                   — генераторы текстур/GUI и превью (Python + Pillow)
@@ -86,6 +87,18 @@ tools/                   — генераторы текстур/GUI и прев
 - **Шаблоны Avaritia и сингулярностей** показывают в тултипе результат и закодированные входы.
 - **Ядра спавнера** стакаются до 64; в слоте улучшения всё ещё одно ядро каждого вида.
 - **Поиск** в `GuiDigitalFilter` фильтрует рецепты по отображаемому имени входа/выхода.
+- **Молекулярный трансформер** теперь использует сложную TESR-модель из Bagazh
+  (`client/model/ModelMolecularTransformer`, `TileEntityMolecularTransformerRenderer`),
+  текстура модели — `textures/blocks/molecular_transformer_model.png`; блок в инвентаре
+  рендерится тем же обработчиком (`BlockMolecularTransformerRenderer`).
+- **Генератор булыжника** — один доступный тир, 27 слотов как у деревянного сундука
+  (`ContainerChest`/`GuiChest`), каждый слот всегда заполнен 64 булыжниками. Старые ID
+  `cobble_generator_mk2/mk3` оставлены скрытыми legacy-блоками, чтобы не терять старые миры.
+- **Молекулярная ферма** (`berlit.molecular_farm`): 1 слот семян + 6 выходных. Семена не
+  расходуются; каждый выход умножается на размер стака семян. Базовые рецепты: wheat seeds →
+  wheat + seeds, carrot, potato, pumpkin seeds → pumpkin + seeds, melon seeds → melon + seeds,
+  nether wart, cocoa beans, sugar cane. NEI-страница и CraftTweaker
+  `mods.berlit.MolecularFarm` (addRecipe/removeRecipe).
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
@@ -151,6 +164,8 @@ BERLIT_SELFTEST digital electric_furnace: patterns=55 recipes=55
 BERLIT_SELFTEST digital total: 183
 BERLIT_SELFTEST pork: damage0=true
 BERLIT_SELFTEST processing: saved=metal_roller loaded=metal_roller
+BERLIT_SELFTEST farm: seeds=64 wheat=64 extraSeeds=64
+BERLIT_SELFTEST cobble: fullSlots=27
 BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=true
 BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1

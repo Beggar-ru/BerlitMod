@@ -30,13 +30,6 @@ public class MachineSyncHandler implements IMessageHandler<PacketMachineSync, IM
                             message.recipeEnergy,
                             message.lastInput,
                             message.active);
-                    } else if (tile instanceof ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) {
-                        ((ru.beggar.berlit.tileentity.TileEntityCobbleGenerator) tile).setClientData(
-                            message.energy,
-                            message.progress,
-                            message.recipeEnergy,
-                            message.lastInput,
-                            message.active);
                     } else if (tile instanceof TileEntityProcessingMachine) {
                         ((TileEntityProcessingMachine) tile).setClientData(
                             message.energy,
