@@ -898,6 +898,93 @@ def check_item_textures(report):
                     report.warn(relative, "item texture is fully opaque; items normally have a transparent background")
 
 
+# Screen name -> the Java class that owns its geometry. Anything listed here must agree with
+# gui_layout.py, otherwise the mockup and the game drift apart and nobody notices until in-game.
+LAYOUT_CLASSES = {
+    "matter_generator": "MatterLayout.java",
+    "avaritia_assembler": "AssemblerLayout.java",
+    "neutron_compressor": "CompressorLayout.java",
+    "molecular_transformer": "MachineLayout.java",
+    "spawner": "MachineLayout.java",
+    "spawner_t2": "MachineLayout.java",
+}
+
+JAVA_GUI_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src", "main", "java",
+                            "ru", "beggar", "berlit", "gui")
+JAVA_AE2_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "src",
+    "main",
+    "java",
+    "ru",
+    "beggar",
+    "berlit",
+    "ae2")
+JAVA_MACHINE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src", "main", "java",
+                                "ru", "beggar", "berlit", "machine")
+
+
+def read_java_constants(file_name):
+    """Literals from a *Layout class: name -> int."""
+    for directory in (JAVA_GUI_DIR, JAVA_MACHINE_DIR, JAVA_AE2_DIR):
+        path = os.path.join(directory, file_name)
+        if os.path.isfile(path):
+            break
+    else:
+        return {}
+
+    constants = {}
+    pattern = re.compile(r"public static final int ([A-Z_]+) = (-?\d+);")
+    with open(path, encoding="utf-8") as handle:
+        for line in handle:
+            match = pattern.search(line)
+            if match:
+                constants[match.group(1)] = int(match.group(2))
+    return constants
+
+
+def check_layout_java(report):
+    """Compare the preview geometry with the Java constants it is supposed to mirror."""
+    for name, java_file in LAYOUT_CLASSES.items():
+        screen = SCREENS.get(name)
+        if screen is None:
+            continue
+        constants = read_java_constants(java_file)
+        if not constants:
+            report.warn(name, f"{java_file} not found or has no int constants to compare")
+            continue
+
+        canvas_w, canvas_h = screen["canvas"]
+        panels = screen["panels"]
+        player = next((slots for group, slots in screen.get("groups", []) if group == "player"), [])
+
+        def expect(key, preview_value):
+            if key not in constants:
+                report.warn(name, f"{java_file}: {key} is missing")
+                return
+            if constants[key] != preview_value:
+                report.error(
+                    name,
+                    f"{java_file}: {key}={constants[key]} but the preview uses {preview_value}")
+
+        expect("WIDTH", canvas_w)
+
+        if len(panels) > 1:
+            expect("INVENTORY_TOP", panels[1][1])
+            if "INVENTORY_X" in constants:
+                expect("INVENTORY_X", panels[1][0])
+            if "INVENTORY_WIDTH" in constants:
+                expect("INVENTORY_WIDTH", panels[1][2])
+
+        if player:
+            if "PLAYER_X" in constants:
+                expect("PLAYER_X", player[0][0])
+            if "PLAYER_TOP" in constants:
+                expect("PLAYER_TOP", player[0][1])
+            if "HOTBAR_Y" in constants and len(player) >= 36:
+                expect("HOTBAR_Y", player[27][1])
+
+
 def cmd_check(args):
     report = Report()
     langs = {"en_US.lang": read_lang("en_US.lang"), "ru_RU.lang": read_lang("ru_RU.lang")}
@@ -908,6 +995,7 @@ def cmd_check(args):
     check_item_textures(report)
     check_nei(report)
     check_uv_scaling(report)
+    check_layout_java(report)
     return report.print()
 
 

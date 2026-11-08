@@ -52,7 +52,11 @@ public class GuiMatterGenerator extends BerlitGui {
         int y = (height - ySize) / 2;
 
         drawKitPanel(x, y, MatterLayout.WIDTH, MatterLayout.CONTENT_HEIGHT);
-        drawKitPanel(x, y + MatterLayout.INVENTORY_TOP, MatterLayout.WIDTH, MatterLayout.INVENTORY_HEIGHT);
+        drawKitPanel(
+            x + MatterLayout.INVENTORY_X,
+            y + MatterLayout.INVENTORY_TOP,
+            MatterLayout.INVENTORY_WIDTH,
+            MatterLayout.INVENTORY_HEIGHT);
 
         drawRect(x + 8, y + 15, x + MatterLayout.WIDTH - 9, y + 16, GuiTheme.FRAME_BORDER);
         drawRect(x + 8, y + 16, x + MatterLayout.WIDTH - 9, y + 17, GuiTheme.FRAME_RULE);

@@ -7,6 +7,9 @@ public final class MatterLayout {
 
     public static final int WIDTH = 190;
     public static final int CONTENT_HEIGHT = 90;
+    /** Inventory panel is the usual 176px block, centred under the wider content panel. */
+    public static final int INVENTORY_X = 7;
+    public static final int INVENTORY_WIDTH = 176;
     public static final int INVENTORY_TOP = 98;
     public static final int INVENTORY_HEIGHT = 98;
 
@@ -27,7 +30,7 @@ public final class MatterLayout {
     public static final int TROUGH_WIDTH = 148;
     public static final int TROUGH_HEIGHT = 8;
 
-    public static final int PLAYER_X = 14;
+    public static final int PLAYER_X = 15;
     public static final int PLAYER_TOP = 116;
     public static final int HOTBAR_Y = 172;
 
