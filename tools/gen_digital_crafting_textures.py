@@ -1,4 +1,18 @@
+import os
+
+import sys
+
 from PIL import Image, ImageDraw
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import digital_faces  # noqa: E402
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BLOCKS = os.path.join(ROOT, "src", "main", "resources", "assets", "berlit", "textures", "blocks")
+DIGITAL_HAND = os.path.join(ROOT, "docs", "reference", "ic2", "red", "hand")
+
+
+
 
 DARK = (22, 25, 29, 255)
 EDGE = (10, 11, 13, 255)
@@ -57,6 +71,8 @@ for name, accent, grid in (
     ("digital_avaritia_assembler", GOLD, True),
     ("digital_neutron_compressor", RED, False),
 ):
+    if digital_faces.build(name, accent):
+        continue
     side(accent).save(f"{base}/{name}_side.png")
     top(accent, grid).save(f"{base}/{name}_top.png")
     bottom(accent).save(f"{base}/{name}_bottom.png")

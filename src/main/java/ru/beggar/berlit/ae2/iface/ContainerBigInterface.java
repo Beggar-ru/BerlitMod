@@ -44,18 +44,20 @@ public abstract class ContainerBigInterface extends ContainerUpgradeable {
             addSlotToContainer(new SlotNormal(duality.getStorage(), i, 8 + i * 18, 53));
         }
 
-        // AE2 placed the 36 player slots for its own 211px screen; move them under the grid so the
-        // inventory panel lines up with the rest of the mod.
+        // AE2 placed the player slots for its own 211px screen; move them under the grid so the
+        // inventory panel lines up. Picking them by class matters: the pattern and upgrade slots are
+        // added at other points, so index arithmetic would move the wrong ones and overlap the grid.
         int inventoryTop = getInventoryTop();
-        for (int i = 0; i < 36 && i < inventorySlots.size(); i++) {
-            Slot slot = (Slot) inventorySlots.get(i);
-            if (i < 27) {
-                slot.xDisplayPosition = 8 + (i % 9) * 18;
-                slot.yDisplayPosition = inventoryTop + (i / 9) * 18;
-            } else {
-                slot.xDisplayPosition = 8 + (i - 27) * 18;
-                slot.yDisplayPosition = inventoryTop + 58;
+        int player = 0;
+        for (Object entry : inventorySlots) {
+            boolean hotbar = entry instanceof appeng.container.slot.SlotPlayerHotBar;
+            if (!hotbar && !(entry instanceof appeng.container.slot.SlotPlayerInv)) {
+                continue;
             }
+            Slot slot = (Slot) entry;
+            slot.xDisplayPosition = 8 + (player % 9) * 18;
+            slot.yDisplayPosition = hotbar ? inventoryTop + 58 : inventoryTop + (player / 9) * 18;
+            player++;
         }
     }
 
@@ -65,9 +67,14 @@ public abstract class ContainerBigInterface extends ContainerUpgradeable {
 
     protected abstract int getPatternStep();
 
+    /** Bottom edge of the pattern grid, in GUI pixels. */
+    public int getPatternBottom() {
+        return getPatternY() + getPatternRows() * getPatternStep();
+    }
+
     /** Player inventory sits under the pattern grid with the same breathing room as on the machines. */
     public int getInventoryTop() {
-        return getPatternY() + getPatternRows() * getPatternStep() + 24;
+        return getPatternBottom() + 24;
     }
 
     public int getGuiHeight() {
@@ -75,7 +82,8 @@ public abstract class ContainerBigInterface extends ContainerUpgradeable {
     }
 
     public int getPatternLabelY() {
-        return getPatternY() - 10;
+        // a clear 3px gap above the first cell, so the text never touches the grid
+        return getPatternY() - 13;
     }
 
     @Override

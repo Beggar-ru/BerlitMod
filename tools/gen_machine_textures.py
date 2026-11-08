@@ -2,7 +2,12 @@
 
 import os
 
+import sys
+
 from PIL import Image, ImageDraw
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import digital_faces  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BLOCKS = os.path.join(ROOT, "src", "main", "resources", "assets", "berlit", "textures", "blocks")
@@ -105,7 +110,10 @@ machine("machine_metal_roller", (120, 165, 205, 255))
 machine("machine_electric_furnace", (220, 120, 60, 255))
 # UU matter replicator: violet accent, its own names (replicator_side/top/bottom).
 def digital_machine(name, accent):
-    """Dark circuit-board machine texture with a cyan digital frame and a type accent."""
+    """Hand-drawn casing with a generated front; falls back to the procedural board."""
+    if digital_faces.build(name, accent):
+        return
+
     side = Image.new("RGBA", (16, 16), (24, 28, 38, 255))
     d = ImageDraw.Draw(side)
     d.rectangle([0, 0, 15, 15], outline=(8, 10, 14, 255))

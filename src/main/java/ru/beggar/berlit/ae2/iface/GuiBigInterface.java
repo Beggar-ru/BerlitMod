@@ -40,21 +40,24 @@ public class GuiBigInterface extends GuiUpgradeable {
     @Override
     public void drawBG(int x, int y, int mouseX, int mouseY) {
         int width = this.xSize;
-        int inventoryTop = container.getInventoryTop() - 20;
+        int contentBottom = container.getPatternBottom() + 8;
+        int inventoryTop = contentBottom + 8;
 
         net.minecraft.client.Minecraft.getMinecraft()
             .getTextureManager()
             .bindTexture(GuiKit.KIT);
 
         // content panel and a separate inventory panel, like the machine screens
-        drawGradientRect(x, y, x + width, y + inventoryTop - 8, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
-        GuiKit.PANEL.draw(this.zLevel, x, y, width, inventoryTop - 8);
+        drawGradientRect(x, y, x + width, y + contentBottom, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
+        GuiKit.PANEL.draw(this.zLevel, x, y, width, contentBottom);
+        bracket(x, y, width, contentBottom);
 
         drawGradientRect(x, y + inventoryTop, x + width, y + this.ySize, GuiTheme.PANEL_TOP, GuiTheme.PANEL_BOTTOM);
         GuiKit.PANEL.draw(this.zLevel, x, y + inventoryTop, width, this.ySize - inventoryTop);
+        bracket(x, y + inventoryTop, width, this.ySize - inventoryTop);
 
-        drawRect(x + 8, y + 15, x + 146, y + 16, GuiTheme.FRAME_BORDER);
-        drawRect(x + 8, y + 16, x + 146, y + 17, GuiTheme.FRAME_RULE);
+        drawRect(x + 8, y + 15, x + width - 9, y + 16, GuiTheme.FRAME_BORDER);
+        drawRect(x + 8, y + 16, x + width - 9, y + 17, GuiTheme.FRAME_RULE);
 
         for (Object entry : this.inventorySlots.inventorySlots) {
             Slot slot = (Slot) entry;
@@ -63,9 +66,21 @@ public class GuiBigInterface extends GuiUpgradeable {
         }
     }
 
+    /** Bright corner accents, the same 14px L-shapes the machine frames have. */
+    private void bracket(int x, int y, int width, int height) {
+        for (int dx : new int[] { 1, -1 }) {
+            for (int dy : new int[] { 1, -1 }) {
+                int cx = dx > 0 ? x + 4 : x + width - 5;
+                int cy = dy > 0 ? y + 4 : y + height - 5;
+                drawRect(Math.min(cx, cx + dx * 14), cy, Math.max(cx, cx + dx * 14) + 1, cy + 1, GuiTheme.FRAME_LIGHT);
+                drawRect(cx, Math.min(cy, cy + dy * 14), cx + 1, Math.max(cy, cy + dy * 14) + 1, GuiTheme.FRAME_LIGHT);
+            }
+        }
+    }
+
     @Override
     public void drawFG(int offsetX, int offsetY, int mouseX, int mouseY) {
-        drawString(fontRendererObj, StatCollector.translateToLocal("berlit.gui.interface.title"), 8, 7, GuiTheme.TITLE);
+        drawString(fontRendererObj, StatCollector.translateToLocal("berlit.gui.interface.title"), 8, 6, GuiTheme.TITLE);
         drawString(
             fontRendererObj,
             StatCollector.translateToLocal("berlit.gui.interface.patterns"),
@@ -74,27 +89,9 @@ public class GuiBigInterface extends GuiUpgradeable {
             GuiTheme.ACCENT);
         drawString(
             fontRendererObj,
-            StatCollector.translateToLocal("berlit.gui.interface.config"),
-            8,
-            26,
-            GuiTheme.TEXT);
-        drawString(
-            fontRendererObj,
-            StatCollector.translateToLocal("berlit.gui.interface.storage"),
-            8,
-            44,
-            GuiTheme.TEXT);
-        drawString(
-            fontRendererObj,
-            StatCollector.translateToLocal("berlit.gui.interface.upgrades"),
-            187,
-            0,
-            GuiTheme.TEXT_DISABLED);
-        drawString(
-            fontRendererObj,
             StatCollector.translateToLocal("container.inventory"),
             8,
-            container.getInventoryTop() - 14,
+            container.getPatternBottom() + 22,
             GuiTheme.TEXT);
     }
 }

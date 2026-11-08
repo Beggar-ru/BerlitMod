@@ -12,7 +12,8 @@
     "items/spawner_core_*.png": "32x32 spawner cores (T1-T3)",
     "blocks/machine_macerator_*.png": "32x32 hand-redrawn macerator faces",
     "items/avaritia_pattern.png": "32x32 pattern item, redrawn by the 0.29.1 update",
-    "items/singularity_pattern.png": "32x32 pattern item, redrawn by the 0.29.1 update"
+    "items/singularity_pattern.png": "32x32 pattern item, redrawn by the 0.29.1 update",
+    "blocks/digital_*.png": "32x32 hand-drawn digital machine faces"
   },
   "opaque_items": {}
 }
