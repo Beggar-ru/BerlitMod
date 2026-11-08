@@ -1006,11 +1006,29 @@ def cmd_sheet(args):
     return 0
 
 
+
+def cmd_screens(args):
+    """Every screen of the mod with the data needed to pick one for --grid."""
+    print(f"{len(SCREENS)} screens (use: preview.py gui --grid <name>)")
+    print()
+    print(f"{'name':28s} {'style':9s} {'canvas':11s} slots")
+    print("-" * 62)
+    for name in sorted(SCREENS):
+        screen = SCREENS[name]
+        width, height = screen["canvas"]
+        slots = sum(len(slots) for _group, slots in screen.get("groups", []))
+        style = screen.get("style", "?")
+        print(f"{name:28s} {style:9s} {width}x{height:<7} {slots}")
+    return 0
+
+
 def cmd_gui(args):
     names = args.names or list(SCREENS)
     for name in names:
         if name not in SCREENS:
-            raise SystemExit(f"unknown screen '{name}'; known: {', '.join(SCREENS)}")
+            known = "\n  ".join(sorted(SCREENS))
+            raise SystemExit(f"unknown screen '{name}'. Known screens:\n  {known}\n"
+                             "Pick one and run: preview.py gui --grid <name>")
         print(
             "written",
             save_sheet(name, SCREENS[name], scale=args.gui_scale, overlay=not args.clean, grid=args.grid_step if args.grid else 0))
@@ -1042,6 +1060,9 @@ def main(argv=None):
     gui.add_argument("--grid", action="store_true", help="coordinate ruler plus an element table")
     gui.add_argument("--grid-step", type=int, default=10, help="ruler step in GUI pixels (default 10)")
     gui.set_defaults(func=cmd_gui)
+
+    screens = sub.add_parser("screens", aliases=["list", "ls"], help="list every screen name")
+    screens.set_defaults(func=cmd_screens)
 
     check = sub.add_parser("check", help="lint textures, slots and translations")
     check.set_defaults(func=cmd_check)

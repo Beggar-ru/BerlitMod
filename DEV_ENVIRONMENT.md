@@ -157,7 +157,9 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 ```powershell
 pv sheet                  # контактный лист всех 16x16 текстур + макеты всех GUI
+pv screens                # список экранов: имя, стиль, размер, число слотов
 pv gui spawner_t2         # один макет с наложением сетки слотов
+pv gui --grid matter_generator   # макет с линейкой координат и таблицей элементов
 pv check                  # линтер, exit code 1 при ошибках
 ```
 
