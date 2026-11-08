@@ -38,6 +38,14 @@ public enum MachineType {
         return this == METAL_ROLLER ? MachineRecipes.MODE_ROLLING : MachineRecipes.MODE_EXTRUDING;
     }
 
+    /**
+     * Only the macerator has a dedicated front face; its {@code _side} texture is the mouth of the
+     * machine and would look wrong wrapped around the block.
+     */
+    public boolean usesFrontTexture() {
+        return this == MACERATOR;
+    }
+
     public String getTextureName() {
         return "berlit:machine_" + id;
     }
