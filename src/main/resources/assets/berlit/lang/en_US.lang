@@ -204,3 +204,6 @@ tile.berlit.matter_generator_azure.name=Azure Matter Generator
 tile.berlit.matter_generator_amber.name=Amber Matter Generator
 tile.berlit.matter_generator_crimson.name=Crimson Matter Generator
 tile.berlit.matter_generator_radiant.name=Radiant Matter Generator
+nei.berlit.matter=Solid Matter Generators
+nei.berlit.matter.cost=EU per operation: %s
+nei.berlit.matter.time=Time: %s ticks

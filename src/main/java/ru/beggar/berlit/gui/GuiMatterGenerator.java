@@ -61,6 +61,19 @@ public class GuiMatterGenerator extends BerlitGui {
         drawKitCell(x, y, MatterLayout.OUTPUT_X, MatterLayout.SLOT_Y);
         drawKitArrow(x + MatterLayout.ARROW_X, y + MatterLayout.ARROW_Y);
 
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                drawKitCell(
+                    x,
+                    y,
+                    MatterLayout.PLAYER_X + col * MatterLayout.SLOT,
+                    MatterLayout.PLAYER_TOP + row * MatterLayout.SLOT);
+            }
+        }
+        for (int col = 0; col < 9; col++) {
+            drawKitCell(x, y, MatterLayout.PLAYER_X + col * MatterLayout.SLOT, MatterLayout.HOTBAR_Y);
+        }
+
         int fx = x + MatterLayout.BAR_X;
         int fy = y + MatterLayout.BAR_Y;
         drawRect(fx, fy, fx + MatterLayout.BAR_WIDTH, fy + MatterLayout.BAR_HEIGHT, GuiTheme.BAR_EDGE);

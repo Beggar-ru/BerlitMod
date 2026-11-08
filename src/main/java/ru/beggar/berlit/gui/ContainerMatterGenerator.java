@@ -17,9 +17,21 @@ public class ContainerMatterGenerator extends Container {
         this.tile = tile;
 
         addSlotToContainer(
-            new Slot(tile, TileEntityMatterGenerator.SLOT_INPUT, MatterLayout.INPUT_X, MatterLayout.SLOT_Y));
+            new Slot(tile, TileEntityMatterGenerator.SLOT_INPUT, MatterLayout.INPUT_X, MatterLayout.SLOT_Y) {
+
+                @Override
+                public boolean isItemValid(ItemStack stack) {
+                    return tile.isItemValidForSlot(TileEntityMatterGenerator.SLOT_INPUT, stack);
+                }
+            });
         addSlotToContainer(
-            new Slot(tile, TileEntityMatterGenerator.SLOT_OUTPUT, MatterLayout.OUTPUT_X, MatterLayout.SLOT_Y));
+            new Slot(tile, TileEntityMatterGenerator.SLOT_OUTPUT, MatterLayout.OUTPUT_X, MatterLayout.SLOT_Y) {
+
+                @Override
+                public boolean isItemValid(ItemStack stack) {
+                    return false;
+                }
+            });
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {

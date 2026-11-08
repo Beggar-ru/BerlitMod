@@ -310,6 +310,12 @@ NEI_PAGES = {
         "items": [(8, 20), (50, 20), (110, 20)],
         "text": [(8, 6, 140)],
     },
+    "matter": {
+        "texture": "gui/nei_page.png",
+        "page": (176, 166),
+        "items": [(30, 20), (92, 20)],
+        "text": [(8, 6, 140)],
+    },
     "compressor": {
         "texture": "gui/nei_page.png",
         "page": (176, 166),

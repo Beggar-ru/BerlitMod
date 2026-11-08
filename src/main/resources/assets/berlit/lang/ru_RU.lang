@@ -204,3 +204,6 @@ tile.berlit.matter_generator_azure.name=Генератор лазурной ма
 tile.berlit.matter_generator_amber.name=Генератор янтарной материи
 tile.berlit.matter_generator_crimson.name=Генератор алой материи
 tile.berlit.matter_generator_radiant.name=Генератор сияющей материи
+nei.berlit.matter=Генераторы твёрдой материи
+nei.berlit.matter.cost=Энергия за операцию: %s EU
+nei.berlit.matter.time=Время: %s тиков

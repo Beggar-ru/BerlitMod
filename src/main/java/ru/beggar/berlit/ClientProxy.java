@@ -33,6 +33,13 @@ public class ClientProxy extends CommonProxy {
                     .getMethod("register")
                     .invoke(null);
                 try {
+                    Class.forName("ru.beggar.berlit.compat.nei.MatterNEI")
+                        .getMethod("register")
+                        .invoke(null);
+                } catch (Throwable t) {
+                    Berlit.LOG.warn("Matter NEI page is not available", t);
+                }
+                try {
                     Class.forName("ru.beggar.berlit.compat.nei.ReplicatorNEI")
                         .getMethod("register")
                         .invoke(null);
