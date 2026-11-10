@@ -67,8 +67,8 @@ public class BlockProcessingMachine extends BlockContainer {
     public IIcon getIcon(int side, int meta) {
         if (side == 1) return iconTop;
         if (side == 0) return iconBottom;
-        // Item form and old worlds without stored facing show the front on all four sides.
-        if (meta < 2) return iconFront;
+        // Item form and old worlds without stored facing have no known front; show the common side.
+        if (meta < 2) return iconSide;
         return side == meta ? iconFront : iconSide;
     }
 
