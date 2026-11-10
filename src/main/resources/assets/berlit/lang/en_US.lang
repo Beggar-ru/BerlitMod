@@ -207,3 +207,6 @@ tile.berlit.matter_generator_radiant.name=Radiant Matter Generator
 nei.berlit.matter=Solid Matter Generators
 nei.berlit.matter.cost=EU per operation: %s
 nei.berlit.matter.time=Time: %s ticks
+nei.berlit.molecular_transformer=Berlit Molecular Transformer
+nei.berlit.molecular_transformer.energy=Energy: %s EU
+

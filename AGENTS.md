@@ -121,6 +121,11 @@ tools/                   — генераторы текстур/GUI и прев
 - **Спавнеры**: стороны рисуются одной side-текстурой, верх и низ — top-текстурой.
   `Config.transparentSpawners` (по умолчанию `true`) включает glass-like alpha-проход,
   чтобы дырки решётки были прозрачными.
+- **Молекулярный трансформер**: NEI-страница `MolecularTransformerNEI` показывает все
+  рецепты, включая импортированные из Advanced Solar Panels через
+  `AdvancedSolarRecipes` (`MTRecipeManager.transformerRecipes`).
+- **Advanced Solar Panels** — опциональная dev/compile зависимость
+  `libs/AdvancedSolarPanel-1.7.10-3.5.1.jar`; на сервере/клиенте ASP не требуется.
 - IC2-модули (overclocker/ejector/pulling/energy storage/transformer) кладутся в слоты
   улучшений: вид модуля определяется по unlocalized имени **стека** (`stack.getUnlocalizedName()`),
   потому что IC2 держит все модули в одном предмете и различает их только стеком.
@@ -196,9 +201,10 @@ BERLIT_SELFTEST spawner buffer: entity=skeleton buffered=4 stacks=2
 BERLIT_SELFTEST crafting cpu: storage=536870912 processor=729 coprocessors=729
 BERLIT_SELFTEST interface expand: before=9 expanded=true after=18
 BERLIT_SELFTEST big interfaces: blocks=18/27/36 parts=18/27/36
-BERLIT_SELFTEST big interface containers: slots=73/82/91 height=241/259/277
+BERLIT_SELFTEST big interface containers: slots=73/82/91 height=241/262/262
 BERLIT_SELFTEST big interface settings: loaded=true
 BERLIT_SELFTEST big interface crafting list: patterns=18
+BERLIT_SELFTEST molecular transformer recipes: 16
 BERLIT_SELFTEST cpu multiblock: cluster=true formed=true storage=536870912 coprocessors=729
 BERLIT_SELFTEST cpu multiblock no-core: cluster=true storage=536870912 coprocessors=729
 BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=true

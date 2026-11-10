@@ -40,7 +40,8 @@
 ## Зависимости
 
 - Обязательно: **IC2** (2.2.828 experimental).
-- Опционально: CraftTweaker (MineTweaker3), NotEnoughItems, Draconic Evolution, Botania, Alfheim.
+- Опционально: CraftTweaker (MineTweaker3), NotEnoughItems, Draconic Evolution, Botania, Alfheim,
+  **Advanced Solar Panels** (импорт его рецептов молекулярного трансформера в Berlit и NEI).
 - **ExtraCells** нужен только для «Бесконечной ячейки жидкостей» Berlit; без него этот предмет
   не регистрируется. В dev-среду ExtraCells добавлен, чтобы ячейку было видно в креативе.
   Для репликатора ExtraCells не требуется — используется IC2-ячейка UU-материи или труба.

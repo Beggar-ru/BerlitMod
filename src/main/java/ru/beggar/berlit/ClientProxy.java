@@ -32,6 +32,9 @@ public class ClientProxy extends CommonProxy {
                 Class.forName("ru.beggar.berlit.compat.nei.MolecularFarmNEI")
                     .getMethod("register")
                     .invoke(null);
+                Class.forName("ru.beggar.berlit.compat.nei.MolecularTransformerNEI")
+                    .getMethod("register")
+                    .invoke(null);
                 try {
                     Class.forName("ru.beggar.berlit.compat.nei.MatterNEI")
                         .getMethod("register")

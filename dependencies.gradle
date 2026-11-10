@@ -69,6 +69,10 @@ dependencies {
     // NEI API (compile only; NEI is client-side and is present in GTNH).
     compileOnly(files("libs/notenoughitems-2.8.98-gtnh.jar"))
 
+    // Advanced Solar Panels: optional integration for its Molecular Transformer recipes.
+    compileOnly files("libs/AdvancedSolarPanel-1.7.10-3.5.1.jar")
+    devOnlyNonPublishable(rfg.deobf(files("libs/AdvancedSolarPanel-1.7.10-3.5.1.jar")))
+
     // NEI + CodeChicken libs in the dev runtime, so the recipe page can be tested.
     devOnlyNonPublishable(rfg.deobf(files("libs/codechickencore-1.4.12.jar")))
     devOnlyNonPublishable(rfg.deobf(files("libs/CodeChickenLib-1.3.0.jar")))

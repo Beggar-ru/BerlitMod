@@ -53,7 +53,7 @@ import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
     name = Berlit.MOD_NAME,
     version = Tags.VERSION,
     acceptedMinecraftVersions = "[1.7.10]",
-    dependencies = "after:appliedenergistics2")
+    dependencies = "after:appliedenergistics2;after:AdvancedSolarPanel")
 public class Berlit {
 
     public static final String MODID = "berlit";
@@ -895,6 +895,12 @@ public class Berlit {
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+        if (cpw.mods.fml.common.Loader.isModLoaded("AdvancedSolarPanel")) {
+            int aspRecipes = ru.beggar.berlit.compat.AdvancedSolarRecipes.importRecipes();
+            if (aspRecipes > 0) {
+                LOG.info("Imported {} Advanced Solar Panel molecular transformer recipes", aspRecipes);
+            }
+        }
     }
 
     @Mod.EventHandler

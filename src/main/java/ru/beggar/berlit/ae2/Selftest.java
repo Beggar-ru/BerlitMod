@@ -56,6 +56,10 @@ public final class Selftest {
         testInterfaceExpansion();
         testBigInterfaces();
         testBigInterfaceCraftingList(world);
+        FMLLog.info(
+            "BERLIT_SELFTEST molecular transformer recipes: %s",
+            ru.beggar.berlit.recipe.MolecularRecipes.getRecipes()
+                .size());
         testDigitalFilter(world);
         testDigitalProcessing(world);
         testDigitalCraftingMachines(world);
