@@ -18,5 +18,9 @@
     "items/singularity_pattern.png": "32x32 pattern item, redrawn by the 0.29.1 update",
     "blocks/digital_*.png": "32x32 hand-drawn digital machine faces"
   },
-  "opaque_items": {}
+  "opaque_items": {
+    "items/big_interface_part_18.png": "plate-style part icon, the plate fills the tile on purpose",
+    "items/big_interface_part_27.png": "plate-style part icon, the plate fills the tile on purpose",
+    "items/big_interface_part_36.png": "plate-style part icon, the plate fills the tile on purpose"
+  }
 }

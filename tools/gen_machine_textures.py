@@ -90,14 +90,38 @@ HAND_DIR = os.path.join(REFERENCE, "hand")
 
 
 def macerator(name, stops):
-    """Reference faces recoloured to the mod palette, unless a hand-edited face exists."""
-    for kind in ("side", "top", "bottom"):
+    """Hand-drawn faces win; the mouth becomes the front, the casing the common side.
+
+    The block now has four icons: `_front` on the face the player sees, `_side` on the other three
+    vertical sides, `_top` and `_bottom`. The reference set draws the mouth as "side", so it is
+    copied to `_front` and the casing is used for `_side` as well as `_bottom`.
+    """
+    hand_dir = HAND_DIR
+    sources = {
+        "front": os.path.join(hand_dir, f"{name}_side.png"),
+        "side": os.path.join(hand_dir, f"{name}_bottom.png"),
+        "top": os.path.join(hand_dir, f"{name}_top.png"),
+        "bottom": os.path.join(hand_dir, f"{name}_bottom.png"),
+    }
+    fallback = {
+        "front": ("side", "top", "bottom"),
+        "side": ("bottom",),
+        "top": ("top",),
+        "bottom": ("bottom",),
+    }
+
+    for kind, source in sources.items():
         target = os.path.join(BLOCKS, f"{name}_{kind}.png")
-        hand = os.path.join(HAND_DIR, f"{name}_{kind}.png")
-        if os.path.isfile(hand):
-            Image.open(hand).convert("RGBA").save(target)
+        if os.path.isfile(source):
+            Image.open(source).convert("RGBA").save(target)
+            continue
+        for face in fallback[kind]:
+            hand = os.path.join(hand_dir, f"{name}_{face}.png")
+            if os.path.isfile(hand):
+                Image.open(hand).convert("RGBA").save(target)
+                break
         else:
-            recolour(reference_face(kind), stops).save(target)
+            recolour(reference_face(kind if kind != "front" else "side"), stops).save(target)
 
 # The metal former was split into two blocks; the accent tells them apart.
 # Macerator keeps the IC2 silhouette: steel body, slightly cooler than vanilla IC2.
