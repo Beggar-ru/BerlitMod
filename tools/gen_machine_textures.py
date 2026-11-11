@@ -16,6 +16,15 @@ os.makedirs(BLOCKS, exist_ok=True)
 os.makedirs(ITEMS, exist_ok=True)
 
 
+def save_unless_present(relative_name, image):
+    """Never overwrite art that was drawn by hand and committed."""
+    target = os.path.join(BLOCKS, relative_name)
+    if os.path.isfile(target):
+        return False
+    image.save(target)
+    return True
+
+
 def machine(name, accent):
     side = Image.new("RGBA", (16, 16), (52, 52, 56, 255))
     d = ImageDraw.Draw(side)
@@ -23,20 +32,20 @@ def machine(name, accent):
     d.rectangle([2, 2, 13, 13], fill=(70, 70, 75, 255), outline=accent)
     d.rectangle([4, 6, 11, 9], fill=accent)
     d.line([5, 4, 10, 4], fill=(120, 120, 125, 255))
-    side.save(os.path.join(BLOCKS, name + "_side.png"))
+    save_unless_present(name + "_side.png", side)
 
     top = Image.new("RGBA", (16, 16), (52, 52, 56, 255))
     td = ImageDraw.Draw(top)
     td.rectangle([0, 0, 15, 15], outline=(30, 30, 32, 255))
     td.rectangle([3, 3, 12, 12], fill=(64, 64, 68, 255), outline=accent)
     td.ellipse([6, 6, 9, 9], fill=accent)
-    top.save(os.path.join(BLOCKS, name + "_top.png"))
+    save_unless_present(name + "_top.png", top)
 
     bottom = Image.new("RGBA", (16, 16), (44, 44, 48, 255))
     bd = ImageDraw.Draw(bottom)
     bd.rectangle([0, 0, 15, 15], outline=(30, 30, 32, 255))
     bd.rectangle([3, 3, 12, 12], fill=(58, 58, 62, 255))
-    bottom.save(os.path.join(BLOCKS, name + "_bottom.png"))
+    save_unless_present(name + "_bottom.png", bottom)
 
 
 machine("machine_compressor", (90, 140, 220, 255))
@@ -112,6 +121,8 @@ def macerator(name, stops):
 
     for kind, source in sources.items():
         target = os.path.join(BLOCKS, f"{name}_{kind}.png")
+        if os.path.isfile(target):
+            continue
         if os.path.isfile(source):
             Image.open(source).convert("RGBA").save(target)
             continue
@@ -135,6 +146,8 @@ machine("machine_electric_furnace", (220, 120, 60, 255))
 # UU matter replicator: violet accent, its own names (replicator_side/top/bottom).
 def digital_machine(name, accent):
     """Hand-drawn casing with a generated front; falls back to the procedural board."""
+    if all(os.path.isfile(os.path.join(BLOCKS, f"{name}_{kind}.png")) for kind in ("side", "top", "bottom")):
+        return
     if digital_faces.build(name, accent):
         return
 
@@ -148,7 +161,7 @@ def digital_machine(name, accent):
     d.rectangle([5, 11, 10, 12], fill=(80, 220, 230, 255))
     d.rectangle([3, 3, 4, 4], fill=(80, 220, 230, 255))
     d.rectangle([11, 3, 12, 4], fill=(80, 220, 230, 255))
-    side.save(os.path.join(BLOCKS, name + "_side.png"))
+    save_unless_present(name + "_side.png", side)
 
     top = Image.new("RGBA", (16, 16), (20, 24, 34, 255))
     td = ImageDraw.Draw(top)
@@ -158,7 +171,7 @@ def digital_machine(name, accent):
         for col in range(2):
             td.rectangle([4 + col * 5, 4 + row * 5, 7 + col * 5, 7 + row * 5], fill=accent)
     td.rectangle([7, 7, 8, 8], fill=(80, 220, 230, 255))
-    top.save(os.path.join(BLOCKS, name + "_top.png"))
+    save_unless_present(name + "_top.png", top)
 
     bottom = Image.new("RGBA", (16, 16), (16, 20, 28, 255))
     bd = ImageDraw.Draw(bottom)
@@ -166,7 +179,7 @@ def digital_machine(name, accent):
     bd.rectangle([3, 3, 12, 12], fill=(26, 32, 42, 255), outline=(40, 120, 130, 255))
     for y in (5, 8, 11):
         bd.line([4, y, 11, y], fill=(80, 220, 230, 255))
-    bottom.save(os.path.join(BLOCKS, name + "_bottom.png"))
+    save_unless_present(name + "_bottom.png", bottom)
 
 
 machine("replicator", (170, 110, 230, 255))
