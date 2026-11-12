@@ -24,8 +24,11 @@ GROUPS = {
     "matter_items": ITEMS,
 }
 
-# the macerator front is the only face that differs; the other three stay as they are
-RENAME = {}
+# earlier redraws used _up_botton; accept that spelling and store the corrected name
+RENAME = {
+    "matter_generator_{t}_up_botton.png".format(t=type_id): "matter_generator_{t}_up_bottom.png".format(t=type_id)
+    for type_id in ("standard", "violet", "turquoise", "emerald", "azure", "amber", "crimson", "radiant")
+}
 
 
 def main():

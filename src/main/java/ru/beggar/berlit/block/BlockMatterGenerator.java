@@ -50,7 +50,7 @@ public class BlockMatterGenerator extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister register) {
         iconSide = register.registerIcon("berlit:matter_generator_" + type.getId());
-        iconUpBottom = register.registerIcon("berlit:matter_generator_" + type.getId() + "_up_botton");
+        iconUpBottom = register.registerIcon("berlit:matter_generator_" + type.getId() + "_up_bottom");
     }
 
     @Override
