@@ -23,7 +23,9 @@ public class BlockMatterGenerator extends BlockContainer {
     private final MatterType type;
 
     @SideOnly(Side.CLIENT)
-    private IIcon icon;
+    private IIcon iconSide;
+    @SideOnly(Side.CLIENT)
+    private IIcon iconUpBottom;
 
     public BlockMatterGenerator(MatterType type) {
         super(Material.iron);
@@ -47,13 +49,15 @@ public class BlockMatterGenerator extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister register) {
-        icon = register.registerIcon("berlit:matter_generator_" + type.getId());
+        iconSide = register.registerIcon("berlit:matter_generator_" + type.getId());
+        iconUpBottom = register.registerIcon("berlit:matter_generator_" + type.getId() + "_up_botton");
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
-        return icon;
+        // top and bottom share one lattice texture, the four sides show the machine face
+        return side == 0 || side == 1 ? iconUpBottom : iconSide;
     }
 
     @Override
