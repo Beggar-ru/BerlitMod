@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 
 import codechicken.nei.PositionedStack;
 import codechicken.nei.api.API;
+import codechicken.nei.recipe.GuiRecipe;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import ru.beggar.berlit.gui.GuiTheme;
 import ru.beggar.berlit.item.ItemEntityCard;
 import ru.beggar.berlit.spawner.EntityDefinition;
 import ru.beggar.berlit.spawner.EntityDrop;
@@ -40,8 +39,8 @@ public class SpawnerNEI extends TemplateRecipeHandler {
             for (EntityDrop drop : definition.getDrops()) {
                 PositionedStack stack = new PositionedStack(
                     drop.getStack(),
-                    75 + (index % 3) * 22,
-                    20 + (index / 3) * 22);
+                    62 + (index % 5) * 20,
+                    20 + (index / 5) * 22);
 
                 outputs.add(stack);
                 drops.add(drop);
@@ -110,15 +109,20 @@ public class SpawnerNEI extends TemplateRecipeHandler {
     }
 
     @Override
-    public void drawExtras(int recipe) {
-        if (recipe < 0 || recipe >= arecipes.size()) return;
-        CachedSpawnerRecipe cached = (CachedSpawnerRecipe) arecipes.get(recipe);
-        Minecraft minecraft = Minecraft.getMinecraft();
-
-        int y = 62;
-        for (EntityDrop drop : cached.drops) {
-            minecraft.fontRenderer.drawString(Math.round(drop.getChance() * 100.0F) + "%", 10, y, GuiTheme.TEXT);
-            y += 10;
+    public List<String> handleItemTooltip(GuiRecipe<?> gui, ItemStack stack, List<String> currentTip, int recipe) {
+        if (stack != null && recipe >= 0 && recipe < arecipes.size()) {
+            CachedSpawnerRecipe cached = (CachedSpawnerRecipe) arecipes.get(recipe);
+            for (EntityDrop drop : cached.drops) {
+                if (drop.getStack()
+                    .isItemEqual(stack)) {
+                    currentTip.add(
+                        StatCollector.translateToLocalFormatted(
+                            "nei.berlit.spawner.chance",
+                            Math.round(drop.getChance() * 100.0F)));
+                    break;
+                }
+            }
         }
+        return currentTip;
     }
 }

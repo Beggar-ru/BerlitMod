@@ -828,11 +828,17 @@ def check_nei(report):
             rgba = image.convert("RGBA")
 
         page_w, page_h = page["page"]
-        if rgba.size[0] < page_w or rgba.size[1] < page_h:
-            report.error(where, f"texture is {rgba.size[0]}x{rgba.size[1]}, page needs {page_w}x{page_h}")
+        page_x, page_y = page.get("origin", (5, 11))
+        if rgba.size[0] < page_x + page_w or rgba.size[1] < page_y + page_h:
+            report.error(
+                where,
+                f"texture is {rgba.size[0]}x{rgba.size[1]}, page at {page_x},{page_y} needs {page_w}x{page_h}")
             continue
 
-        holes = sum(rgba.crop((0, 0, page_w, page_h)).getchannel("A").histogram()[:255])
+        holes = sum(
+            rgba.crop((page_x, page_y, page_x + page_w, page_y + page_h))
+                .getchannel("A")
+                .histogram()[:255])
         if holes:
             report.error(where, f"{holes} transparent pixel(s) inside the {page_w}x{page_h} page")
 
@@ -846,7 +852,8 @@ def check_nei(report):
         # Every stack needs a cell under it: the page is regenerated from the same
         # coordinates, so a mismatch means the texture is stale.
         for item_x, item_y in items:
-            cell = rgba.crop((item_x, item_y, item_x + 16, item_y + 16))
+            cell = rgba.crop(
+                (page_x + item_x, page_y + item_y, page_x + item_x + 16, page_y + item_y + 16))
             if len(cell.getcolors(2) or []) != 1:
                 report.error(
                     where,

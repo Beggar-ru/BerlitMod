@@ -1,10 +1,12 @@
 package ru.beggar.berlit.ae2;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,11 +14,16 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import appeng.api.AEApi;
+import appeng.api.config.Actionable;
 import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.networking.IGrid;
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
+import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.crafting.MECraftingInventory;
 import cpw.mods.fml.common.FMLLog;
 import fox.spiteful.avaritia.crafting.CompressorManager;
 import fox.spiteful.avaritia.crafting.ExtremeCraftingManager;
@@ -65,6 +72,7 @@ public final class Selftest {
         testDigitalCraftingMachines(world);
         testAssembler(world);
         testBatchAssembler(world);
+        testWholeJobPrecraft(world);
         testCompressor(world);
         FMLLog.info("BERLIT_SELFTEST optional items: infinityFluidCell=%s", Berlit.infinityFluidCell != null);
     }
@@ -704,11 +712,10 @@ public final class Selftest {
      */
     private static void testBatchAssembler(World world) {
         try {
-            ItemStack[] grid = new ItemStack[81];
-            for (int i = 0; i < grid.length; i++) grid[i] = new ItemStack(Items.iron_ingot);
-            ItemStack patternItem = ItemAvaritiaPattern.create(grid, new ItemStack(Items.diamond, 2));
-            ICraftingPatternDetails details = ((ICraftingPatternItem) patternItem.getItem())
-                .getPatternForItem(patternItem, world);
+            FakePattern details = new FakePattern(
+                new ItemStack(Items.diamond),
+                new ItemStack(Items.diamond, 2),
+                new ItemStack(Items.iron_ingot));
 
             appeng.me.cluster.implementations.CraftingCPUCluster cluster = new appeng.me.cluster.implementations.CraftingCPUCluster(
                 new appeng.api.util.WorldCoord(0, 0, 0),
@@ -720,7 +727,7 @@ public final class Selftest {
             Object task = constructor.newInstance();
             java.lang.reflect.Field valueField = taskClass.getDeclaredField("value");
             valueField.setAccessible(true);
-            valueField.setLong(task, 10);
+            valueField.setLong(task, 100);
 
             Class<appeng.me.cluster.implementations.CraftingCPUCluster> clusterClass = appeng.me.cluster.implementations.CraftingCPUCluster.class;
             java.lang.reflect.Field tasksField = clusterClass.getDeclaredField("tasks");
@@ -739,9 +746,18 @@ public final class Selftest {
             TileEntityFastAssembler fake = new TileEntityFastAssembler() {
 
                 @Override
-                public int craftExtraBatches(ICraftingPatternDetails pattern, int maxBatches) {
+                public int craftExtraBatches(ICraftingPatternDetails pattern, int maxBatches,
+                    appeng.api.storage.IMEInventory<IAEItemStack> inventory,
+                    appeng.api.networking.security.BaseActionSource source) {
                     limit[0] = maxBatches;
                     return 3;
+                }
+
+                @Override
+                public int availableCrafts(ICraftingPatternDetails pattern,
+                    appeng.api.storage.IMEInventory<IAEItemStack> inventory,
+                    appeng.api.networking.security.BaseActionSource source) {
+                    return 100;
                 }
             };
 
@@ -768,13 +784,238 @@ public final class Selftest {
                 waiting,
                 ru.beggar.berlit.Config.fastAssemblerBatch,
                 hookRead,
-                new TileEntityFastAssembler().craftExtraBatches(details, 5));
+                new TileEntityFastAssembler().craftExtraBatches(details, 5, null, null));
         } catch (Throwable t) {
             FMLLog.info(
                 "BERLIT_SELFTEST batch assembler: FAILED %s: %s",
                 t.getClass()
                     .getSimpleName(),
                 t.getMessage());
+        }
+    }
+
+    /**
+     * Checks the whole-job path: a log-to-planks pre-craft must be finished from the CPU's
+     * reserved inventory, the final table task must be left for the assembler, and the batch
+     * availability probe must report the real number of crafts rather than one.
+     */
+    private static void testWholeJobPrecraft(World world) {
+        try {
+            FakePattern planks = new FakePattern(
+                new ItemStack(Blocks.log),
+                new ItemStack(Blocks.planks, 4),
+                new ItemStack(Blocks.log));
+            FakePattern tables = new FakePattern(
+                new ItemStack(Blocks.planks),
+                new ItemStack(Blocks.crafting_table),
+                new ItemStack(Blocks.planks),
+                new ItemStack(Blocks.planks),
+                new ItemStack(Blocks.planks),
+                new ItemStack(Blocks.planks));
+
+            BaseActionSource source = new BaseActionSource();
+            long[] planksLeft = { 16 };
+            long[] tablesLeft = { 16 };
+            List<BatchJobPrecraft.Task> tasks = new ArrayList<BatchJobPrecraft.Task>();
+            tasks.add(taskOf(planks, planksLeft));
+            tasks.add(taskOf(tables, tablesLeft));
+
+            MECraftingInventory inventory = new MECraftingInventory();
+            inventory.injectItems(
+                AEApi.instance()
+                    .storage()
+                    .createItemStack(new ItemStack(Blocks.log, 16)),
+                Actionable.MODULATE,
+                source);
+
+            TileEntityFastAssembler counter = new TileEntityFastAssembler() {
+
+                @Override
+                protected IGrid networkGrid() {
+                    return null;
+                }
+            };
+            counter.setWorldObj(world);
+            int available = counter.availableCrafts(planks, inventory, source);
+
+            IAEItemStack finalOutput = AEApi.instance()
+                .storage()
+                .createItemStack(new ItemStack(Blocks.crafting_table, 16));
+            long crafted = BatchJobPrecraft.run(inventory, source, tasks, finalOutput, new BatchJobPrecraft.Gate() {
+
+                @Override
+                public boolean canCraft(ICraftingPatternDetails pattern) {
+                    return true;
+                }
+            }, 8);
+
+            long logsLeft = countStored(inventory, new ItemStack(Blocks.log), source);
+            long storedPlanks = countStored(inventory, new ItemStack(Blocks.planks), source);
+
+            long[] gateOffPlanks = { 16 };
+            long[] gateOffTables = { 16 };
+            List<BatchJobPrecraft.Task> gatedTasks = new ArrayList<BatchJobPrecraft.Task>();
+            gatedTasks.add(taskOf(planks, gateOffPlanks));
+            gatedTasks.add(taskOf(tables, gateOffTables));
+
+            MECraftingInventory gated = new MECraftingInventory();
+            gated.injectItems(
+                AEApi.instance()
+                    .storage()
+                    .createItemStack(new ItemStack(Blocks.log, 16)),
+                Actionable.MODULATE,
+                source);
+            BatchJobPrecraft.run(gated, source, gatedTasks, finalOutput, new BatchJobPrecraft.Gate() {
+
+                @Override
+                public boolean canCraft(ICraftingPatternDetails pattern) {
+                    return false;
+                }
+            }, 8);
+
+            FMLLog.info(
+                "BERLIT_SELFTEST whole job: planks=%s tables=%s logs=%s planksStored=%s precrafted=%s available=%s gateOff=%s gateOffLogs=%s",
+                planksLeft[0],
+                tablesLeft[0],
+                logsLeft,
+                storedPlanks,
+                crafted,
+                available,
+                gateOffPlanks[0],
+                countStored(gated, new ItemStack(Blocks.log), source));
+        } catch (Throwable t) {
+            FMLLog.info(
+                "BERLIT_SELFTEST whole job: FAILED %s: %s",
+                t.getClass()
+                    .getSimpleName(),
+                t.getMessage());
+        }
+    }
+
+    private static BatchJobPrecraft.Task taskOf(final ICraftingPatternDetails pattern, final long[] remaining) {
+        return new BatchJobPrecraft.Task() {
+
+            @Override
+            public ICraftingPatternDetails pattern() {
+                return pattern;
+            }
+
+            @Override
+            public long remaining() {
+                return remaining[0];
+            }
+
+            @Override
+            public void consume(long crafts) {
+                remaining[0] -= crafts;
+            }
+        };
+    }
+
+    private static long countStored(MECraftingInventory inventory, ItemStack stack, BaseActionSource source) {
+        IAEItemStack probe = AEApi.instance()
+            .storage()
+            .createItemStack(stack);
+        probe.setStackSize(Integer.MAX_VALUE);
+        IAEItemStack available = inventory.extractItems(probe, Actionable.SIMULATE, source);
+        return available == null ? 0 : available.getStackSize();
+    }
+
+    /** Minimal crafting pattern used by the batch tests; slots are modelled one item each. */
+    private static final class FakePattern implements ICraftingPatternDetails {
+
+        private final ItemStack pattern;
+        private final IAEItemStack output;
+        private final IAEItemStack[] slots;
+        private final IAEItemStack[] condensed;
+        private int priority;
+
+        private FakePattern(ItemStack pattern, ItemStack output, ItemStack... inputSlots) {
+            this.pattern = pattern;
+            this.output = AEApi.instance()
+                .storage()
+                .createItemStack(output);
+            this.slots = new IAEItemStack[inputSlots.length];
+            List<IAEItemStack> totals = new ArrayList<IAEItemStack>();
+
+            for (int i = 0; i < inputSlots.length; i++) {
+                IAEItemStack slot = AEApi.instance()
+                    .storage()
+                    .createItemStack(inputSlots[i]);
+                slots[i] = slot;
+
+                IAEItemStack total = null;
+                for (IAEItemStack existing : totals) {
+                    if (existing.isSameType(slot)) {
+                        total = existing;
+                        break;
+                    }
+                }
+                if (total == null) {
+                    total = slot.copy()
+                        .setStackSize(1);
+                    totals.add(total);
+                } else {
+                    total.incStackSize(1);
+                }
+            }
+            this.condensed = totals.toArray(new IAEItemStack[0]);
+        }
+
+        @Override
+        public ItemStack getPattern() {
+            return pattern;
+        }
+
+        @Override
+        public boolean isValidItemForSlot(int slotIndex, ItemStack stack, World world) {
+            return true;
+        }
+
+        @Override
+        public boolean isCraftable() {
+            return true;
+        }
+
+        @Override
+        public IAEItemStack[] getInputs() {
+            return slots;
+        }
+
+        @Override
+        public IAEItemStack[] getCondensedInputs() {
+            return condensed;
+        }
+
+        @Override
+        public IAEItemStack[] getCondensedOutputs() {
+            return new IAEItemStack[] { output.copy() };
+        }
+
+        @Override
+        public IAEItemStack[] getOutputs() {
+            return getCondensedOutputs();
+        }
+
+        @Override
+        public boolean canSubstitute() {
+            return false;
+        }
+
+        @Override
+        public ItemStack getOutput(InventoryCrafting crafting, World world) {
+            return output.getItemStack()
+                .copy();
+        }
+
+        @Override
+        public int getPriority() {
+            return priority;
+        }
+
+        @Override
+        public void setPriority(int priority) {
+            this.priority = priority;
         }
     }
 

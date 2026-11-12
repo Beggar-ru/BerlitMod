@@ -5,7 +5,8 @@
 Pages come from ``tools/gui_layout.NEI_PAGES``. One 18x18 cell is pasted under every
 item position the handler uses, so the background always lines up with the
 PositionedStack coordinates in ``compat/nei/*NEI.java``; move a stack and the page has
-to be regenerated. ``tools/preview.py check`` verifies the result.
+to be regenerated. ``tools/preview.py check`` verifies the result. The page itself is
+the standard NEI 166x65 area, placed at (5,11) on a 256x256 canvas.
 """
 
 from __future__ import annotations
@@ -36,10 +37,11 @@ def build(page):
     theme.draw_inner_shadow(image)
     theme.draw_corner_brackets(image)
 
-    # NEI samples the page with vanilla's fixed 1/256 UV scale, so the 176x166 page has to
-    # sit at the top-left corner of a 256x256 canvas - a 176x166 file would tile.
+    # NEI samples the page with vanilla's fixed 1/256 UV scale, and
+    # TemplateRecipeHandler.drawBackground samples a 166x65 rectangle at (5,11).
+    # Put the page into that exact standard slot.
     canvas = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
-    canvas.alpha_composite(image, (0, 0))
+    canvas.alpha_composite(image, page.get("origin", (5, 11)))
     return canvas
 
 

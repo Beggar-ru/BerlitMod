@@ -210,3 +210,4 @@ nei.berlit.matter.cost=Энергия за операцию: %s EU
 nei.berlit.matter.time=Время: %s тиков
 nei.berlit.molecular_transformer=Молекулярный трансформер Berlit
 nei.berlit.molecular_transformer.energy=Энергия: %s EU
+nei.berlit.spawner.chance=Шанс: %s%%

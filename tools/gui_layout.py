@@ -315,7 +315,10 @@ NEI_ROW = 22
 def nei_page(texture, slots, text, arrows=()):
     return {
         "texture": texture,
-        "page": (176, 166),
+        # NEI's TemplateRecipeHandler draws a 166x65 page sampled at (5,11) of
+        # the texture. Keep the page in that standard slot so it cannot slide.
+        "page": (166, 65),
+        "origin": (5, 11),
         "slots": list(slots),
         "arrows": list(arrows),
         "text": list(text),
@@ -323,20 +326,20 @@ def nei_page(texture, slots, text, arrows=()):
 
 
 NEI_PAGES = {
-    # Three recipes per page: machine badge top-right, EU per row in the left column.
+    # Two recipes per page: machine badge top-right, EU per row in the left column.
     "machines": nei_page(
         "gui/nei_machines.png",
-        [(150, 20)]
-            + [(56, 20 + i * NEI_ROW) for i in range(3)]
-            + [(104, 20 + i * NEI_ROW) for i in range(3)],
-        [(8, 6, 150)] + [(8, 24 + i * NEI_ROW, 40) for i in range(3)],
-        [(88, 28 + i * NEI_ROW) for i in range(3)],
+        [(142, 20)]
+            + [(56, 18 + i * NEI_ROW) for i in range(2)]
+            + [(104, 18 + i * NEI_ROW) for i in range(2)],
+        [(8, 6, 150)] + [(8, 22 + i * NEI_ROW, 40) for i in range(2)],
+        [(88, 26 + i * NEI_ROW) for i in range(2)],
     ),
     "compressor": nei_page(
         "gui/nei_compressor.png",
-        [(8, 20), (58, 20), (112, 20)],
+        [(8, 20), (50, 20), (116, 20)],
         [(8, 6, 150)],
-        [(93, 28)],
+        [(83, 28)],
     ),
     "molecular_transformer": nei_page(
         "gui/nei_molecular_transformer.png",
@@ -347,7 +350,7 @@ NEI_PAGES = {
     "replicator": nei_page(
         "gui/nei_replicator.png",
         [(8, 20), (58, 20), (112, 20)],
-        [(8, 6, 150), (8, 46, 150), (8, 58, 150), (8, 70, 150)],
+        [(8, 4, 150), (8, 38, 150), (8, 47, 150), (8, 56, 150)],
         [(93, 28)],
     ),
     "matter": nei_page(
@@ -358,12 +361,12 @@ NEI_PAGES = {
     ),
     "molecular_farm": nei_page(
         "gui/nei_molecular_farm.png",
-        [(30, 30)] + [(78 + (i % 3) * 20, 18 + (i // 3) * NEI_ROW) for i in range(6)],
-        [(8, 6, 150), (8, 66, 150)],
+        [(30, 30)] + [(78 + (i % 3) * 20, 15 + (i // 3) * NEI_ROW) for i in range(6)],
+        [(8, 6, 150), (8, 56, 150)],
     ),
     "spawner": nei_page(
         "gui/nei_spawner.png",
-        [(30, 20)] + [(75 + (i % 3) * NEI_ROW, 20 + (i // 3) * NEI_ROW) for i in range(9)],
-        [(8, 6, 150), (10, 62, 60)],
+        [(30, 20)] + [(62 + (i % 5) * 20, 20 + (i // 5) * NEI_ROW) for i in range(9)],
+        [(8, 6, 150)],
     ),
 }

@@ -78,17 +78,23 @@ tools/                   — генераторы текстур/GUI и прев
   Рецепты «маленькой пыли» отфильтрованы, тестовые заглушки удалены (золотая пластина снова
   импортируется). Кнопка `Recipes` открывает `GuiDigitalFilter`: ON/OFF для каждого рецепта,
   фильтр глобальный по типу машины, хранится в `DigitalRecipeFilterData` (WorldSavedData) и
-  обновляет AE2-шаблоны через `MENetworkCraftingPatternChange`. NEI показывает по 3 рецепта
+  обновляет AE2-шаблоны через `MENetworkCraftingPatternChange`. NEI показывает по 2 рецепта
   на странице (`MachineNEI`). В окне фильтра есть поиск по названию входа/выхода.
 - **Ускоренный молекулярный сборщик** (`berlit.fast_assembler`, `TileEntityFastAssembler`):
-  обычные 3×3-шаблоны AE2, но один push из CPU закрывает до 64 крафтов — ингредиенты для
-  лишних машина тянет из ME-сети сама (`IBatchAssembler.craftExtraBatches`). Учёт CPU правит
-  `MixinCraftingCPUCluster.berlit$batchExtraCrafts`: режет пачку по остатку задачи, вычитает
-  лишние крафты из счётчика `TaskProgress.value` и добавляет их выход в `waitingFor`. Без этой
-  правки заказ на 1000 предметов превратился бы в 64 000, потому что AE2 считает один push
-  одним крафтом. Размер пачки — `Config.fastAssemblerBatch` (64 по умолчанию, 1 — штатное
-  поведение AE2). Работает и с шаблоном в самом сборщике, и с шаблоном в соседнем ME Interface.
-  Пачка никогда не превышает остаток заказа.
+  обычные 3×3-шаблоны AE2. Заказ CPU выполняется как одно задание: `BatchJobPrecraft`
+  заранее прогоняет все промежуточные задачи (бревна → доски) прямо по инвентарю CPU в
+  порядке зависимостей, затем `MixinCraftingCPUCluster.berlit$batchExtraCrafts` добивает
+  конечную задачу (доски → верстаки) одной пачкой через `IBatchAssembler.craftExtraBatches`.
+  Учёт CPU правится в том же миксине: пачка режется по остатку `TaskProgress.value`,
+  лишние крафты вычитаются из счётчика, их выход добавляется в `waitingFor`. Без этой
+  правки AE2 считал бы один push одним крафтом. Ингредиенты лишних крафтов машина тянет из
+  инвентаря CPU, при нехватке — из ME-сети; `measure` запрашивает большой пробный стак,
+  потому что `extractItems` иначе возвращает не больше одной порции. Корневая задача
+  определяется по зависимостям (её выход никто не потребляет), поэтому финальный предмет
+  всегда доходит до запросившего. Работает и с шаблоном в сборщике, и с шаблоном в соседнем
+  ME Interface (включая cable-part). Если `Config.fastAssemblerWholeJob=false` — прекрафты
+  остаются отдельными задачами AE2; если `Config.fastAssemblerFullTask=false` — действует
+  ограничение `Config.fastAssemblerBatch` (64 по умолчанию, 1 — штатное поведение AE2).
 - **Цифровой сборщик Avaritia** (`berlit.digital_avaritia_assembler`): сам экспортирует
   все 9×9-рецепты `ExtremeCraftingManager` как AE2-шаблоны (`AvaritiaPatternDetails`), без
   кодировщика и слотов шаблонов. Обрабатывает очередь, EU/AE, 4 улучшения; результат — в ME
@@ -202,11 +208,11 @@ BERLIT_SELFTEST spawner cores: first=true duplicate=false other=true stack=64
 BERLIT_SELFTEST replicator: matter=45 stack=64 perStack=2880 fluid=true override=7 restored=45 ic2=115
 BERLIT_SELFTEST replicator machine: patterns=1 matter=45 tank=0 output=64xitem.diamond@0 progress=0
 BERLIT_SELFTEST digital macerator: patterns=67 recipes=67
-BERLIT_SELFTEST digital compressor: patterns=37 recipes=37
+BERLIT_SELFTEST digital compressor: patterns=41 recipes=41
 BERLIT_SELFTEST digital metal_extruder: patterns=10 recipes=10
 BERLIT_SELFTEST digital metal_roller: patterns=14 recipes=14
 BERLIT_SELFTEST digital electric_furnace: patterns=55 recipes=55
-BERLIT_SELFTEST digital total: 183
+BERLIT_SELFTEST digital total: 187
 BERLIT_SELFTEST pork: damage0=true
 BERLIT_SELFTEST processing: saved=metal_roller loaded=metal_roller
 BERLIT_SELFTEST farm: seeds=64 wheat=64 extraSeeds=64 required=131072
@@ -225,7 +231,8 @@ BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=t
 BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
 BERLIT_SELFTEST digital custom: avaritiaPatterns=18 avaritiaProcessed=true compressorPatterns=8 compressorProcessed=true
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
-BERLIT_SELFTEST batch assembler: limit=9 remaining=7 waiting=6 config=64 hookRead=7 noNetwork=0
+BERLIT_SELFTEST batch assembler: limit=99 remaining=97 waiting=6 config=64 hookRead=97 noNetwork=0
+BERLIT_SELFTEST whole job: planks=0 tables=16 logs=0 planksStored=64 precrafted=16 available=16 gateOff=16 gateOffLogs=16
 BERLIT_SELFTEST compressor: cost=2400 out=1xitem.avaritia_singularity@0 inputLeft=null
 BERLIT_SELFTEST optional items: infinityFluidCell=true
 `

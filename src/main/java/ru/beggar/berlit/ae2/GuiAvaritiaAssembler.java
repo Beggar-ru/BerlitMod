@@ -32,6 +32,9 @@ public class GuiAvaritiaAssembler extends BerlitGui {
     @Override
     public void initGui() {
         super.initGui();
+        // The fast assembler is driven by the crafting CPU, not by the standalone craft buttons.
+        if (tile instanceof TileEntityFastAssembler) return;
+
         buttonList.add(
             new NineSliceButton(
                 0,
@@ -65,8 +68,7 @@ public class GuiAvaritiaAssembler extends BerlitGui {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        fontRendererObj
-            .drawString(StatCollector.translateToLocal("tile.berlit.avaritia_assembler.name"), 8, 6, GuiTheme.TITLE);
+        fontRendererObj.drawString(StatCollector.translateToLocal(tile.getInventoryName()), 8, 6, GuiTheme.TITLE);
         fontRendererObj.drawString(
             StatCollector.translateToLocal("container.inventory"),
             8,

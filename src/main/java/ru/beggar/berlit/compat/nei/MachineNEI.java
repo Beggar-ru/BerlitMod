@@ -30,7 +30,7 @@ import ru.beggar.berlit.machine.MachineType;
 @SideOnly(Side.CLIENT)
 public class MachineNEI extends TemplateRecipeHandler {
 
-    private static final int PER_PAGE = 3;
+    private static final int PER_PAGE = 2;
     private static final int ROW_HEIGHT = 22;
 
     public static void register() {
@@ -51,12 +51,12 @@ public class MachineNEI extends TemplateRecipeHandler {
             this.type = type;
             this.mode = mode;
             this.recipes = new ArrayList<MachineRecipe>(recipes);
-            this.machine = new PositionedStack(new ItemStack(Berlit.machineBlocks.get(type)), 150, 20);
+            this.machine = new PositionedStack(new ItemStack(Berlit.machineBlocks.get(type)), 142, 20);
 
             for (int i = 0; i < recipes.size(); i++) {
                 MachineRecipe recipe = recipes.get(i);
-                inputs.add(new PositionedStack(recipe.getInput(), 56, 20 + i * ROW_HEIGHT));
-                outputs.add(new PositionedStack(recipe.getOutput(), 104, 20 + i * ROW_HEIGHT));
+                inputs.add(new PositionedStack(recipe.getInput(), 56, 18 + i * ROW_HEIGHT));
+                outputs.add(new PositionedStack(recipe.getOutput(), 104, 18 + i * ROW_HEIGHT));
             }
         }
 
@@ -180,7 +180,7 @@ public class MachineNEI extends TemplateRecipeHandler {
         for (int i = 0; i < recipes.size(); i++) {
             MachineRecipe machineRecipe = recipes.get(i);
             Minecraft.getMinecraft().fontRenderer
-                .drawString("EU: " + machineRecipe.getEnergy(), 8, 24 + i * ROW_HEIGHT, GuiTheme.TEXT);
+                .drawString("EU: " + machineRecipe.getEnergy(), 8, 22 + i * ROW_HEIGHT, GuiTheme.TEXT);
         }
     }
 }

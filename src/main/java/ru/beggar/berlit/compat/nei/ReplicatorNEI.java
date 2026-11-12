@@ -134,7 +134,7 @@ public class ReplicatorNEI extends TemplateRecipeHandler {
         ReplicatorPattern pattern = cached.getPattern();
 
         Minecraft.getMinecraft().fontRenderer
-            .drawString(StatCollector.translateToLocal("tile.berlit.replicator.name"), 8, 6, GuiTheme.TITLE);
+            .drawString(StatCollector.translateToLocal("tile.berlit.replicator.name"), 8, 4, GuiTheme.TITLE);
         String scan = StatCollector.translateToLocalFormatted(
             "nei.berlit.replicator.scan",
             pattern.getStack()
@@ -142,13 +142,13 @@ public class ReplicatorNEI extends TemplateRecipeHandler {
         Minecraft.getMinecraft().fontRenderer.drawString(
             Minecraft.getMinecraft().fontRenderer.trimStringToWidth(scan, 150),
             8,
-            46,
+            38,
             GuiTheme.TEXT_DISABLED);
         Minecraft.getMinecraft().fontRenderer.drawString(
             StatCollector
                 .translateToLocalFormatted("nei.berlit.replicator.matter_per_item", pattern.getMatterPerItem()),
             8,
-            58,
+            47,
             GuiTheme.TEXT);
         Minecraft.getMinecraft().fontRenderer.drawString(
             StatCollector.translateToLocalFormatted(
@@ -156,7 +156,7 @@ public class ReplicatorNEI extends TemplateRecipeHandler {
                 pattern.getMatterPerStack(),
                 pattern.getStackSize()),
             8,
-            70,
+            56,
             GuiTheme.TEXT);
     }
 }

@@ -34,7 +34,7 @@ public class MolecularFarmNEI extends TemplateRecipeHandler {
             input = new PositionedStack(recipe.getInput(), 30, 30);
             List<ItemStack> products = recipe.getOutputs();
             for (int i = 0; i < products.size() && i < 6; i++) {
-                outputs.add(new PositionedStack(products.get(i), 78 + (i % 3) * 20, 18 + (i / 3) * 22));
+                outputs.add(new PositionedStack(products.get(i), 78 + (i % 3) * 20, 15 + (i / 3) * 22));
             }
         }
 
@@ -100,7 +100,7 @@ public class MolecularFarmNEI extends TemplateRecipeHandler {
         Minecraft.getMinecraft().fontRenderer.drawString(
             StatCollector.translateToLocal("nei.berlit.molecular_farm.per_seed"),
             8,
-            66,
+            56,
             GuiTheme.TEXT_DISABLED);
     }
 }

@@ -211,3 +211,4 @@ nei.berlit.matter.time=Time: %s ticks
 nei.berlit.molecular_transformer=Berlit Molecular Transformer
 nei.berlit.molecular_transformer.energy=Energy: %s EU
 
+nei.berlit.spawner.chance=Chance: %s%%

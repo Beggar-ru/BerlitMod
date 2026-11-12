@@ -111,7 +111,25 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     }
 
     protected void queueOutput(ItemStack stack) {
-        pendingOutput.add(stack);
+        queueOutput(stack, 1);
+    }
+
+    /**
+     * Queues {@code copies} crafts of {@code stack}, split into normal stack-sized entries so the
+     * pending list stays small even when a whole crafting job is produced at once.
+     */
+    protected void queueOutput(ItemStack stack, long copies) {
+        if (stack == null || stack.stackSize <= 0 || copies <= 0) return;
+
+        long remaining = (long) stack.stackSize * copies;
+        int max = Math.max(1, stack.getMaxStackSize());
+        while (remaining > 0) {
+            int size = (int) Math.min(max, remaining);
+            ItemStack copy = stack.copy();
+            copy.stackSize = size;
+            pendingOutput.add(copy);
+            remaining -= size;
+        }
         markDirty();
     }
 
@@ -126,13 +144,18 @@ public class TileEntityAvaritiaAssembler extends TileEntity
         java.util.Iterator<ItemStack> iterator = pendingOutput.iterator();
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();
-            items.injectItems(
+            IAEItemStack leftover = items.injectItems(
                 AEApi.instance()
                     .storage()
                     .createItemStack(stack),
                 Actionable.MODULATE,
                 source);
-            iterator.remove();
+            if (leftover == null || leftover.getStackSize() <= 0) {
+                iterator.remove();
+            } else {
+                // Keep what the network could not accept; dropping it would hang the CPU job.
+                stack.stackSize = (int) Math.min(Integer.MAX_VALUE, leftover.getStackSize());
+            }
         }
         markDirty();
     }
@@ -151,22 +174,18 @@ public class TileEntityAvaritiaAssembler extends TileEntity
 
     @Override
     public void provideCrafting(ICraftingProviderHelper helper) {
-        int berlitCount = 0;
         for (ItemStack pattern : patterns) {
             if (pattern == null || !(pattern.getItem() instanceof ICraftingPatternItem)) continue;
             ICraftingPatternDetails details = ((ICraftingPatternItem) pattern.getItem())
                 .getPatternForItem(pattern, worldObj);
             if (details != null) {
                 helper.addCraftingOption(this, details);
-                berlitCount++;
             }
         }
-        cpw.mods.fml.common.FMLLog.info("[berlit] assembler provideCrafting: " + berlitCount + " patterns");
     }
 
     @Override
     public boolean pushPattern(ICraftingPatternDetails details, InventoryCrafting crafting) {
-        cpw.mods.fml.common.FMLLog.info("[berlit] assembler pushPattern: " + details);
         if (!(details instanceof AvaritiaPatternDetails) || worldObj == null || worldObj.isRemote) return false;
 
         InventoryCrafting grid = new InventoryCrafting(new ContainerNull(), 9, 9);
@@ -319,7 +338,7 @@ public class TileEntityAvaritiaAssembler extends TileEntity
 
     @Override
     public String getInventoryName() {
-        return "container.berlit.avaritia_assembler";
+        return "tile.berlit.avaritia_assembler.name";
     }
 
     @Override
@@ -356,6 +375,13 @@ public class TileEntityAvaritiaAssembler extends TileEntity
         for (int i = 0; i < list.tagCount() && i < PATTERNS; i++) {
             patterns[i] = ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i));
         }
+
+        pendingOutput.clear();
+        NBTTagList pending = nbt.getTagList("Pending", 10);
+        for (int i = 0; i < pending.tagCount(); i++) {
+            ItemStack stack = ItemStack.loadItemStackFromNBT(pending.getCompoundTagAt(i));
+            if (stack != null) pendingOutput.add(stack);
+        }
     }
 
     @Override
@@ -368,6 +394,14 @@ public class TileEntityAvaritiaAssembler extends TileEntity
             list.appendTag(tag);
         }
         nbt.setTag("Patterns", list);
+
+        NBTTagList pending = new NBTTagList();
+        for (ItemStack stack : pendingOutput) {
+            NBTTagCompound tag = new NBTTagCompound();
+            stack.writeToNBT(tag);
+            pending.appendTag(tag);
+        }
+        nbt.setTag("Pending", pending);
     }
 
     private final class Block implements IGridBlock {
