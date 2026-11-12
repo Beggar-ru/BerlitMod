@@ -15,6 +15,7 @@ import codechicken.nei.recipe.TemplateRecipeHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ru.beggar.berlit.Berlit;
+import ru.beggar.berlit.gui.GuiTheme;
 import ru.beggar.berlit.machine.MachineRecipe;
 import ru.beggar.berlit.machine.MachineRecipes;
 import ru.beggar.berlit.machine.MachineType;
@@ -50,12 +51,12 @@ public class MachineNEI extends TemplateRecipeHandler {
             this.type = type;
             this.mode = mode;
             this.recipes = new ArrayList<MachineRecipe>(recipes);
-            this.machine = new PositionedStack(new ItemStack(Berlit.machineBlocks.get(type)), 8, 20);
+            this.machine = new PositionedStack(new ItemStack(Berlit.machineBlocks.get(type)), 150, 20);
 
             for (int i = 0; i < recipes.size(); i++) {
                 MachineRecipe recipe = recipes.get(i);
-                inputs.add(new PositionedStack(recipe.getInput(), 58, 20 + i * ROW_HEIGHT));
-                outputs.add(new PositionedStack(recipe.getOutput(), 112, 20 + i * ROW_HEIGHT));
+                inputs.add(new PositionedStack(recipe.getInput(), 56, 20 + i * ROW_HEIGHT));
+                outputs.add(new PositionedStack(recipe.getOutput(), 104, 20 + i * ROW_HEIGHT));
             }
         }
 
@@ -99,7 +100,7 @@ public class MachineNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/nei_page.png";
+        return "berlit:textures/gui/nei_machines.png";
     }
 
     @Override
@@ -172,15 +173,14 @@ public class MachineNEI extends TemplateRecipeHandler {
         MachineType type = cached.getMachineType();
 
         Minecraft.getMinecraft().fontRenderer
-            .drawString(StatCollector.translateToLocal(type.getTitleKey()), 8, 6, 0x404040);
+            .drawString(StatCollector.translateToLocal(type.getTitleKey()), 8, 6, GuiTheme.TITLE);
 
+        // The page draws the flow arrow, so the left column only carries the EU cost per row.
         List<MachineRecipe> recipes = cached.getRecipes();
         for (int i = 0; i < recipes.size(); i++) {
-            int rowY = 20 + i * ROW_HEIGHT;
             MachineRecipe machineRecipe = recipes.get(i);
             Minecraft.getMinecraft().fontRenderer
-                .drawString("EU: " + machineRecipe.getEnergy(), i == 0 ? 30 : 8, rowY + 4, 0x404040);
-            Minecraft.getMinecraft().fontRenderer.drawString("->", 88, rowY + 4, 0x606060);
+                .drawString("EU: " + machineRecipe.getEnergy(), 8, 24 + i * ROW_HEIGHT, GuiTheme.TEXT);
         }
     }
 }

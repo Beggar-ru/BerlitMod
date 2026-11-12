@@ -6,46 +6,130 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ForgeDirection;
 
+import cpw.mods.fml.common.Loader;
+import ic2.api.energy.event.EnergyTileLoadEvent;
+import ic2.api.energy.event.EnergyTileUnloadEvent;
+import ic2.api.energy.tile.IEnergySink;
 import ru.beggar.berlit.farm.FarmRecipe;
 import ru.beggar.berlit.farm.FarmRecipes;
 
 /**
  * Molecular farm: one seed slot and six output slots. Seeds are never consumed; each harvest
  * multiplies the recipe output by the number of seeds in the input stack.
+ *
+ * <p>
+ * A harvest costs {@link #ENERGY_PER_ITEM} EU per item it produces, so the machine only works
+ * while it is fed. The progress bar shows how much of the next harvest is already paid for.
  */
-public class TileEntityMolecularFarm extends TileEntity implements IInventory {
+public class TileEntityMolecularFarm extends TileEntity implements IEnergySink, IInventory {
 
     public static final int SLOT_INPUT = 0;
     public static final int SLOT_OUTPUT_START = 1;
     public static final int SLOT_OUTPUT_COUNT = 6;
     public static final int SLOT_COUNT = SLOT_OUTPUT_START + SLOT_OUTPUT_COUNT;
 
-    public static final int TICKS_PER_HARVEST = 100;
+    /** EU per produced item: a full 64-seed wheat harvest costs 64 wheat + 64 seeds worth. */
+    public static final int ENERGY_PER_ITEM = 1024;
+
+    /** Buffer floor; it grows to one harvest when that needs more. */
+    public static final int ENERGY_CAPACITY = 10000;
 
     private final ItemStack[] inventory = new ItemStack[SLOT_COUNT];
+    private int energy;
+    private int requiredEnergy;
     private int progress;
+    private boolean addedToEnergyNet;
 
     @Override
     public void updateEntity() {
         super.updateEntity();
         if (worldObj == null || worldObj.isRemote) return;
 
+        loadEnergyNet();
+
         ItemStack seeds = inventory[SLOT_INPUT];
         FarmRecipe recipe = FarmRecipes.find(seeds);
         if (recipe == null || seeds == null || seeds.stackSize <= 0) {
             progress = 0;
+            requiredEnergy = 0;
             return;
         }
 
+        requiredEnergy = ENERGY_PER_ITEM * itemsPerHarvest(recipe, seeds.stackSize);
         if (!canFit(recipe, seeds.stackSize)) {
             progress = 0;
             return;
         }
 
-        if (++progress >= TICKS_PER_HARVEST) {
+        if (energy >= requiredEnergy) {
             produce(recipe, seeds.stackSize);
+            energy -= requiredEnergy;
             progress = 0;
+        } else {
+            progress = requiredEnergy <= 0 ? 0 : energy * 100 / requiredEnergy;
+        }
+    }
+
+    /** Total number of items one harvest would put into the output slots. */
+    private static int itemsPerHarvest(FarmRecipe recipe, int seedCount) {
+        int items = 0;
+        for (ItemStack output : recipe.getOutputsView()) {
+            items += output.stackSize * seedCount;
+        }
+        return items;
+    }
+
+    private void loadEnergyNet() {
+        if (addedToEnergyNet || !Loader.isModLoaded("IC2")) return;
+        // The smoke test drives a detached tile; only real, placed blocks join the energy net.
+        if (worldObj.getTileEntity(xCoord, yCoord, zCoord) != this) return;
+
+        MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
+        addedToEnergyNet = true;
+    }
+
+    // ----- IC2 energy sink -----
+
+    @Override
+    public boolean acceptsEnergyFrom(TileEntity emitter, ForgeDirection direction) {
+        return true;
+    }
+
+    @Override
+    public double getDemandedEnergy() {
+        return Math.max(0, getMaxEnergy() - energy);
+    }
+
+    @Override
+    public int getSinkTier() {
+        return 4;
+    }
+
+    @Override
+    public double injectEnergy(ForgeDirection directionFrom, double amount, double voltage) {
+        double accepted = Math.min(amount, Math.max(0, getMaxEnergy() - energy));
+        energy += (int) accepted;
+        return amount - accepted;
+    }
+
+    @Override
+    public void invalidate() {
+        super.invalidate();
+        if (!worldObj.isRemote && addedToEnergyNet) {
+            MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+            addedToEnergyNet = false;
+        }
+    }
+
+    @Override
+    public void onChunkUnload() {
+        super.onChunkUnload();
+        if (!worldObj.isRemote && addedToEnergyNet) {
+            MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+            addedToEnergyNet = false;
         }
     }
 
@@ -94,12 +178,26 @@ public class TileEntityMolecularFarm extends TileEntity implements IInventory {
             && ItemStack.areItemStackTagsEqual(a, b);
     }
 
+    /** Progress towards the next harvest, in percent. */
     public int getProgress() {
         return progress;
     }
 
     public int getProgressScaled(int scale) {
-        return Math.min(scale, progress * scale / TICKS_PER_HARVEST);
+        return Math.min(scale, progress * scale / 100);
+    }
+
+    public int getEnergy() {
+        return energy;
+    }
+
+    /** At least one harvest is buffered, however many items that batch produces. */
+    public int getMaxEnergy() {
+        return Math.max(ENERGY_CAPACITY, requiredEnergy);
+    }
+
+    public int getRequiredEnergy() {
+        return requiredEnergy;
     }
 
     public int getSeedCount() {
@@ -187,6 +285,7 @@ public class TileEntityMolecularFarm extends TileEntity implements IInventory {
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         progress = nbt.getInteger("Progress");
+        energy = nbt.getInteger("Energy");
         NBTTagList list = nbt.getTagList("Items", 10);
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound tag = list.getCompoundTagAt(i);
@@ -199,6 +298,7 @@ public class TileEntityMolecularFarm extends TileEntity implements IInventory {
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setInteger("Progress", progress);
+        nbt.setInteger("Energy", energy);
         NBTTagList list = new NBTTagList();
         for (int i = 0; i < SLOT_COUNT; i++) {
             if (inventory[i] != null) {

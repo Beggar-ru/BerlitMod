@@ -29,6 +29,14 @@ public class GuiMolecularFarm extends BerlitGui {
             GuiTheme.TEXT);
 
         ContainerMolecularFarm container = (ContainerMolecularFarm) inventorySlots;
+        fontRendererObj.drawString(
+            StatCollector.translateToLocalFormatted(
+                "berlit.gui.farm.energy",
+                container.getClientEnergy(),
+                container.getClientRequired()),
+            8,
+            90,
+            GuiTheme.TEXT);
         drawRightAligned(container.getClientProgress() + "%", 186, 78, GuiTheme.ACCENT);
 
         fontRendererObj

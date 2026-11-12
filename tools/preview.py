@@ -746,7 +746,7 @@ def check_uv_scaling(report):
 
 
 def check_nei(report):
-    """NEI recipe pages: 176x166 backgrounds with fixed item/text positions."""
+    """NEI recipe pages: 176x166 slate backgrounds with a slot cell under every item."""
     for name, page in NEI_PAGES.items():
         where = f"nei:{name}"
         path = texture_path(page["texture"])
@@ -769,11 +769,20 @@ def check_nei(report):
             report.error(where, f"{holes} transparent pixel(s) inside the {page_w}x{page_h} page")
 
         items = []
-        for item_x, item_y in page["items"]:
+        for item_x, item_y in page["slots"]:
             if item_x < 0 or item_y < 0 or item_x + 16 > page_w or item_y + 16 > page_h:
                 report.error(where, f"item at ({item_x},{item_y}) falls outside the page")
                 continue
             items.append((item_x, item_y))
+
+        # Every stack needs a cell under it: the page is regenerated from the same
+        # coordinates, so a mismatch means the texture is stale.
+        for item_x, item_y in items:
+            cell = rgba.crop((item_x, item_y, item_x + 16, item_y + 16))
+            if len(cell.getcolors(2) or []) != 1:
+                report.error(
+                    where,
+                    f"no slot cell at ({item_x},{item_y}); run python tools/gen_nei_pages.py")
 
         for index, (ax, ay) in enumerate(items):
             for bx, by in items[index + 1:]:

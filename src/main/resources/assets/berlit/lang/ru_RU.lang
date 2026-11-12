@@ -154,6 +154,7 @@ berlit.gui.digital.filter.search=Поиск...
 tile.berlit.molecular_farm.name=Молекулярная ферма
 container.berlit.molecular_farm=Молекулярная ферма
 berlit.gui.farm.seeds=Семена: %s
+berlit.gui.farm.energy=Энергия: %s / %s EU
 berlit.gui.farm.hint=Семена не расходуются; выход растёт от размера стака.
 nei.berlit.molecular_farm=Молекулярная ферма
 nei.berlit.molecular_farm.per_seed=Показано на 1 семя

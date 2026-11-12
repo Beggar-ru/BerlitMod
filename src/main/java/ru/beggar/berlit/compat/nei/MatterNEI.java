@@ -15,6 +15,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ic2.api.item.IC2Items;
 import ru.beggar.berlit.Berlit;
+import ru.beggar.berlit.gui.GuiTheme;
 import ru.beggar.berlit.matter.MatterType;
 
 /** NEI page for the eight solid matter generators: scrap or the previous kind in, the next kind out. */
@@ -71,7 +72,7 @@ public class MatterNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/nei_page.png";
+        return "berlit:textures/gui/nei_matter.png";
     }
 
     @Override
@@ -110,11 +111,11 @@ public class MatterNEI extends TemplateRecipeHandler {
             StatCollector.translateToLocalFormatted("nei.berlit.matter.cost", type.getEnergyPerOperation()),
             8,
             44,
-            0x606060);
+            GuiTheme.TEXT_DISABLED);
         Minecraft.getMinecraft().fontRenderer.drawString(
             StatCollector.translateToLocalFormatted("nei.berlit.matter.time", type.getTicksPerOperation()),
             8,
             56,
-            0x606060);
+            GuiTheme.TEXT_DISABLED);
     }
 }

@@ -13,6 +13,7 @@ import codechicken.nei.api.API;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import ru.beggar.berlit.gui.GuiTheme;
 import ru.beggar.berlit.item.ItemEntityCard;
 import ru.beggar.berlit.spawner.EntityDefinition;
 import ru.beggar.berlit.spawner.EntityDrop;
@@ -40,7 +41,7 @@ public class SpawnerNEI extends TemplateRecipeHandler {
                 PositionedStack stack = new PositionedStack(
                     drop.getStack(),
                     75 + (index % 3) * 22,
-                    10 + (index / 3) * 22);
+                    20 + (index / 3) * 22);
 
                 outputs.add(stack);
                 drops.add(drop);
@@ -71,7 +72,7 @@ public class SpawnerNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/nei_page.png";
+        return "berlit:textures/gui/nei_spawner.png";
     }
 
     @Override
@@ -116,7 +117,7 @@ public class SpawnerNEI extends TemplateRecipeHandler {
 
         int y = 62;
         for (EntityDrop drop : cached.drops) {
-            minecraft.fontRenderer.drawString(Math.round(drop.getChance() * 100.0F) + "%", 10, y, 0x404040);
+            minecraft.fontRenderer.drawString(Math.round(drop.getChance() * 100.0F) + "%", 10, y, GuiTheme.TEXT);
             y += 10;
         }
     }

@@ -154,6 +154,7 @@ berlit.gui.digital.filter.search=Search...
 tile.berlit.molecular_farm.name=Molecular Farm
 container.berlit.molecular_farm=Molecular Farm
 berlit.gui.farm.seeds=Seeds: %s
+berlit.gui.farm.energy=Energy: %s / %s EU
 berlit.gui.farm.hint=Seeds are not consumed; output scales with stack size.
 nei.berlit.molecular_farm=Molecular Farm
 nei.berlit.molecular_farm.per_seed=Shown per 1 seed

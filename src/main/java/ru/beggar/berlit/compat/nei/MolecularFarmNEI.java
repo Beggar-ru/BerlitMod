@@ -14,6 +14,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ru.beggar.berlit.farm.FarmRecipe;
 import ru.beggar.berlit.farm.FarmRecipes;
+import ru.beggar.berlit.gui.GuiTheme;
 
 /** NEI page for the molecular farm: one seed -> up to six products, per one seed. */
 @SideOnly(Side.CLIENT)
@@ -64,7 +65,7 @@ public class MolecularFarmNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/nei_page.png";
+        return "berlit:textures/gui/nei_molecular_farm.png";
     }
 
     @Override
@@ -96,7 +97,10 @@ public class MolecularFarmNEI extends TemplateRecipeHandler {
     @Override
     public void drawExtras(int recipe) {
         if (recipe < 0 || recipe >= arecipes.size()) return;
-        Minecraft.getMinecraft().fontRenderer
-            .drawString(StatCollector.translateToLocal("nei.berlit.molecular_farm.per_seed"), 8, 58, 0x606060);
+        Minecraft.getMinecraft().fontRenderer.drawString(
+            StatCollector.translateToLocal("nei.berlit.molecular_farm.per_seed"),
+            8,
+            66,
+            GuiTheme.TEXT_DISABLED);
     }
 }

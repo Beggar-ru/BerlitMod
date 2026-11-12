@@ -304,25 +304,66 @@ SCREENS = {
     ),
 }
 
-# NEI recipe pages are separate 176x166 backgrounds; the positions here mirror the
-# PositionedStack coordinates in compat/nei/*NEI.java.
+# NEI recipe pages are separate 176x166 backgrounds in the same slate + cyan theme as
+# the machine screens. ``slots`` are the item positions the handler puts its stacks at:
+# tools/gen_nei_pages.py pastes one 18x18 cell under each, so background and
+# PositionedStack coordinates cannot drift apart. ``text`` and ``arrows`` describe what
+# the handler draws on top; preview.py checks that nothing overlaps an item.
+NEI_ROW = 22
+
+
+def nei_page(texture, slots, text, arrows=()):
+    return {
+        "texture": texture,
+        "page": (176, 166),
+        "slots": list(slots),
+        "arrows": list(arrows),
+        "text": list(text),
+    }
+
+
 NEI_PAGES = {
-    "machines": {
-        "texture": "gui/nei_page.png",
-        "page": (176, 166),
-        "items": [(8, 20), (50, 20), (110, 20)],
-        "text": [(8, 6, 140)],
-    },
-    "matter": {
-        "texture": "gui/nei_page.png",
-        "page": (176, 166),
-        "items": [(30, 20), (92, 20)],
-        "text": [(8, 6, 140)],
-    },
-    "compressor": {
-        "texture": "gui/nei_page.png",
-        "page": (176, 166),
-        "items": [(8, 20), (50, 20), (116, 20)],
-        "text": [(8, 6, 140)],
-    },
+    # Three recipes per page: machine badge top-right, EU per row in the left column.
+    "machines": nei_page(
+        "gui/nei_machines.png",
+        [(150, 20)]
+            + [(56, 20 + i * NEI_ROW) for i in range(3)]
+            + [(104, 20 + i * NEI_ROW) for i in range(3)],
+        [(8, 6, 150)] + [(8, 24 + i * NEI_ROW, 40) for i in range(3)],
+        [(88, 28 + i * NEI_ROW) for i in range(3)],
+    ),
+    "compressor": nei_page(
+        "gui/nei_compressor.png",
+        [(8, 20), (58, 20), (112, 20)],
+        [(8, 6, 150)],
+        [(93, 28)],
+    ),
+    "molecular_transformer": nei_page(
+        "gui/nei_molecular_transformer.png",
+        [(8, 20), (58, 20), (112, 20)],
+        [(8, 6, 150), (8, 46, 150)],
+        [(93, 28)],
+    ),
+    "replicator": nei_page(
+        "gui/nei_replicator.png",
+        [(8, 20), (58, 20), (112, 20)],
+        [(8, 6, 150), (8, 46, 150), (8, 58, 150), (8, 70, 150)],
+        [(93, 28)],
+    ),
+    "matter": nei_page(
+        "gui/nei_matter.png",
+        [(30, 20), (92, 20)],
+        [(8, 6, 150), (8, 44, 150), (8, 56, 150)],
+        [(69, 28)],
+    ),
+    "molecular_farm": nei_page(
+        "gui/nei_molecular_farm.png",
+        [(30, 30)] + [(78 + (i % 3) * 20, 18 + (i // 3) * NEI_ROW) for i in range(6)],
+        [(8, 6, 150), (8, 66, 150)],
+    ),
+    "spawner": nei_page(
+        "gui/nei_spawner.png",
+        [(30, 20)] + [(75 + (i % 3) * NEI_ROW, 20 + (i // 3) * NEI_ROW) for i in range(9)],
+        [(8, 6, 150), (10, 62, 60)],
+    ),
 }

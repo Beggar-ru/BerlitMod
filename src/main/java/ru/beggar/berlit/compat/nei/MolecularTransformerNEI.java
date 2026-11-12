@@ -13,6 +13,7 @@ import codechicken.nei.recipe.TemplateRecipeHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ru.beggar.berlit.Berlit;
+import ru.beggar.berlit.gui.GuiTheme;
 import ru.beggar.berlit.recipe.MolecularRecipe;
 import ru.beggar.berlit.recipe.MolecularRecipes;
 
@@ -64,7 +65,7 @@ public class MolecularTransformerNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/nei_page.png";
+        return "berlit:textures/gui/nei_molecular_transformer.png";
     }
 
     @Override
@@ -110,6 +111,6 @@ public class MolecularTransformerNEI extends TemplateRecipeHandler {
                     .getEnergy()),
             8,
             46,
-            0x404040);
+            GuiTheme.TEXT);
     }
 }

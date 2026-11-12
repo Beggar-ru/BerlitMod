@@ -21,7 +21,11 @@ public class ContainerMolecularFarm extends Container {
 
     private final TileEntityMolecularFarm tile;
     private int clientProgress;
+    private int clientEnergy;
+    private int clientRequired;
     private int lastProgress = -1;
+    private int lastEnergy = -1;
+    private int lastRequired = -1;
 
     public ContainerMolecularFarm(InventoryPlayer playerInventory, TileEntityMolecularFarm tile) {
         this.tile = tile;
@@ -78,23 +82,47 @@ public class ContainerMolecularFarm extends Container {
         super.detectAndSendChanges();
 
         int progress = tile.getProgress();
-        if (progress == lastProgress) return;
-        if (progress != 0 && progress != TileEntityMolecularFarm.TICKS_PER_HARVEST
-            && Math.abs(progress - lastProgress) < 5) return;
+        if (progress != lastProgress) {
+            lastProgress = progress;
+            for (Object crafter : crafters) {
+                ((ICrafting) crafter).sendProgressBarUpdate(this, 0, progress);
+            }
+        }
 
-        lastProgress = progress;
-        for (Object crafter : crafters) {
-            ((ICrafting) crafter).sendProgressBarUpdate(this, 0, progress);
+        int energy = tile.getEnergy();
+        if (energy != lastEnergy) {
+            lastEnergy = energy;
+            for (Object crafter : crafters) {
+                ((ICrafting) crafter).sendProgressBarUpdate(this, 1, energy);
+            }
+        }
+
+        int required = tile.getRequiredEnergy();
+        if (required != lastRequired) {
+            lastRequired = required;
+            for (Object crafter : crafters) {
+                ((ICrafting) crafter).sendProgressBarUpdate(this, 2, required);
+            }
         }
     }
 
     @Override
     public void updateProgressBar(int id, int data) {
         if (id == 0) clientProgress = data;
+        else if (id == 1) clientEnergy = data;
+        else if (id == 2) clientRequired = data;
     }
 
     public int getClientProgress() {
         return clientProgress;
+    }
+
+    public int getClientEnergy() {
+        return clientEnergy;
+    }
+
+    public int getClientRequired() {
+        return clientRequired;
     }
 
     @Override

@@ -99,13 +99,18 @@ tools/                   — генераторы текстур/GUI и прев
   текстура модели — `textures/blocks/molecular_transformer_model.png`; блок в инвентаре
   рендерится тем же обработчиком (`BlockMolecularTransformerRenderer`).
 - **Генератор булыжника** — один доступный тир, 27 слотов как у деревянного сундука
-  (`ContainerChest`/`GuiChest`), каждый слот всегда заполнен 64 булыжниками. Старые ID
-  `cobble_generator_mk2/mk3` оставлены скрытыми legacy-блоками, чтобы не терять старые миры.
+  (`ContainerChest`/`GuiChest`), каждый слот заполняется 64 булыжниками, пока генератор
+  получает постоянные 10000 EU/t (`ENERGY_PER_TICK`, буфер на 2 такта, tier 5).
+  Без энергии дозаправка останавливается, уже выданный булыжник не пропадает.
+  Старые ID `cobble_generator_mk2/mk3` оставлены скрытыми legacy-блоками, чтобы не терять
+  старые миры.
 - **Молекулярная ферма** (`berlit.molecular_farm`): 1 слот семян + 6 выходных. Семена не
   расходуются; каждый выход умножается на размер стака семян. Базовые рецепты: wheat seeds →
   wheat + seeds, carrot, potato, pumpkin seeds → pumpkin + seeds, melon seeds → melon + seeds,
   nether wart, cocoa beans, sugar cane. NEI-страница и CraftTweaker
-  `mods.berlit.MolecularFarm` (addRecipe/removeRecipe).
+  `mods.berlit.MolecularFarm` (addRecipe/removeRecipe). Урожай платный: 1024 EU за каждый
+  произведённый предмет (`ENERGY_PER_ITEM`), буфер растёт до стоимости одного урожая
+  (`getMaxEnergy`), а полоса прогресса показывает, сколько уже оплачено.
 - **Спавнер T3 цифровой** (`berlit.digital_spawner`): 10×10 сущностей, сам скидывает
   дроп в ME-сеть; у всех спавнеров есть внутренний буфер на 9 стаков.
 - **AE2 CPU-компоненты**: 9 хранилищ крафта (`256K`, `1M`, `4M`, `16M`, `32M`, `64M`,
@@ -195,8 +200,8 @@ BERLIT_SELFTEST digital electric_furnace: patterns=55 recipes=55
 BERLIT_SELFTEST digital total: 183
 BERLIT_SELFTEST pork: damage0=true
 BERLIT_SELFTEST processing: saved=metal_roller loaded=metal_roller
-BERLIT_SELFTEST farm: seeds=64 wheat=64 extraSeeds=64
-BERLIT_SELFTEST cobble: fullSlots=27
+BERLIT_SELFTEST farm: seeds=64 wheat=64 extraSeeds=64 required=131072
+BERLIT_SELFTEST cobble: powered=27 unpowered=0
 BERLIT_SELFTEST spawner buffer: entity=skeleton buffered=4 stacks=2
 BERLIT_SELFTEST crafting cpu: storage=536870912 processor=729 coprocessors=729
 BERLIT_SELFTEST interface expand: before=9 expanded=true after=18

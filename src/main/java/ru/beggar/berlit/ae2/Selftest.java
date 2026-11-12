@@ -133,26 +133,41 @@ public final class Selftest {
         TileEntityMolecularFarm farm = new TileEntityMolecularFarm();
         farm.setWorldObj(world);
         farm.setInventorySlotContents(0, new ItemStack(Items.wheat_seeds, 64));
-        for (int i = 0; i < TileEntityMolecularFarm.TICKS_PER_HARVEST; i++) {
-            farm.updateEntity();
-        }
+
+        // A harvest is paid for up front: one update prices the batch, then it has to be fed.
+        farm.updateEntity();
+        farm.injectEnergy(ForgeDirection.UNKNOWN, farm.getRequiredEnergy(), 1);
+        farm.updateEntity();
 
         ItemStack seeds = farm.getStackInSlot(0);
         ItemStack wheat = farm.getStackInSlot(1);
         ItemStack extraSeeds = farm.getStackInSlot(2);
         FMLLog.info(
-            "BERLIT_SELFTEST farm: seeds=%s wheat=%s extraSeeds=%s",
+            "BERLIT_SELFTEST farm: seeds=%s wheat=%s extraSeeds=%s required=%s",
             seeds == null ? null : seeds.stackSize,
             wheat == null ? null : wheat.stackSize,
-            extraSeeds == null ? null : extraSeeds.stackSize);
+            extraSeeds == null ? null : extraSeeds.stackSize,
+            farm.getRequiredEnergy());
     }
 
-    /** Verifies the single cobble generator tier fills all 27 slots with 64 cobblestone. */
+    /** Verifies the cobble generator fills all 27 slots, and only while it is powered. */
     private static void testCobbleGenerator(World world) {
         TileEntityCobbleGenerator generator = new TileEntityCobbleGenerator();
         generator.setWorldObj(world);
+        generator.injectEnergy(ForgeDirection.UNKNOWN, TileEntityCobbleGenerator.ENERGY_PER_TICK, 1);
         generator.updateEntity();
 
+        TileEntityCobbleGenerator unpowered = new TileEntityCobbleGenerator();
+        unpowered.setWorldObj(world);
+        unpowered.updateEntity();
+
+        FMLLog.info(
+            "BERLIT_SELFTEST cobble: powered=%s unpowered=%s",
+            fullCobbleSlots(generator),
+            fullCobbleSlots(unpowered));
+    }
+
+    private static int fullCobbleSlots(TileEntityCobbleGenerator generator) {
         int full = 0;
         for (int i = 0; i < TileEntityCobbleGenerator.SLOT_COUNT; i++) {
             ItemStack stack = generator.getStackInSlot(i);
@@ -161,7 +176,7 @@ public final class Selftest {
                 full++;
             }
         }
-        FMLLog.info("BERLIT_SELFTEST cobble: fullSlots=%s", full);
+        return full;
     }
 
     /** Verifies the spawner buffer gets drops even when there is no adjacent inventory. */

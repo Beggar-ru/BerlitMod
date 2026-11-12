@@ -16,6 +16,7 @@ import codechicken.nei.recipe.TemplateRecipeHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ru.beggar.berlit.Berlit;
+import ru.beggar.berlit.gui.GuiTheme;
 import ru.beggar.berlit.recipe.ReplicatorPattern;
 import ru.beggar.berlit.recipe.ReplicatorRecipes;
 
@@ -76,7 +77,7 @@ public class ReplicatorNEI extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return "berlit:textures/gui/nei_page.png";
+        return "berlit:textures/gui/nei_replicator.png";
     }
 
     @Override
@@ -133,19 +134,22 @@ public class ReplicatorNEI extends TemplateRecipeHandler {
         ReplicatorPattern pattern = cached.getPattern();
 
         Minecraft.getMinecraft().fontRenderer
-            .drawString(StatCollector.translateToLocal("tile.berlit.replicator.name"), 8, 6, 0x404040);
+            .drawString(StatCollector.translateToLocal("tile.berlit.replicator.name"), 8, 6, GuiTheme.TITLE);
         String scan = StatCollector.translateToLocalFormatted(
             "nei.berlit.replicator.scan",
             pattern.getStack()
                 .getDisplayName());
-        Minecraft.getMinecraft().fontRenderer
-            .drawString(Minecraft.getMinecraft().fontRenderer.trimStringToWidth(scan, 150), 8, 46, 0x606060);
+        Minecraft.getMinecraft().fontRenderer.drawString(
+            Minecraft.getMinecraft().fontRenderer.trimStringToWidth(scan, 150),
+            8,
+            46,
+            GuiTheme.TEXT_DISABLED);
         Minecraft.getMinecraft().fontRenderer.drawString(
             StatCollector
                 .translateToLocalFormatted("nei.berlit.replicator.matter_per_item", pattern.getMatterPerItem()),
             8,
             58,
-            0x404040);
+            GuiTheme.TEXT);
         Minecraft.getMinecraft().fontRenderer.drawString(
             StatCollector.translateToLocalFormatted(
                 "nei.berlit.replicator.matter_per_stack",
@@ -153,6 +157,6 @@ public class ReplicatorNEI extends TemplateRecipeHandler {
                 pattern.getStackSize()),
             8,
             70,
-            0x404040);
+            GuiTheme.TEXT);
     }
 }
