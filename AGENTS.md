@@ -80,6 +80,15 @@ tools/                   — генераторы текстур/GUI и прев
   фильтр глобальный по типу машины, хранится в `DigitalRecipeFilterData` (WorldSavedData) и
   обновляет AE2-шаблоны через `MENetworkCraftingPatternChange`. NEI показывает по 3 рецепта
   на странице (`MachineNEI`). В окне фильтра есть поиск по названию входа/выхода.
+- **Ускоренный молекулярный сборщик** (`berlit.fast_assembler`, `TileEntityFastAssembler`):
+  обычные 3×3-шаблоны AE2, но один push из CPU закрывает до 64 крафтов — ингредиенты для
+  лишних машина тянет из ME-сети сама (`IBatchAssembler.craftExtraBatches`). Учёт CPU правит
+  `MixinCraftingCPUCluster.berlit$batchExtraCrafts`: режет пачку по остатку задачи, вычитает
+  лишние крафты из счётчика `TaskProgress.value` и добавляет их выход в `waitingFor`. Без этой
+  правки заказ на 1000 предметов превратился бы в 64 000, потому что AE2 считает один push
+  одним крафтом. Размер пачки — `Config.fastAssemblerBatch` (64 по умолчанию, 1 — штатное
+  поведение AE2). Работает и с шаблоном в самом сборщике, и с шаблоном в соседнем ME Interface.
+  Пачка никогда не превышает остаток заказа.
 - **Цифровой сборщик Avaritia** (`berlit.digital_avaritia_assembler`): сам экспортирует
   все 9×9-рецепты `ExtremeCraftingManager` как AE2-шаблоны (`AvaritiaPatternDetails`), без
   кодировщика и слотов шаблонов. Обрабатывает очередь, EU/AE, 4 улучшения; результат — в ME
@@ -216,6 +225,7 @@ BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=t
 BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
 BERLIT_SELFTEST digital custom: avaritiaPatterns=18 avaritiaProcessed=true compressorPatterns=8 compressorProcessed=true
 BERLIT_SELFTEST assembler: pushed=true result=1xitem.diamond@0 inputs=1 condensed=1
+BERLIT_SELFTEST batch assembler: limit=9 remaining=7 waiting=6 config=64 hookRead=7 noNetwork=0
 BERLIT_SELFTEST compressor: cost=2400 out=1xitem.avaritia_singularity@0 inputLeft=null
 BERLIT_SELFTEST optional items: infinityFluidCell=true
 `

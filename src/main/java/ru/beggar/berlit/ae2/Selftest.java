@@ -64,6 +64,7 @@ public final class Selftest {
         testDigitalProcessing(world);
         testDigitalCraftingMachines(world);
         testAssembler(world);
+        testBatchAssembler(world);
         testCompressor(world);
         FMLLog.info("BERLIT_SELFTEST optional items: infinityFluidCell=%s", Berlit.infinityFluidCell != null);
     }
@@ -694,6 +695,87 @@ public final class Selftest {
             avaritiaProcessed,
             compressorPatterns.size(),
             compressorProcessed);
+    }
+
+    /**
+     * Checks the CPU bookkeeping behind the fast assembler's batched crafts: the hook has to cap the
+     * batch to what the job still needs, subtract the extra crafts from the task counter and register
+     * the extra output with the CPU, otherwise the job would over-produce.
+     */
+    private static void testBatchAssembler(World world) {
+        try {
+            ItemStack[] grid = new ItemStack[81];
+            for (int i = 0; i < grid.length; i++) grid[i] = new ItemStack(Items.iron_ingot);
+            ItemStack patternItem = ItemAvaritiaPattern.create(grid, new ItemStack(Items.diamond, 2));
+            ICraftingPatternDetails details = ((ICraftingPatternItem) patternItem.getItem())
+                .getPatternForItem(patternItem, world);
+
+            appeng.me.cluster.implementations.CraftingCPUCluster cluster = new appeng.me.cluster.implementations.CraftingCPUCluster(
+                new appeng.api.util.WorldCoord(0, 0, 0),
+                new appeng.api.util.WorldCoord(1, 1, 1));
+
+            Class<?> taskClass = Class.forName("appeng.me.cluster.implementations.CraftingCPUCluster$TaskProgress");
+            java.lang.reflect.Constructor<?> constructor = taskClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            Object task = constructor.newInstance();
+            java.lang.reflect.Field valueField = taskClass.getDeclaredField("value");
+            valueField.setAccessible(true);
+            valueField.setLong(task, 10);
+
+            Class<appeng.me.cluster.implementations.CraftingCPUCluster> clusterClass = appeng.me.cluster.implementations.CraftingCPUCluster.class;
+            java.lang.reflect.Field tasksField = clusterClass.getDeclaredField("tasks");
+            tasksField.setAccessible(true);
+            ((java.util.Map) tasksField.get(cluster)).put(details, task);
+
+            appeng.api.storage.data.IItemList list = appeng.api.AEApi.instance()
+                .storage()
+                .createItemList();
+            java.lang.reflect.Field waitingField = clusterClass.getDeclaredField("waitingFor");
+            waitingField.setAccessible(true);
+            waitingField.set(cluster, list);
+
+            // A real assembler subclass, so the hook sees both ICraftingMedium and IBatchAssembler.
+            final int[] limit = { -1 };
+            TileEntityFastAssembler fake = new TileEntityFastAssembler() {
+
+                @Override
+                public int craftExtraBatches(ICraftingPatternDetails pattern, int maxBatches) {
+                    limit[0] = maxBatches;
+                    return 3;
+                }
+            };
+
+            java.lang.reflect.Method hook = clusterClass.getDeclaredMethod(
+                "berlit$batchExtraCrafts",
+                appeng.api.networking.crafting.ICraftingMedium.class,
+                ICraftingPatternDetails.class);
+            hook.setAccessible(true);
+            hook.invoke(cluster, fake, details);
+
+            int waiting = 0;
+            for (Object entry : list) {
+                if (entry instanceof IAEItemStack) waiting += (int) ((IAEItemStack) entry).getStackSize();
+            }
+
+            java.lang.reflect.Method readValue = clusterClass.getDeclaredMethod("berlit$readTaskValue", Object.class);
+            readValue.setAccessible(true);
+            long hookRead = (Long) readValue.invoke(null, task);
+
+            FMLLog.info(
+                "BERLIT_SELFTEST batch assembler: limit=%s remaining=%s waiting=%s config=%s hookRead=%s noNetwork=%s",
+                limit[0],
+                valueField.getLong(task),
+                waiting,
+                ru.beggar.berlit.Config.fastAssemblerBatch,
+                hookRead,
+                new TileEntityFastAssembler().craftExtraBatches(details, 5));
+        } catch (Throwable t) {
+            FMLLog.info(
+                "BERLIT_SELFTEST batch assembler: FAILED %s: %s",
+                t.getClass()
+                    .getSimpleName(),
+                t.getMessage());
+        }
     }
 
     private static void testAssembler(World world) {

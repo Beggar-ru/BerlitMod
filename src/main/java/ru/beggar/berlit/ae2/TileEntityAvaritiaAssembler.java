@@ -209,7 +209,7 @@ public class TileEntityAvaritiaAssembler extends TileEntity
     }
 
     /** Own grid, or the grid of an adjacent AE2 block (e.g. ME Interface) if no cable. */
-    private IGrid networkGrid() {
+    protected IGrid networkGrid() {
         IGridNode own = getNode();
         IGrid grid = own == null ? null : own.getGrid();
         if (grid != null && grid.getCache(IStorageGrid.class) != null) return grid;
