@@ -1,4 +1,5 @@
-Berlit Mod Description for GitHub and CurseForge
+EN: [https://github.com/Beggar-ru/BerlitMod/blob/main/docs/Berlit-en.txt]
+RU: [https://github.com/Beggar-ru/BerlitMod/blob/main/docs/Berlit-ru.txt]
 
 Berlit is a mod primarily intended for modpacks. The crafts in the mod are used as placeholders; you can change them using MineTweaker. The mod is a tool for greater process automation.
 
