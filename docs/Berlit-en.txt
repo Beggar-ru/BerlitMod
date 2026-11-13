@@ -1,0 +1,45 @@
+Berlit Mod Description for GitHub and CurseForge
+
+Berlit is a mod primarily intended for modpacks. The crafts in the mod are used as placeholders; you can change them using MineTweaker. The mod is a tool for greater process automation.
+
+We recommend using it together with IC2, Draconic Evolution, Avaritia, Applied Energistics 2, and Advanced Solar Panels.
+
+Digital counterparts of the mod's machines:
+
+The Singularity Assembler, Extreme Crafting Assembler, Furnace, Macerator, Rolling Machine, Extruder, and Compressor send all of their recipes directly to the ME network — you don't need to encode crafting patterns. The machines' GUI includes a feature to disable unwanted recipes, since in some cases duplicate recipes appear (for example, smelting copper from ore and from crushed ore), and the ME network can't tell which recipe to use.
+
+Mod features:
+
+An upgraded version of the Molecular Transformer — 6 input slots / 6 output slots.
+
+Molecular Farm — grows plants. Does not consume seeds. Output equals input.
+
+Cobblestone Generator — keeps the inventory permanently filled with cobblestone. Requires 10,000 EU/tick to operate.
+
+An upgraded version of the Replicator — no crystals are needed to store a scanned item. Simply place an item in the slot and the Replicator memorizes it. Produces items in stacks.
+
+Upgraded versions of standard IC2 machines (Macerator, Compressor, Extruder, Rolling Machine, and Furnace) — have 6 input and output slots.
+
+Avaritia recipe encoding for Extreme Crafting and for singularities.
+
+Spawners in three tiers — use "entities" and send mob drops to the nearest chest or ME network. They also have upgrades to increase drops (DE cores increase drops).
+
+AE2 CPU — have increased crafting storage from 256 KB to 512 MB; processing units with 9, 81, and 729 operations have also been added.
+
+Large ME Interfaces — have pattern slots for 18, 27, and 36 crafts respectively.
+
+Mod dependencies: IC2 (2.2.828 experimental).
+
+The mod supports:
+
+Alfheim — the Flügel entity in spawners drops Flügel loot.
+
+Avaritia — 9x9 and singularity autocrafting.
+
+AE2 — upgraded versions of machines.
+
+IC2 — upgraded versions of machines.
+
+Botania — the Gaia entity in spawners drops Gaia loot.
+
+Documentation on changing machine recipes can be found on GitHub: [insert link to the file with examples of machine recipe changes].
