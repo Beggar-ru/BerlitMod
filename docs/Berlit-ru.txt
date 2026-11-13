@@ -1,5 +1,3 @@
-Описание мода Berlit для GitHub и CurseForge
-
 Berlit — мод, в основном предназначенный для модпаков. Крафты в моде используются как заглушки; вы можете изменить их с помощью MineTweaker. Мод является инструментом для большей автоматизации процессов.
 
 Рекомендуем использовать в связке с IC2, Draconic Evolution, Avaritia, Applied Energistics 2 и Advanced Solar Panels.
