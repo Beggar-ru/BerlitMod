@@ -1,157 +1,45 @@
-# Berlit
+Berlit Mod Description for GitHub and CurseForge
 
-Мод для **Minecraft 1.7.10 (Forge)** под сборку **GTNH** (GTNHGradle, RetroFuturaGradle, Java 25 для сборки, Java 8 для запуска).
+Berlit is a mod primarily intended for modpacks. The crafts in the mod are used as placeholders; you can change them using MineTweaker. The mod is a tool for greater process automation.
 
-## Возможности
+We recommend using it together with IC2, Draconic Evolution, Avaritia, Applied Energistics 2, and Advanced Solar Panels.
 
-- **Молекулярный трансформер** — 6 входов / 6 выходов / 4 улучшения, переработка предметов за EU.
-- **Генератор булыжника** — 27 слотов, каждый слот постоянно заполнен 64 булыжниками.
-- **Молекулярная ферма** — 1 слот семян + 6 слотов продукции. Семена не расходуются;
-  количество продукции = базовый выход × размер стака семян. Поддержка NEI и CraftTweaker
-  (`mods.berlit.MolecularFarm`).
-- **Репликатор** — сканирование предмета прямо в слоте (без кристаллов памяти), память шаблонов,
-  жидкая UU-материя IC2 и выпуск целым стаком; стоимость материи берётся из IC2, включая
-  стандартные крафты. Поддерживаются NEI и CraftTweaker.
-- **Цифровые машины** — цифровые дробитель, компрессор, экструдер, прокатный стан и электропечь.
-  Подключаются к ME-сети и сами публикуют все свои рецепты как AE2-шаблоны: кодировать и
-  настраивать шаблоны не нужно. Поддерживают улучшения Berlit и IC2.
-- **Ускоренный молекулярный сборщик** — обычные 3×3-шаблоны AE2, но заказ CPU выполняется
-  целиком: промежуточные крафты (бревна → доски) считаются за один проход, затем конечный
-  крафт (доски → верстаки) уходит одной пачкой. Заказ на 1000 верстаков не требует 1000
-  отдельных операций AE2. Ингредиенты берутся из инвентаря CPU, при нехватке — из ME-сети.
-  В конфиге: `fastAssemblerWholeJob` (прекрафты всего задания), `fastAssemblerFullTask`
-  (добивать конечную задачу целиком), `fastAssemblerBatch` (предел пачки, 1 — обычное
-  поведение AE2).
-- **Цифровой сборщик Avaritia** — сам экспортирует все 9×9-рецепты `ExtremeCraftingManager` в
-  AE2, без кодировщика и слотов шаблонов; 4 улучшения, EU/AE, очередь и вывод в ME.
-- **Цифровой нейтронный компрессор** — сам экспортирует все рецепты `CompressorManager`
-  (input × cost → singularity) в AE2, с теми же улучшениями, энергией и выводом.
-- **Спавнер сущностей** (Tier 1 и Tier 2) — карты мобов, дроп с шансами, 7 слотов ядер.
-  Tier 2: 10 слотов по 10 сущностей. 4 ядра Draconic Evolution и свои Spawner Core I–III,
-  по одному ядру каждого вида. У спавнеров есть внутренний буфер на 9 стаков.
-- **Спавнер T3 цифровой** (`berlit.digital_spawner`) — 10×10 сущностей, сразу отправляет
-  дроп в ME-сеть; при отсутствии сети работает через буфер и соседние инвентари.
-- **AE2 CPU-компоненты** — хранилища крафта от 256 КБ до 512 МБ и блоки обработки
-  на 9/81/729 операций. Собираются в обычный мультиблок AE2 CPU.
-- **Большие ME Интерфейсы** — блоки на 18/27/36 слотов шаблонов и такие же
-  cable-part'ы для проводов. Свой GUI в стиле Berlit; шаблоны хранятся в штатном
-  AE2 `DualityInterface`, поэтому автокрафт и NBT работают как у обычного интерфейса.
-- **Обрабатывающие механизмы** — дробитель, компрессор, экструдер (выдавливание), прокатный
-  стан (прокатка), электропечь. Импортируют рецепты IC2, вход принимает только валидные ресурсы;
-  у каждого металлического механизма своя операция и своя страница рецептов в NEI.
-- **Улучшения** — IC2 Overclocker/Ejector/Pulling/Energy Storage/Transformer (принимаются в механизмах
-  Berlit), свои Accelerator MK II/III (работают и в IC2-машинах) и Stack Upgrade (стак за операцию).
-- **CraftTweaker** — рецепты трансформера, машин, репликатора, молекулярной фермы, дропы и сущности спавнера.
-- **NEI** — страницы рецептов машин, репликатора, молекулярной фермы и дропов
-  сущностей на собственных фонах в теме slate + cyan.
+Digital counterparts of the mod's machines:
 
-## Зависимости
+The Singularity Assembler, Extreme Crafting Assembler, Furnace, Macerator, Rolling Machine, Extruder, and Compressor send all of their recipes directly to the ME network — you don't need to encode crafting patterns. The machines' GUI includes a feature to disable unwanted recipes, since in some cases duplicate recipes appear (for example, smelting copper from ore and from crushed ore), and the ME network can't tell which recipe to use.
 
-- Обязательно: **IC2** (2.2.828 experimental).
-- Опционально: CraftTweaker (MineTweaker3), NotEnoughItems, Draconic Evolution, Botania, Alfheim,
-  **Advanced Solar Panels** (импорт его рецептов молекулярного трансформера в Berlit и NEI).
-- **ExtraCells** нужен только для «Бесконечной ячейки жидкостей» Berlit; без него этот предмет
-  не регистрируется. В dev-среду ExtraCells добавлен, чтобы ячейку было видно в креативе.
-  Для репликатора ExtraCells не требуется — используется IC2-ячейка UU-материи или труба.
+Mod features:
 
-## Сборка
+An upgraded version of the Molecular Transformer — 6 input slots / 6 output slots.
 
-Нужен JDK 25 (Gradle-демон), Java 8 ставится тулчейном автоматически.
+Molecular Farm — grows plants. Does not consume seeds. Output equals input.
 
-```bash
-./gradlew build
-```
+Cobblestone Generator — keeps the inventory permanently filled with cobblestone. Requires 10,000 EU/tick to operate.
 
-Готовый jar: `build/libs/berlit-<версия>.jar`.
+An upgraded version of the Replicator — no crystals are needed to store a scanned item. Simply place an item in the slot and the Replicator memorizes it. Produces items in stacks.
 
-## CraftTweaker
+Upgraded versions of standard IC2 machines (Macerator, Compressor, Extruder, Rolling Machine, and Furnace) — have 6 input and output slots.
 
-```zenscript
-import mods.berlit.MolecularTransformer;
-MolecularTransformer.addRecipe(<minecraft:diamond>, <minecraft:emerald>, 2000);
-MolecularTransformer.removeRecipe(<minecraft:diamond>);
+Avaritia recipe encoding for Extreme Crafting and for singularities.
 
-import mods.berlit.Machines;
-Machines.addRecipe("macerator", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300);
-Machines.addRecipe("metal_extruder", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300);
-Machines.addRecipe("metal_roller", <minecraft:iron_plate>, <minecraft:iron_ore>, 300);
+Spawners in three tiers — use "entities" and send mob drops to the nearest chest or ME network. They also have upgrades to increase drops (DE cores increase drops).
 
-import mods.berlit.Spawner;
-Spawner.addDrop("iron_golem", <minecraft:gold_ingot>, 0.5, 1, 2);
-Spawner.addEntity("zombie", "Zombie", 200);
+AE2 CPU — have increased crafting storage from 256 KB to 512 MB; processing units with 9, 81, and 729 operations have also been added.
 
-import mods.berlit.Replicator;
-Replicator.addScan(<minecraft:diamond>, 45);   // mB жидкой материи на 1 предмет
-Replicator.addPattern(<minecraft:emerald>, 120);
-Replicator.removePattern(<minecraft:emerald>);
-```
+Large ME Interfaces — have pattern slots for 18, 27, and 36 crafts respectively.
 
-## Репликатор
+Mod dependencies: IC2 (2.2.828 experimental).
 
-`berlit:replicator` — механизм на основе репликатора IC2, но без «кристаллов памяти».
+The mod supports:
 
-- **Сканирование**: положите предмет в слот сканирования — он сканируется в том же тике и
-  запоминается в NBT машины. Предмет не расходуется. Отдельных кристаллов/дисков нет.
-- **Память шаблонов**: машина хранит до 1024 отсканированных предметов; кнопки `<` и `>`
-  переключают выбранный шаблон. Сканирование нового предмета сразу выбирает его.
-- **Жидкая материя**: внутренний бак на 16 000 mB. Заливается IC2-ячейками UU-материи в слот
-  жидкости (пустые ячейки возвращаются) или через любой `IFluidHandler`/трубу. «Бесконечная
-  ячейка жидкостей» Berlit — это AE2-ячейка ExtraCells, а не контейнер UU-материи; для
-  репликатора она не подходит.
-- **Стоимость**: по умолчанию `UuIndex.getInBuckets(item) * 1000` mB за предмет — то есть
-  стандартные значения IC2, включая ванильные/Forge/IC2-крафты и машинные рецепты. Если предмета
-  нет в UU-графе, его можно добавить через CraftTweaker.
-- **Выход**: одна операция всегда создаёт целый стак (`min(64, maxStackSize)`); затраты материи
-  считаются как `стоимость за предмет × размер стака`. Если выходной слот заполнен, машина ждёт.
-- **Энергия**: 32 EU/t базово, буфер 100 000 EU, tier 4; улучшения Overclocker/Accelerator
-  ускоряют процесс, Ejector выталкивает готовый стак в соседние инвентари.
-- **NEI**: нажмите R или U на предмете — страница покажет стоимость предмета и целого стака.
-- **CraftTweaker**: `Replicator.addScan(item, mB)`, `addPattern`, `addRecipe`, `removePattern`,
-  `removeRecipe`, `getMatter`. Аргумент — mB на один предмет, не на стак.
+Alfheim — the Flügel entity in spawners drops Flügel loot.
 
-## Цифровые машины
+Avaritia — 9x9 and singularity autocrafting.
 
-Цифровые версии обработчиков Berlit: **Digital Macerator / Compressor / Metal Extruder /
-Metal Roller / Electric Furnace** (`berlit.digital_*`). Требуют AE2; без AE2 не регистрируются.
+AE2 — upgraded versions of machines.
 
-- **Без шаблонов**: при подключении к ME-сети машина сама публикует все рецепты своего типа
-  как AE2 crafting patterns. Кодировщик, кристаллы и слоты шаблонов не нужны.
-- **Все рецепты**: импортируются из IC2-менеджеров (`Recipes.macerator`, `compressor`,
-  `metalformerExtruding/Rolling`) и `FurnaceRecipes`, включая варианты ore dictionary и все
-  выходы. Свои рецепты CraftTweaker (`mods.berlit.Machines`) имеют приоритет и тоже экспортируются.
-  Рецепты «маленькой пыли» (`plate -> 8 small dust`) отфильтрованы: они создавали петли
-  `пыль -> маленькая пыль -> пластина -> пыль` в AE2. Тестовые рецепты-заглушки удалены,
-  поэтому настоящие IC2-рецепты (например, золотая пластина) больше не перекрываются.
-- **Менеджер рецептов**: кнопка `Recipes` в GUI машины открывает список экспортированных
-  рецептов (по несколько на страницу) с переключателем ON/OFF и **строкой поиска** по названию
-  входа/выхода. Отключение глобальное для данного типа цифровой машины, сохраняется в мире и
-  сразу обновляет шаблоны в ME-сети.
-- **NEI**: страница «Berlit Machines» показывает по **3 рецепта на одной странице**.
-- **Печь и wildcard-метаданные**: vanilla-рецепты вроде `сырая свинина → жареная свинина`
-  хранят вход с damage `32767` (`OreDictionary.WILDCARD_VALUE`); при импорте он нормализуется
-  до damage 0, поэтому AE2 находит обычную сырую свинину.
-- **Обычные обработчики** (`TileEntityProcessingMachine`) теперь зарегистрированы в
-  `GameRegistry` и сохраняют тип машины в NBT — раньше при сохранении мира было
-  `missing a mapping`, и машины не переживали перезагрузку.
-- **Шаблоны Avaritia/сингулярностей** показывают в подсказке результат и закодированные входы
-  (для 9×9 — с агрегацией по названию).
-- **Berlit-ядра** спавнера стакаются до 64 (в слоте улучшения по-прежнему одно ядро каждого
-  вида).
-- **Just connect**: машине нужен канал ME-сети; питание — EU (буфер 50 000 EU) или, если EU нет,
-  она берёт AE из сети. 4 слота улучшений: IC2 Overclocker/Ejector/Pulling/Energy Storage/
-  Transformer и Berlit Accelerator MK II/III, Stack Upgrade.
-- **Очередь**: ME CPU может отправить до 64 операций; машина обрабатывает их по очереди и
-  возвращает результат прямо в ME-сеть (при отсутствии сети — в соседний инвентарь).
-- **GUI**: ПКМ по блоку — экран с ME-статусом, числом рецептов, очередью, текущей операцией,
-  энергией и слотами улучшений. Вход/выход не нужны — ими управляет AE2.
-- **Крафт**: соответствующая обычная машина Berlit + 4 алмаза + 4 компаратора.
-- **NEI**: рецепты показывает существующая страница «Berlit Machines»; отдельные шаблоны для
-  цифровых машин не требуются.
+IC2 — upgraded versions of machines.
 
-## Подробное описание
+Botania — the Gaia entity in spawners drops Gaia loot.
 
-Механики, числа и связи между блоками собраны в [docs/MOD_MECHANICS.md](docs/MOD_MECHANICS.md).
-
-## Лицензия
-
-MIT, см. [LICENSE](LICENSE).
+Documentation on changing machine recipes can be found on GitHub: [ ADD LATER ].
