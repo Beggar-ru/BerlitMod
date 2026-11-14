@@ -42,4 +42,4 @@ IC2 — upgraded versions of machines.
 
 Botania — the Gaia entity in spawners drops Gaia loot.
 
-Documentation on changing machine recipes can be found on GitHub: [insert link to the file with examples of machine recipe changes].
+Documentation on changing machine recipes can be found on GitHub: [https://github.com/Beggar-ru/BerlitMod/blob/main/docs/MineTweaker%20EN.txt].
