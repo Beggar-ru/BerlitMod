@@ -95,6 +95,8 @@ tools/                   — генераторы текстур/GUI и прев
   ME Interface (включая cable-part). Если `Config.fastAssemblerWholeJob=false` — прекрафты
   остаются отдельными задачами AE2; если `Config.fastAssemblerFullTask=false` — действует
   ограничение `Config.fastAssemblerBatch` (64 по умолчанию, 1 — штатное поведение AE2).
+- **Компоненты Berlit**: `Quantum Core T1/T2` (`quantum_core_t1/t2`) и `Reinforced Plate`
+  (`reinforced_plate`) — простые предметы (`ItemComponent`) с текстурами в `textures/items`.
 - **Цифровой сборщик Avaritia** (`berlit.digital_avaritia_assembler`): сам экспортирует
   все 9×9-рецепты `ExtremeCraftingManager` как AE2-шаблоны (`AvaritiaPatternDetails`), без
   кодировщика и слотов шаблонов. Обрабатывает очередь, EU/AE, 4 улучшения; результат — в ME
@@ -131,7 +133,13 @@ tools/                   — генераторы текстур/GUI и прев
 - **AE2 CPU-компоненты**: 9 хранилищ крафта (`256K`, `1M`, `4M`, `16M`, `32M`, `64M`,
   `128M`, `256M`, `512M`) и 3 блока обработки (`9x`, `81x`, `729x`). Хранилища и
   co-processor'ы собираются в обычный мультиблок AE2 CPU; вес co-processor'а
-  добавляется миксином в `CraftingCPUCluster`.
+  добавляется миксином в `CraftingCPUCluster`. Для сформированного мультиблока работает
+  штатный рендер AE2 `RenderBlockCraftingCPU`: кольца/фитинги соединений идут из
+  `MixinRenderBlockCraftingCPU`, а цвета заменены на бирюзовые текстуры Berlit
+  (`crafting_unit_ring*`, `crafting_fit_solid`). Блоки наследуют `BlockCraftingUnit`,
+  поэтому форма соединяется так же, как у стандартного CPU AE2. CPU собирается и без
+  ядра AE2 — достаточно Berlit-хранилища; `berlit.test_generator` оставлен скрытым
+  legacy-блоком, чтобы не сдвигать числовые block ID существующих миров.
 - **Большие ME Интерфейсы** (`berlit.big_interface_18/27/36` + `big_interface_part`):
   18/27/36 слотов шаблонов. Блоки и cable-part'ы используют штатный
   `TileInterface`/`PartInterface`; `InterfacePatternExpander` рефлексией заменяет
@@ -227,6 +235,7 @@ BERLIT_SELFTEST big interface crafting list: patterns=18
 BERLIT_SELFTEST molecular transformer recipes: 16
 BERLIT_SELFTEST cpu multiblock: cluster=true formed=true storage=536870912 coprocessors=729
 BERLIT_SELFTEST cpu multiblock no-core: cluster=true storage=536870912 coprocessors=729
+BERLIT_SELFTEST cpu berlit-only: cluster=true formed=true storage=262144 coprocessors=9
 BERLIT_SELFTEST digital filter: entries=67 disabled=true remaining=66 restored=true
 BERLIT_SELFTEST digital processing: pending=1 output=2xic2.itemCrushedOre@0 reloaded=true
 BERLIT_SELFTEST digital custom: avaritiaPatterns=18 avaritiaProcessed=true compressorPatterns=8 compressorProcessed=true

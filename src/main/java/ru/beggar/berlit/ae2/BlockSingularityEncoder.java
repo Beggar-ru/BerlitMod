@@ -15,12 +15,17 @@ import ru.beggar.berlit.Berlit;
 public class BlockSingularityEncoder extends BlockContainer {
 
     @SideOnly(Side.CLIENT)
+    private IIcon iconSide;
+    @SideOnly(Side.CLIENT)
     private IIcon iconTop;
+    @SideOnly(Side.CLIENT)
+    private IIcon iconBottom;
 
     public BlockSingularityEncoder() {
         super(Material.iron);
         setHardness(4.0F);
         setResistance(12.0F);
+        setStepSound(soundTypeMetal);
         setBlockName("berlit.singularity_encoder");
         setCreativeTab(Berlit.TAB);
     }
@@ -33,14 +38,19 @@ public class BlockSingularityEncoder extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister register) {
-        blockIcon = register.registerIcon("berlit:singularity_encoder");
+        iconSide = register.registerIcon("berlit:avaritia_assembler_side");
         iconTop = register.registerIcon("berlit:singularity_encoder_top");
+        iconBottom = register.registerIcon("berlit:avaritia_top_and_bottom_assembler");
+        blockIcon = iconSide;
     }
 
+    /** The singularity encoder shares the Avaritia casing but has its own top layout. */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
-        return side == 1 ? iconTop : blockIcon;
+        if (side == 1) return iconTop;
+        if (side == 0) return iconBottom;
+        return iconSide;
     }
 
     @Override

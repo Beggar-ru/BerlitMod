@@ -9,7 +9,6 @@ import net.minecraft.world.World;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import ru.beggar.berlit.Berlit;
 import ru.beggar.berlit.tileentity.TileEntityTestGenerator;
 
 public class BlockTestGenerator extends BlockContainer {
@@ -27,7 +26,8 @@ public class BlockTestGenerator extends BlockContainer {
         setResistance(8.0F);
         setStepSound(soundTypeMetal);
         setBlockName("berlit.test_generator");
-        setCreativeTab(Berlit.TAB);
+        // Kept registered only so existing worlds (and the numeric block IDs after it) stay valid.
+        // It is deliberately absent from the creative tab, NEI and the recipe list.
     }
 
     @Override

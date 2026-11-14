@@ -2,7 +2,7 @@ itemGroup.berlit=Берлит
 
 tile.berlit.molecular_transformer.name=Молекулярный трансформер
 tile.berlit.replicator.name=Репликатор
-tile.berlit.test_generator.name=Тестовый генератор
+tile.berlit.test_generator.name=Тестовый генератор (legacy)
 tile.berlit.spawner.name=Спавнер сущностей
 
 container.berlit.molecular_transformer=Молекулярный трансформер
@@ -93,6 +93,9 @@ tile.berlit.singularity_encoder.name=Кодировщик сингулярнос
 item.berlit.easter_coin.name=Монета с минусом
 item.berlit.garlic.name=Чеснок
 item.berlit.green_jacket.name=Зелёная куртка
+item.berlit.quantum_core_t1.name=Квантовое ядро T1
+item.berlit.quantum_core_t2.name=Квантовое ядро T2
+item.berlit.reinforced_plate.name=Укреплённая пластина
 tile.berlit.garlic_crop.name=Грядка чеснока
 tooltip.berlit.easter_coin=Стоимость: -1 (отрицательная)
 

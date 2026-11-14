@@ -26,7 +26,7 @@ Avaritia recipe encoding for Extreme Crafting and for singularities.
 
 Spawners in three tiers — use "entities" and send mob drops to the nearest chest or ME network. They also have upgrades to increase drops (DE cores increase drops).
 
-AE2 CPU — have increased crafting storage from 256 KB to 512 MB; processing units with 9, 81, and 729 operations have also been added.
+AE2 CPU — have increased crafting storage from 256 KB to 512 MB; processing units with 9, 81, and 729 operations have also been added. Formed CPUs use AE2-style connection rings in Berlit colors and also work without an AE2 core block.
 
 Large ME Interfaces — have pattern slots for 18, 27, and 36 crafts respectively.
 

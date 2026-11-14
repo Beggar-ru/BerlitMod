@@ -28,6 +28,7 @@ import ru.beggar.berlit.block.BlockSuperChest;
 import ru.beggar.berlit.block.BlockTestGenerator;
 import ru.beggar.berlit.gui.GuiHandler;
 import ru.beggar.berlit.item.ItemAccelerator;
+import ru.beggar.berlit.item.ItemComponent;
 import ru.beggar.berlit.item.ItemEntityCard;
 import ru.beggar.berlit.item.ItemMatter;
 import ru.beggar.berlit.item.ItemSpawnerCore;
@@ -81,6 +82,9 @@ public class Berlit {
     public static ItemEntityCard entityCard;
     public static ItemAccelerator acceleratorT2;
     public static ItemAccelerator acceleratorT3;
+    public static ItemComponent quantumCoreT1;
+    public static ItemComponent quantumCoreT2;
+    public static ItemComponent reinforcedPlate;
     public static ItemSpawnerCore spawnerCore1;
     public static ItemSpawnerCore spawnerCore2;
     public static ItemSpawnerCore spawnerCore3;
@@ -142,6 +146,8 @@ public class Berlit {
         GameRegistry.registerBlock(replicator, "berlit.replicator");
         GameRegistry.registerTileEntity(TileEntityReplicator.class, "berlit:replicator");
 
+        // Hidden legacy block: keeps existing worlds valid and preserves the numeric block IDs of
+        // every block registered after it. It has no recipe, creative tab entry or NEI page.
         testGenerator = new BlockTestGenerator();
         GameRegistry.registerBlock(testGenerator, "berlit.test_generator");
         GameRegistry.registerTileEntity(TileEntityTestGenerator.class, "berlit:test_generator");
@@ -172,6 +178,15 @@ public class Berlit {
 
         acceleratorT3 = new ItemAccelerator(ItemAccelerator.TIER_3);
         GameRegistry.registerItem(acceleratorT3, "accelerator_t3");
+
+        quantumCoreT1 = new ItemComponent("quantum_core_t1");
+        GameRegistry.registerItem(quantumCoreT1, "quantum_core_t1");
+
+        quantumCoreT2 = new ItemComponent("quantum_core_t2");
+        GameRegistry.registerItem(quantumCoreT2, "quantum_core_t2");
+
+        reinforcedPlate = new ItemComponent("reinforced_plate");
+        GameRegistry.registerItem(reinforcedPlate, "reinforced_plate");
 
         spawnerCore1 = new ItemSpawnerCore(1);
         GameRegistry.registerItem(spawnerCore1, "spawner_core_t1");
@@ -221,7 +236,10 @@ public class Berlit {
                 .registerTileEntity(ru.beggar.berlit.ae2.TileEntityPatternEncoder.class, "berlit:pattern_encoder");
 
             avaritiaAssembler = new ru.beggar.berlit.ae2.BlockAvaritiaAssembler();
-            GameRegistry.registerBlock(avaritiaAssembler, "berlit.avaritia_assembler");
+            GameRegistry.registerBlock(
+                avaritiaAssembler,
+                ru.beggar.berlit.block.ItemBlockMachine.class,
+                "berlit.avaritia_assembler");
             GameRegistry.registerTileEntity(
                 ru.beggar.berlit.ae2.TileEntityAvaritiaAssembler.class,
                 "berlit:avaritia_assembler");
@@ -264,7 +282,7 @@ public class Berlit {
                 ru.beggar.berlit.ae2.BlockCraftingStorageCustom block = new ru.beggar.berlit.ae2.BlockCraftingStorageCustom(
                     storageIds[i],
                     storageBytes[i]);
-                GameRegistry.registerBlock(block, "berlit." + storageIds[i]);
+                GameRegistry.registerBlock(block, net.minecraft.item.ItemBlock.class, "berlit." + storageIds[i]);
                 craftingStorages[i] = block;
             }
 
@@ -275,7 +293,7 @@ public class Berlit {
                 ru.beggar.berlit.ae2.BlockCraftingCoProcessor block = new ru.beggar.berlit.ae2.BlockCraftingCoProcessor(
                     processorIds[i],
                     processorOps[i]);
-                GameRegistry.registerBlock(block, "berlit." + processorIds[i]);
+                GameRegistry.registerBlock(block, net.minecraft.item.ItemBlock.class, "berlit." + processorIds[i]);
                 craftingProcessors[i] = block;
             }
 
@@ -327,7 +345,10 @@ public class Berlit {
 
         if (ae2 && avaritia) {
             neutronCompressor = new ru.beggar.berlit.machine.BlockNeutronCompressor();
-            GameRegistry.registerBlock(neutronCompressor, "berlit.neutron_compressor");
+            GameRegistry.registerBlock(
+                neutronCompressor,
+                ru.beggar.berlit.block.ItemBlockMachine.class,
+                "berlit.neutron_compressor");
             GameRegistry.registerTileEntity(
                 ru.beggar.berlit.machine.TileEntityNeutronCompressor.class,
                 "berlit:neutron_compressor");
@@ -350,7 +371,8 @@ public class Berlit {
         }
 
         cobbleGenerator = new ru.beggar.berlit.machine.BlockCobbleGenerator();
-        GameRegistry.registerBlock(cobbleGenerator, "berlit.cobble_generator");
+        GameRegistry
+            .registerBlock(cobbleGenerator, ru.beggar.berlit.block.ItemBlockMachine.class, "berlit.cobble_generator");
         GameRegistry
             .registerTileEntity(ru.beggar.berlit.tileentity.TileEntityCobbleGenerator.class, "berlit:cobble_generator");
         // Hidden legacy IDs: old worlds keep their blocks, but only the single tier above is obtainable.
@@ -360,7 +382,8 @@ public class Berlit {
         GameRegistry.registerBlock(cobbleGeneratorMk3, "berlit.cobble_generator_mk3");
 
         molecularFarm = new ru.beggar.berlit.machine.BlockMolecularFarm();
-        GameRegistry.registerBlock(molecularFarm, "berlit.molecular_farm");
+        GameRegistry
+            .registerBlock(molecularFarm, ru.beggar.berlit.block.ItemBlockMachine.class, "berlit.molecular_farm");
         GameRegistry
             .registerTileEntity(ru.beggar.berlit.tileentity.TileEntityMolecularFarm.class, "berlit:molecular_farm");
         stackUpgrade = new ItemStackUpgrade();
@@ -503,18 +526,6 @@ public class Berlit {
             Items.redstone,
             'F',
             Items.wheat_seeds);
-
-        GameRegistry.addRecipe(
-            new ItemStack(testGenerator),
-            "IRI",
-            "IFI",
-            "IRI",
-            'I',
-            Items.iron_ingot,
-            'R',
-            Items.redstone,
-            'F',
-            Blocks.furnace);
 
         GameRegistry.addRecipe(
             new ItemStack(spawner),

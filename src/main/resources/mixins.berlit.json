@@ -8,5 +8,8 @@
     "MixinCraftingTreeProcess",
     "MixinCraftingCPUCluster",
     "MixinDualityInterface"
+  ],
+  "client": [
+    "MixinRenderBlockCraftingCPU"
   ]
 }

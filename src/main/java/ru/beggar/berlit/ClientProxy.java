@@ -1,10 +1,14 @@
 package ru.beggar.berlit;
 
+import net.minecraft.item.Item;
+import net.minecraftforge.client.MinecraftForgeClient;
+
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import ru.beggar.berlit.client.renderer.BlockMolecularTransformerRenderer;
+import ru.beggar.berlit.client.renderer.CpuItemRenderer;
 import ru.beggar.berlit.client.renderer.TileEntityMolecularTransformerRenderer;
 import ru.beggar.berlit.tileentity.TileEntityMolecularTransformer;
 
@@ -13,6 +17,18 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void init(FMLInitializationEvent event) {
         super.init(event);
+
+        CpuItemRenderer cpuItemRenderer = new CpuItemRenderer();
+        if (Berlit.craftingStorages != null) {
+            for (net.minecraft.block.Block block : Berlit.craftingStorages) {
+                MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(block), cpuItemRenderer);
+            }
+        }
+        if (Berlit.craftingProcessors != null) {
+            for (net.minecraft.block.Block block : Berlit.craftingProcessors) {
+                MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(block), cpuItemRenderer);
+            }
+        }
 
         Berlit.molecularTransformerRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderingRegistry
@@ -59,8 +75,9 @@ public class ClientProxy extends CommonProxy {
                 try {
                     codechicken.nei.api.API.hideItem(new net.minecraft.item.ItemStack(Berlit.cobbleGeneratorMk2));
                     codechicken.nei.api.API.hideItem(new net.minecraft.item.ItemStack(Berlit.cobbleGeneratorMk3));
+                    codechicken.nei.api.API.hideItem(new net.minecraft.item.ItemStack(Berlit.testGenerator));
                 } catch (Throwable t) {
-                    Berlit.LOG.warn("Could not hide legacy cobble generator items in NEI", t);
+                    Berlit.LOG.warn("Could not hide legacy items in NEI", t);
                 }
                 if (Loader.isModLoaded("Avaritia")) {
                     try {

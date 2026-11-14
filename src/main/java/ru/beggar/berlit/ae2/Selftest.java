@@ -60,6 +60,7 @@ public final class Selftest {
         testSpawnerBuffer(world);
         testCraftingCpu(world);
         testCpuMultiblock(world);
+        testBerlitCpuOnly(world);
         testInterfaceExpansion();
         testBigInterfaces();
         testBigInterfaceCraftingList(world);
@@ -348,6 +349,39 @@ public final class Selftest {
                 noCoreCluster.destroy();
             }
         }
+    }
+
+    /** A CPU made only from Berlit storage/coprocessor blocks must form without an AE2 core block. */
+    private static void testBerlitCpuOnly(World world) {
+        int x = 2060;
+        int y = 64;
+        int z = 2040;
+        world.getChunkFromBlockCoords(x, z);
+
+        world.setBlock(x, y, z, Berlit.craftingStorages[0]);
+        world.setBlock(x + 1, y, z, Berlit.craftingProcessors[0]);
+
+        appeng.tile.crafting.TileCraftingTile storage = (appeng.tile.crafting.TileCraftingTile) world
+            .getTileEntity(x, y, z);
+        appeng.tile.crafting.TileCraftingTile processor = (appeng.tile.crafting.TileCraftingTile) world
+            .getTileEntity(x + 1, y, z);
+        if (storage == null || processor == null) {
+            FMLLog.info("BERLIT_SELFTEST cpu berlit-only: missing tiles");
+            return;
+        }
+
+        storage.updateMultiBlock();
+        processor.updateMultiBlock();
+
+        appeng.me.cluster.implementations.CraftingCPUCluster cluster = (appeng.me.cluster.implementations.CraftingCPUCluster) storage
+            .getCluster();
+        FMLLog.info(
+            "BERLIT_SELFTEST cpu berlit-only: cluster=%s formed=%s storage=%s coprocessors=%s",
+            cluster != null,
+            storage.isFormed(),
+            cluster == null ? -1 : cluster.getAvailableStorage(),
+            cluster == null ? -1 : cluster.getCoProcessors());
+        if (cluster != null) cluster.destroy();
     }
 
     /** Verifies that all 18 pattern slots reach DualityInterface's crafting list. */

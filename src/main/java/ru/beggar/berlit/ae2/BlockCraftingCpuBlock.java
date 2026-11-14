@@ -2,26 +2,22 @@ package ru.beggar.berlit.ae2;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.world.World;
 
-import appeng.block.AEBaseTileBlock;
-import appeng.core.sync.GuiBridge;
+import appeng.block.crafting.BlockCraftingUnit;
+import appeng.client.render.BlockRenderInfo;
+import appeng.client.texture.FlippableIcon;
 import appeng.tile.crafting.TileCraftingTile;
-import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ru.beggar.berlit.Berlit;
 
 /** Common block shell for custom AE2 crafting CPU parts. */
-public abstract class BlockCraftingCpuBlock extends AEBaseTileBlock {
+public abstract class BlockCraftingCpuBlock extends BlockCraftingUnit {
 
     private final String id;
 
@@ -31,12 +27,27 @@ public abstract class BlockCraftingCpuBlock extends AEBaseTileBlock {
     private IIcon iconBottom;
     @SideOnly(Side.CLIENT)
     private IIcon iconSide;
+    @SideOnly(Side.CLIENT)
+    private IIcon iconRing;
+    @SideOnly(Side.CLIENT)
+    private IIcon iconRingLong;
+    @SideOnly(Side.CLIENT)
+    private IIcon iconRingLongRotated;
+    @SideOnly(Side.CLIENT)
+    private IIcon iconFitSolid;
+    @SideOnly(Side.CLIENT)
+    private IIcon iconFit;
+
+    /** Set only while an item renderer draws the block in a GUI; makes RenderBlocks use a cube. */
+    public static boolean renderingItem;
 
     protected BlockCraftingCpuBlock(String id, Class<? extends TileCraftingTile> tileClass) {
-        super(Material.iron);
+        super();
         this.id = id;
         setBlockName("berlit." + id);
         setCreativeTab(Berlit.TAB);
+        setHardness(5.0F);
+        setResistance(15.0F);
         hasSubtypes = false;
         setTileEntity(tileClass);
     }
@@ -47,61 +58,63 @@ public abstract class BlockCraftingCpuBlock extends AEBaseTileBlock {
         iconSide = register.registerIcon("berlit:" + id + "_side");
         iconTop = register.registerIcon("berlit:" + id + "_top");
         iconBottom = register.registerIcon("berlit:" + id + "_bottom");
+        // AE2's crafting CPU renderer uses these four extra textures to draw the multiblock
+        // shell: corner rings, the two long edge strips and the solid inset faces.
+        iconRing = register.registerIcon("berlit:crafting_unit_ring");
+        iconRingLong = register.registerIcon("berlit:crafting_unit_ring_long");
+        iconRingLongRotated = register.registerIcon("berlit:crafting_unit_ring_long_rotated");
+        iconFitSolid = register.registerIcon("berlit:crafting_fit_solid");
+        iconFit = register.registerIcon("berlit:" + id + "_fit");
+
+        // Keep AE2's block render info valid; it is used for the item form and for the unformed cube.
+        BlockRenderInfo info = getRendererInstance();
+        info.updateIcons(
+            new FlippableIcon(iconBottom),
+            new FlippableIcon(iconTop),
+            new FlippableIcon(iconSide),
+            new FlippableIcon(iconSide),
+            new FlippableIcon(iconSide),
+            new FlippableIcon(iconSide));
     }
 
     /**
-     * AE2 draws its own blocks through {@code WorldRender}, which only knows the classes AE2 registered;
-     * a custom block inheriting the default render id ends up drawn by nothing and looks untextured.
-     * Plain cube rendering with our own icons is both correct and cheap here, since these parts have no
-     * special renderer of their own.
+     * AE2's CPU renderer asks for metadata | 8 once the multiblock is formed and uses that icon as
+     * the inset face colour. Unformed blocks keep the normal side/top/bottom cube look.
      */
-    @Override
-    public int getRenderType() {
-        return 0;
-    }
-
-    @Override
-    public boolean renderAsNormalBlock() {
-        return true;
-    }
-
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
+        if ((meta & 8) != 0) return iconFit;
         if (side == 0) return iconBottom;
         if (side == 1) return iconTop;
         return iconSide;
     }
 
     @Override
-    public boolean onActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY,
-        float hitZ) {
-        TileCraftingTile tile = getTileEntity(world, x, y, z);
-        if (tile != null && tile.isFormed() && tile.isActive()) {
-            if (!world.isRemote) {
-                Platform.openGUI(
-                    player,
-                    tile,
-                    net.minecraftforge.common.util.ForgeDirection.getOrientation(side),
-                    GuiBridge.GUI_CRAFTING_CPU);
-            }
-            return true;
-        }
-        return false;
+    public int getRenderType() {
+        // The item renderer flips this while drawing the inventory cube; normally the block belongs
+        // to AE2's WorldRender, which has no plain ItemBlock inventory renderer.
+        return renderingItem ? 0 : super.getRenderType();
     }
 
-    @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
-        TileCraftingTile tile = getTileEntity(world, x, y, z);
-        if (tile != null) tile.breakCluster();
-        super.breakBlock(world, x, y, z, block, meta);
+    @SideOnly(Side.CLIENT)
+    public IIcon getRingIcon() {
+        return iconRing;
     }
 
-    @Override
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-        TileCraftingTile tile = getTileEntity(world, x, y, z);
-        if (tile != null) tile.updateMultiBlock();
-        super.onNeighborBlockChange(world, x, y, z, block);
+    @SideOnly(Side.CLIENT)
+    public IIcon getRingLongIcon() {
+        return iconRingLong;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getRingLongRotatedIcon() {
+        return iconRingLongRotated;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getFitSolidIcon() {
+        return iconFitSolid;
     }
 
     @Override
