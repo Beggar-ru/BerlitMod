@@ -1,0 +1,231 @@
+# MineTweaker / CraftTweaker API — Berlit
+
+Berlit registers its recipes in MineTweaker3 (CraftTweaker 1.7.10) via the `mods.berlit` namespace.
+The scripts are located in `scripts/*.zs`; after editing, run `/mt reload` (in some builds, `/ct reload`),
+and if in doubt, restart the game or server.
+
+All changes are applied on the server side. In singleplayer, the server is built-in, so the script
+works there as well; on a dedicated server, it should be placed in the server's `scripts/`.
+
+```zenscript
+import mods.berlit.MolecularTransformer;
+import mods.berlit.Machines;
+import mods.berlit.MolecularFarm;
+import mods.berlit.Replicator;
+import mods.berlit.Spawner;
+// import mods.berlit.Avaritia; // only if Avaritia is installed
+```
+
+Items are written using the standard MineTweaker syntax: `<modid:item>`, `<modid:item:meta>`,
+`<modid:block>`. For example, `<minecraft:dye:4>`, `<minecraft:iron_ore>`, `<avaritia:singularity:0>`.
+
+---
+
+## 1. Molecular Transformer — `mods.berlit.MolecularTransformer`
+
+```zenscript
+// addRecipe(<output>, <input>, energy)
+MolecularTransformer.addRecipe(<minecraft:diamond>, <minecraft:emerald>, 2000);
+
+// Remove all recipes that yield this item:
+MolecularTransformer.removeRecipe(<minecraft:diamond>);
+
+// Remove a recipe by input:
+MolecularTransformer.removeRecipeByInput(<minecraft:emerald>);
+```
+
+- `energy` — the operation cost in EU.
+- Argument order: **output first, then input**.
+- `removeRecipe` removes all recipes with the specified output.
+- `removeRecipeByInput` removes a recipe that has the specified item as an input.
+
+---
+
+## 2. Processing Machines — `mods.berlit.Machines`
+
+```zenscript
+// addRecipe(machine, output, input, energy)
+Machines.addRecipe("macerator", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300);
+
+// Full form with mode:
+Machines.addRecipe("metal_extruder", <minecraft:iron_ingot>, <minecraft:iron_ore>, 500, 0);
+Machines.addRecipe("metal_roller", <minecraft:iron_ingot>, <minecraft:iron_ore>, 500, 1);
+
+// Remove on output (all modes):
+Machines.removeRecipe("macerator", <minecraft:iron_ingot>);
+
+// Remove by input (default mode):
+Machines.removeRecipeByInput("macerator", <minecraft:iron_ore>);
+
+// Remove by input with explicit mode:
+Machines.removeRecipeByInput("metal_roller", <minecraft:iron_ore>, 1);
+```
+
+### Machine IDs
+
+| ID | Machine | Default Mode |
+|---|---|---|
+| `macerator` | Crusher | `0` |
+| `compressor` | Compressor | `0` |
+| `metal_extruder` | Extruder (extrusion) | `0` |
+| `metal_roller` | Rolling Mill (rolling) | `1` |
+| `electric_furnace` | Electric Furnace | `0` |
+
+### Modes
+
+| mode | Operation |
+|---|---|
+| `0` | Extruding |
+| `1` | Rolling |
+
+For `macerator`, `compressor`, and `electric_furnace`, the mode is not used—leave the overload without
+`mode`. For `metal_extruder`/`metal_roller`, the mode can be specified explicitly; without it, the value from the table is taken.
+
+- `energy` — EU per operation (before overclocker multipliers and other improvements).
+- If the input already has a recipe in the same mode, the new recipe replaces it.
+- One CT recipe specifies one output (the output stack size can be set in `ItemStack`).
+- `removeRecipe` removes all modes for the given output.
+- `removeRecipeByInput` without `mode` only removes the default mode recipe.
+
+---
+
+## 3. Molecular Farm — `mods.berlit.MolecularFarm`
+
+```zenscript
+// Single output:
+MolecularFarm.addRecipe(<minecraft:wheat_seeds>, <minecraft:wheat>);
+
+// Multiple outputs:
+MolecularFarm.addRecipe(
+<minecraft:pumpkin_seeds>,
+[<minecraft:pumpkin>, <minecraft:pumpkin_seeds>]
+);
+
+MolecularFarm.removeRecipe(<minecraft:wheat_seeds>);
+```
+
+- Seeds are **not consumed**.
+- The quantity of each output is multiplied by the stack size of seeds in the input slot. - The same seed item replaces the previous recipe.
+- `removeRecipe` accepts a seed item.
+
+---
+
+## 4. Replicator — `mods.berlit.Replicator`
+
+The cost is specified in **mB of liquid UU matter per item**. The Replicator always produces a full stack,
+so the actual cost of the operation is `matterPerItem * stackSize`.
+
+```zenscript
+// Explicit cost / scan resolution:
+Replicator.addPattern(<minecraft:diamond>, 45);
+
+// Aliases:
+Replicator.addScan(<minecraft:emerald>, 120);
+Replicator.addRecipe(<minecraft:emerald>, 120);
+
+// Remove custom cost:
+Replicator.removePattern(<minecraft:emerald>);
+Replicator.removeRecipe(<minecraft:emerald>);
+
+// Get the effective cost (-1 = item cannot be replicated):
+int cost = Replicator.getMatter(<minecraft:diamond>);
+```
+
+- `addPattern`/`addScan`/`addRecipe` add or **override** the cost of an item.
+- Without a custom cost, Berlit takes the price from the IC2 `UuIndex`.
+- `removePattern` only removes the custom cost; the standard IC2 price then takes effect.
+- Cost must be greater than zero.
+
+---
+
+## 5. Spawner — `mods.berlit.Spawner`
+
+```zenscript
+// addDrop(entityId, item, chance, min, max)
+Spawner.addDrop("iron_golem", <minecraft:gold_ingot>, 0.5, 1, 2);
+
+// Remove drop from an entity:
+Spawner.removeDrop("iron_golem", <minecraft:iron_ingot>);
+
+// Custom entity: addEntity(id, displayName, baseInterval)
+Spawner.addEntity("custom_zombie", "Custom Zombie", 200);
+Spawner.addDrop("custom_zombie", <minecraft:diamond>, 0.1, 1, 1);
+Spawner.removeEntity("custom_zombie");
+```
+
+- `chance` — from `0.0` to `1.0`; `0.5` = 50%.
+- `min`/`max` — number of items; `max` is automatically no less than `min`.
+- `baseInterval` — base interval in ticks, minimum `20` (1 second); `200` = 10 seconds.
+- `removeDrop` removes the first drop that matches the item and meta.
+- `addEntity` creates an entity definition for the spawner; drops can be added after it.
+- `removeEntity` removes a custom entity.
+
+### Built-in Entity IDs
+
+`minecraft` mobs:
+
+`skeleton`, `wither_skeleton`, `zombie`, `creeper`, `spider`, `cave_spider`, `silverfish`,
+`slime`, `magma_cube`, `blaze`, `ghast`, `witch`, `enderman`, `zombie_pigman`, `iron_golem`,
+`snow_golem`, `wither`, `ender_dragon`, `sheep`, `cow`, `mooshroom`, `pig`, `chicken`, `squid`,
+`horse`, `villager`.
+
+Optional (if the corresponding mods are installed):
+
+- Botania: `gaia`;
+- Alfheim: `flugel`;
+- Draconic Evolution: `chaos_dragon`.
+
+---
+
+## 6. Avaritia — `mods.berlit.Avaritia`
+
+This class only exists if Avaritia is installed.
+
+```zenscript
+// addCompressor(output, cost, input)
+Avaritia.addCompressor(<avaritia:singularity:0>, 900, <minecraft:iron_block>);
+
+// Remove a recipe by input:
+Avaritia.removeCompressor(<minecraft:iron_block>);
+```
+
+- `cost` — the cost in Avaritia neutron compressor units (greater than zero).
+- Argument order: **output, cost, input**.
+- `removeCompressor` removes all recipes with the specified input; the operation cannot be undone with undo.
+
+---
+
+## 7. Full example `scripts/berlit.zs`
+
+``zenscript
+import mods.berlit.MolecularTransformer;
+import mods.berlit.Machines;
+import mods.berlit.MolecularFarm;
+import mods.berlit.Replicator;
+import mods.berlit.Spawner;
+
+// Transformer: emerald -> diamond for 2000 EU
+MolecularTransformer.addRecipe(<minecraft:diamond>, <minecraft:emerald>, 2000);
+
+// Macerator: iron ore -> iron ingot for 300 EU
+Machines.addRecipe("macerator", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300);
+
+// Rolling: Iron Ingot -> Iron Sheet for 500 EU
+Machines.addRecipe("metal_roller", <ic2:itemPlate:0>, <minecraft:iron_ingot>, 500, 1);
+
+// Farm: Wheat Seeds -> Wheat + Seeds
+MolecularFarm.addRecipe(
+<minecraft:wheat_seeds>,
+[<minecraft:wheat>, <minecraft:wheat_seeds>]
+);
+
+// Replicator: Diamonds cost 45 mB each
+Replicator.addPattern(<minecraft:diamond>, 45);
+
+// Spawner: Iron Golems also drop gold ingots
+Spawner.addDrop("iron_golem", <minecraft:gold_ingot>, 0.5, 1, 2);
+```
+
+> For `<ic2:itemPlate:0>`, check the meta in your build's NEI: IC2 metal plates
+> have different damage values. If the recipe doesn't appear, use an item that
+> actually exists in your build.
