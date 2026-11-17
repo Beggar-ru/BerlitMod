@@ -36,6 +36,45 @@ RENAME = {
 # sheets are drawn by tools/extract_machine_references.py, they are not mod textures
 SKIP = {"contact_sheet.png"}
 
+# Digital machines share one set of faces: a file named "_front.png" (leading underscore) is copied
+# to every entry of this list, while "digital_macerator_front.png" only replaces that machine.
+DIGITAL_MACHINES = (
+    "digital_macerator",
+    "digital_compressor",
+    "digital_metal_extruder",
+    "digital_metal_roller",
+    "digital_electric_furnace",
+    "digital_avaritia_assembler",
+    "digital_neutron_compressor",
+)
+DIGITAL_NEW = os.path.join("mecha_ae", "digital", "new")
+
+
+def import_digital_new(copied):
+    """docs/reference/mecha_ae/digital/new: shared faces and per-machine overrides."""
+    source_dir = os.path.join(REFERENCE, DIGITAL_NEW)
+    if not os.path.isdir(source_dir):
+        return copied
+
+    for file_name in sorted(os.listdir(source_dir)):
+        if not file_name.lower().endswith(".png") or file_name in SKIP:
+            continue
+        source = os.path.join(source_dir, file_name)
+
+        if file_name.startswith("_"):
+            targets = [f"{machine}{file_name}" for machine in DIGITAL_MACHINES]
+            note = f"shared -> {len(targets)} digital machines"
+        else:
+            targets = [file_name]
+            note = "single machine"
+
+        for target_name in targets:
+            target = os.path.join(BLOCKS, target_name)
+            shutil.copyfile(source, target)
+            copied += 1
+            print(f"{DIGITAL_NEW}/{file_name} -> {os.path.relpath(target, ROOT)}  ({note})")
+    return copied
+
 
 def main():
     copied = 0
@@ -53,6 +92,8 @@ def main():
             shutil.copyfile(source, target)
             copied += 1
             print(f"{group}/{file_name} -> {os.path.relpath(target, ROOT)}")
+
+    copied = import_digital_new(copied)
     print(f"copied {copied} files")
 
 

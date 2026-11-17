@@ -32,6 +32,8 @@ public class BlockDigitalCraftingMachine extends BlockContainer {
     private IIcon iconBottom;
     @SideOnly(Side.CLIENT)
     private IIcon iconSide;
+    @SideOnly(Side.CLIENT)
+    private IIcon iconFront;
 
     public BlockDigitalCraftingMachine(Kind kind, String id) {
         super(Material.iron);
@@ -58,6 +60,7 @@ public class BlockDigitalCraftingMachine extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister register) {
         String texture = "berlit:digital_" + id;
+        iconFront = register.registerIcon(texture + "_front");
         iconSide = register.registerIcon(texture + "_side");
         iconTop = register.registerIcon(texture + "_top");
         iconBottom = register.registerIcon(texture + "_bottom");
@@ -71,8 +74,10 @@ public class BlockDigitalCraftingMachine extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
         if (side == 1) return iconTop;
-        if (meta < 2) return side == 0 ? iconBottom : iconSide;
-        return side == meta ? iconSide : iconBottom;
+        if (side == 0) return iconBottom;
+        // Item form and unplaced blocks show the machine face; otherwise only the front does.
+        if (meta < 2) return iconFront;
+        return side == meta ? iconFront : iconSide;
     }
 
     @Override
