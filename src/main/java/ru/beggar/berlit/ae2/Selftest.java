@@ -593,6 +593,9 @@ public final class Selftest {
      */
     private static void testReplicator() {
         ItemStack diamond = new ItemStack(Items.diamond);
+        int builtIn = ReplicatorRecipes.getMatterPerItem(diamond);
+
+        ReplicatorRecipes.setMatter(diamond, 45);
         int matter = ReplicatorRecipes.getMatterPerItem(diamond);
         ReplicatorPattern pattern = ReplicatorRecipes.createPattern(diamond);
 
@@ -611,15 +614,19 @@ public final class Selftest {
             // The IC2 item name can differ between forks; the diamond value is enough then.
         }
 
+        int unscannable = ReplicatorRecipes.getMatterPerItem(new ItemStack(Berlit.quantumCoreT1));
+
         FMLLog.info(
-            "BERLIT_SELFTEST replicator: matter=%s stack=%s perStack=%s fluid=%s override=%s restored=%s ic2=%s",
+            "BERLIT_SELFTEST replicator: builtIn=%s matter=%s stack=%s perStack=%s fluid=%s override=%s restored=%s ic2=%s unscannable=%s",
+            builtIn,
             matter,
             pattern == null ? -1 : pattern.getStackSize(),
             pattern == null ? -1 : pattern.getMatterPerStack(),
             ReplicatorFluid.get() != null,
             overridden,
             restored,
-            ic2Matter);
+            ic2Matter,
+            unscannable);
     }
 
     /**
@@ -639,6 +646,7 @@ public final class Selftest {
         replicator.yCoord = y;
         replicator.zCoord = z;
 
+        ReplicatorRecipes.setMatter(new ItemStack(Items.diamond), 45);
         replicator.setInventorySlotContents(TileEntityReplicator.SLOT_SCAN, new ItemStack(Items.diamond));
         replicator.fill(ForgeDirection.UP, ReplicatorFluid.createStack(2880), true);
 
@@ -657,6 +665,7 @@ public final class Selftest {
             replicator.getFluidAmount(),
             replicator.getStackInSlot(TileEntityReplicator.SLOT_OUTPUT),
             replicator.getProgress());
+        ReplicatorRecipes.removeMatter(new ItemStack(Items.diamond));
     }
 
     /**

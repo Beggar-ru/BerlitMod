@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
@@ -24,9 +22,10 @@ import ru.beggar.berlit.recipe.ReplicatorRecipes;
  * NEI page for the replicator.
  *
  * <p>
- * The page works for any item that has a UU value, so pressing R or U on an item shows how much
- * liquid UU matter one copy and one whole output stack cost. The machine item itself shows the
- * patterns registered by CraftTweaker.
+ * The page shows only the patterns explicitly registered by CraftTweaker/MineTweaker. Berlit does
+ * not inherit IC2's UU graph, so an item without a script entry has no replicator page. Pressing R
+ * or U on a registered item shows how much liquid UU matter one copy and one whole output stack
+ * cost.
  */
 @SideOnly(Side.CLIENT)
 public class ReplicatorNEI extends TemplateRecipeHandler {
@@ -97,20 +96,8 @@ public class ReplicatorNEI extends TemplateRecipeHandler {
         if (ingredient == null) return;
 
         if (ingredient.getItem() == Item.getItemFromBlock(Berlit.replicator)) {
-            int before = arecipes.size();
             for (ReplicatorPattern pattern : ReplicatorRecipes.getCustomPatterns()) {
                 arecipes.add(new CachedReplicatorRecipe(pattern));
-            }
-
-            // An empty page on U would look like a broken handler; show a few standard values
-            // (the real full list is IC2's UU graph, which is far too large for one NEI page).
-            if (arecipes.size() == before) {
-                addPattern(new ItemStack(Items.diamond));
-                addPattern(new ItemStack(Items.iron_ingot));
-                addPattern(new ItemStack(Items.gold_ingot));
-                addPattern(new ItemStack(Items.redstone));
-                addPattern(new ItemStack(Items.emerald));
-                addPattern(new ItemStack(Blocks.cobblestone));
             }
             return;
         }

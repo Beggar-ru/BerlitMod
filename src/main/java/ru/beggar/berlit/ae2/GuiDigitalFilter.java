@@ -209,6 +209,10 @@ public class GuiDigitalFilter extends GuiScreen {
             int rowY = y + ROW_START + row * ROW_HEIGHT;
             DigitalRecipeFilter.Entry entry = entries.get(i);
 
+            // RenderItem binds the item atlas; rebind the kit for every row, otherwise the next
+            // row's cells sample the item/font atlas and show white garbled sprites.
+            mc.getTextureManager()
+                .bindTexture(GuiKit.KIT);
             GuiKit.CELL.drawSprite(zLevel, x + 8, rowY, 18, 18);
             GuiKit.CELL.drawSprite(zLevel, x + 48, rowY, 18, 18);
 

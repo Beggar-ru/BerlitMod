@@ -1,0 +1,253 @@
+# MineTweaker / CraftTweaker API — Berlit
+
+Berlit регистрирует свои рецепты в MineTweaker3 (CraftTweaker 1.7.10) через namespace `mods.berlit`.
+Скрипты лежат в `scripts/*.zs`; после правки выполните `/mt reload` (в некоторых сборках — `/ct reload`),
+а при сомнениях перезапустите игру/сервер.
+
+Все изменения применяются на серверной стороне. В одиночной игре сервер — встроенный, поэтому скрипт
+действует и там; на выделенном сервере его нужно положить в `scripts/` сервера.
+
+```zenscript
+import mods.berlit.MolecularTransformer;
+import mods.berlit.Machines;
+import mods.berlit.MolecularFarm;
+import mods.berlit.Replicator;
+import mods.berlit.Spawner;
+// import mods.berlit.Avaritia; // только если установлена Avaritia
+```
+
+Предметы записываются обычным синтаксисом MineTweaker: `<modid:item>`, `<modid:item:meta>`,
+`<modid:block>`. Например, `<minecraft:dye:4>`, `<minecraft:iron_ore>`, `<avaritia:singularity:0>`.
+
+---
+
+## 1. Молекулярный трансформер — `mods.berlit.MolecularTransformer`
+
+```zenscript
+// addRecipe(<выход>, <вход>, energy)
+MolecularTransformer.addRecipe(<minecraft:diamond>, <minecraft:emerald>, 2000);
+
+// Удалить все рецепты, дающие этот предмет:
+MolecularTransformer.removeRecipe(<minecraft:diamond>);
+
+// Удалить рецепт по входу:
+MolecularTransformer.removeRecipeByInput(<minecraft:emerald>);
+```
+
+- `energy` — стоимость операции в EU.
+- Порядок аргументов: **сначала выход, потом вход**.
+- `removeRecipe` удаляет все рецепты с указанным выходом.
+- `removeRecipeByInput` удаляет рецепт, у которого указанный предмет является входом.
+
+---
+
+## 2. Обрабатывающие машины — `mods.berlit.Machines`
+
+```zenscript
+// addRecipe(machine, output, input, energy)
+Machines.addRecipe("macerator", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300);
+
+// Полная форма с mode:
+Machines.addRecipe("metal_extruder", <minecraft:iron_ingot>, <minecraft:iron_ore>, 500, 0);
+Machines.addRecipe("metal_roller", <minecraft:iron_ingot>, <minecraft:iron_ore>, 500, 1);
+
+// Удаление по выходу (все режимы):
+Machines.removeRecipe("macerator", <minecraft:iron_ingot>);
+
+// Удаление по входу (режим по умолчанию):
+Machines.removeRecipeByInput("macerator", <minecraft:iron_ore>);
+
+// Удаление по входу с явным режимом:
+Machines.removeRecipeByInput("metal_roller", <minecraft:iron_ore>, 1);
+```
+
+### ID машин
+
+| ID | Машина | Режим по умолчанию |
+|---|---|---|
+| `macerator` | Дробитель | `0` |
+| `compressor` | Компрессор | `0` |
+| `metal_extruder` | Экструдер (выдавливание) | `0` |
+| `metal_roller` | Прокатный стан (прокатка) | `1` |
+| `electric_furnace` | Электропечь | `0` |
+
+### Режимы
+
+| mode | Операция |
+|---|---|
+| `0` | Extruding (выдавливание) |
+| `1` | Rolling (прокатка) |
+
+Для `macerator`, `compressor` и `electric_furnace` режим не используется — оставляйте перегрузку без
+`mode`. Для `metal_extruder`/`metal_roller` режим можно указать явно; без него берётся значение из таблицы.
+
+- `energy` — EU за одну операцию (до множителей overclocker’ов и других улучшений).
+- Если для входа уже есть рецепт в том же режиме, новый рецепт его заменяет.
+- Один рецепт CT задаёт один выход (размер стака выхода можно задать в `ItemStack`).
+- `removeRecipe` удаляет все режимы для данного выхода.
+- `removeRecipeByInput` без `mode` удаляет только рецепт режима по умолчанию.
+
+---
+
+## 3. Молекулярная ферма — `mods.berlit.MolecularFarm`
+
+```zenscript
+// Один выход:
+MolecularFarm.addRecipe(<minecraft:wheat_seeds>, <minecraft:wheat>);
+
+// Несколько выходов:
+MolecularFarm.addRecipe(
+    <minecraft:pumpkin_seeds>,
+    [<minecraft:pumpkin>, <minecraft:pumpkin_seeds>]
+);
+
+MolecularFarm.removeRecipe(<minecraft:wheat_seeds>);
+```
+
+- Семена **не расходуются**.
+- Количество каждого выхода умножается на размер стака семян во входном слоте.
+- Один и тот же seed-предмет заменяет предыдущий рецепт.
+- `removeRecipe` принимает именно seed-предмет.
+
+---
+
+## 4. Репликатор — `mods.berlit.Replicator`
+
+У репликатора Berlit **нет встроенных рецептов**. Он работает только с паттернами, которые
+добавлены через MineTweaker/CraftTweaker. IC2 `UuGraph`/`UuIndex` игнорируется: если предмет
+не добавлен скриптом, сканер репликатора его не примет.
+
+Пользовательские записи живут в `ReplicatorRecipes.CUSTOM` (класс
+`ru.beggar.berlit.recipe.ReplicatorRecipes`).
+
+Стоимость задаётся в **mB жидкой UU-материи на один предмет**. Репликатор всегда выпускает целый стак,
+поэтому фактическая стоимость операции — `matterPerItem * stackSize`.
+
+```zenscript
+// Явная стоимость / разрешение сканирования:
+Replicator.addPattern(<minecraft:diamond>, 45);
+
+// Алиасы:
+Replicator.addScan(<minecraft:emerald>, 120);
+Replicator.addRecipe(<minecraft:emerald>, 120);
+
+// Удалить пользовательскую стоимость:
+Replicator.removePattern(<minecraft:emerald>);
+Replicator.removeRecipe(<minecraft:emerald>);
+
+// Узнать эффективную стоимость (-1 = предмет нельзя реплицировать):
+int cost = Replicator.getMatter(<minecraft:diamond>);
+```
+
+- `addPattern`/`addScan`/`addRecipe` добавляют или **переопределяют** стоимость предмета.
+- Встроенного набора нет: без записи в скрипте предмет не сканируется.
+- `removePattern` удаляет пользовательскую цену; после этого предмет снова становится
+  недоступен, если его не добавить заново.
+- Стоимость должна быть больше нуля.
+
+---
+
+## 5. Спавнер — `mods.berlit.Spawner`
+
+```zenscript
+// addDrop(entityId, item, chance, min, max)
+Spawner.addDrop("iron_golem", <minecraft:gold_ingot>, 0.5, 1, 2);
+
+// Удалить дроп у сущности:
+Spawner.removeDrop("iron_golem", <minecraft:iron_ingot>);
+
+// Своя сущность: addEntity(id, displayName, baseInterval)
+Spawner.addEntity("custom_zombie", "Custom Zombie", 200);
+Spawner.addDrop("custom_zombie", <minecraft:diamond>, 0.1, 1, 1);
+Spawner.removeEntity("custom_zombie");
+```
+
+- `chance` — от `0.0` до `1.0`; `0.5` = 50%.
+- `min`/`max` — количество предметов; `max` автоматически не меньше `min`.
+- `baseInterval` — базовый интервал в тиках, минимум `20` (1 секунда); `200` = 10 секунд.
+- `removeDrop` удаляет первый дроп, совпадающий по предмету и meta.
+- `addEntity` создаёт определение сущности для спавнера; после него можно добавлять дропы.
+- `removeEntity` удаляет пользовательскую сущность.
+
+### Встроенные ID сущностей
+
+`minecraft`-мобы:
+
+`skeleton`, `wither_skeleton`, `zombie`, `creeper`, `spider`, `cave_spider`, `silverfish`,
+`slime`, `magma_cube`, `blaze`, `ghast`, `witch`, `enderman`, `zombie_pigman`, `iron_golem`,
+`snow_golem`, `wither`, `ender_dragon`, `sheep`, `cow`, `mooshroom`, `pig`, `chicken`, `squid`,
+`horse`, `villager`.
+
+Опциональные (если установлены соответствующие моды):
+
+- Botania: `gaia`;
+- Alfheim: `flugel`;
+- Draconic Evolution: `chaos_dragon`.
+
+---
+
+## 6. Avaritia — `mods.berlit.Avaritia`
+
+Класс существует только при установленной Avaritia.
+
+```zenscript
+// addCompressor(output, cost, input)
+Avaritia.addCompressor(<avaritia:singularity:0>, 900, <minecraft:iron_block>);
+
+// Удалить рецепт по входу:
+Avaritia.removeCompressor(<minecraft:iron_block>);
+```
+
+- `cost` — стоимость в единицах нейтронного компрессора Avaritia (больше нуля).
+- Порядок аргументов: **выход, стоимость, вход**.
+- `removeCompressor` удаляет все рецепты с указанным входом; операция не отменяется через undo.
+
+---
+
+## 7. Полный пример `scripts/berlit.zs`
+
+```zenscript
+import mods.berlit.MolecularTransformer;
+import mods.berlit.Machines;
+import mods.berlit.MolecularFarm;
+import mods.berlit.Replicator;
+import mods.berlit.Spawner;
+
+// Трансформер: изумруд -> алмаз за 2000 EU
+MolecularTransformer.addRecipe(<minecraft:diamond>, <minecraft:emerald>, 2000);
+
+// Дробитель: железная руда -> железный слиток за 300 EU
+Machines.addRecipe("macerator", <minecraft:iron_ingot>, <minecraft:iron_ore>, 300);
+
+// Прокатка: железный слиток -> железный лист за 500 EU
+Machines.addRecipe("metal_roller", <ic2:itemPlate:0>, <minecraft:iron_ingot>, 500, 1);
+
+// Ферма: семена пшеницы -> пшеница + семена
+MolecularFarm.addRecipe(
+    <minecraft:wheat_seeds>,
+    [<minecraft:wheat>, <minecraft:wheat_seeds>]
+);
+
+// Репликатор: алмаз стоит 45 mB за штуку
+Replicator.addPattern(<minecraft:diamond>, 45);
+
+// Спавнер: железный голем дополнительно дропает золотой слиток
+Spawner.addDrop("iron_golem", <minecraft:gold_ingot>, 0.5, 1, 2);
+```
+
+> Для `<ic2:itemPlate:0>` проверьте meta в NEI вашей сборки: у IC2 металлические листы
+> различаются damage-значением. Если рецепт не появился, используйте предмет, который
+> действительно существует в вашей сборке.
+
+---
+
+## 8. Частые ошибки
+
+| Сообщение | Причина |
+|---|---|
+| `unknown machine '...'` | Опечатка в ID машины; см. таблицу выше. |
+| `unknown entity '...'` | Нет такого ID; проверьте список или сначала вызовите `Spawner.addEntity`. |
+| `input and output must not be null` | Предмет не найден в игре/неверный синтаксис `<...>`. |
+| Рецепт не появился | Проверьте `minetweaker.log`/`crafttweaker.log`, выполните `/mt reload`, убедитесь, что скрипт лежит в `scripts/`. |
+| Изменения не видны на сервере | Скрипт должен быть установлен на сервере, а не только у клиента. |
+| `Machines` не действует на цифровую машину | Цифровые машины читают тот же `MachineRecipes`; после reload они должны обновиться. Если нет — перезапустите сервер. |

@@ -702,9 +702,19 @@ public class TileEntityReplicator extends TileEntity implements IEnergySink, IIn
         for (int i = 0; i < patternList.tagCount(); i++) {
             NBTTagCompound entry = patternList.getCompoundTagAt(i);
             ItemStack stack = ItemStack.loadItemStackFromNBT(entry.getCompoundTag("Item"));
-            int matter = entry.getInteger("Matter");
-            if (stack != null && matter > 0) {
-                patterns.add(new ReplicatorPattern(stack, matter));
+            if (stack != null) {
+                if (worldObj != null && worldObj.isRemote) {
+                    // The client has no MineTweaker script registry; trust the synced NBT.
+                    int matter = entry.getInteger("Matter");
+                    if (matter > 0) patterns.add(new ReplicatorPattern(stack, matter));
+                } else {
+                    // Older worlds may contain patterns inherited from IC2's UU graph. Only explicit
+                    // MineTweaker/CraftTweaker patterns are valid for Berlit.
+                    ReplicatorPattern custom = ReplicatorRecipes.getCustomPattern(stack);
+                    if (custom != null) {
+                        patterns.add(new ReplicatorPattern(stack, custom.getMatterPerItem()));
+                    }
+                }
             }
         }
 
