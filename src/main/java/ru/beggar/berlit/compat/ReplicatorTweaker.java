@@ -15,10 +15,10 @@ import stanhebben.zenscript.annotations.ZenMethod;
  * CraftTweaker integration for the replicator.
  *
  * <p>
- * Every item that has an IC2 UU value can already be scanned. These methods add items that are
- * missing from IC2's graph or override the computed cost. The amount is in millibuckets of liquid
- * UU matter per single item; a replication operation always makes a whole stack, so it costs
- * {@code amount * stackSize}.
+ * Berlit has no built-in replicator patterns. The only patterns it accepts are the explicit ones
+ * registered by this class (or the equivalent API calls); IC2's UU graph is deliberately ignored.
+ * The amount is in millibuckets of liquid UU matter per single item; a replication operation always
+ * makes a whole stack, so it costs {@code amount * stackSize}.
  *
  * <pre>
  * import mods.berlit.Replicator;

@@ -64,8 +64,9 @@ tools/                   — генераторы текстур/GUI и прев
 - Вход обработчиков принимает только предметы с рецептом у этой машины.
 - **Репликатор** (`berlit.replicator`, `TileEntityReplicator`): слот мгновенного сканирования
   без кристаллов, память до 1024 шаблонов, бак UU-жидкости 16 000 mB, выпуск целого стака
-  (`matterPerItem × stackSize`), стоимость из IC2 `UuIndex` (стандартные крафты), NEI-страница
-  и CraftTweaker `mods.berlit.Replicator`. Энергия: 32 EU/t, буфер 100 000 EU, tier 4.
+  (`matterPerItem × stackSize`), встроенных рецептов нет: только паттерны, добавленные
+  через CraftTweaker `mods.berlit.Replicator`; NEI показывает только их. Энергия: 32 EU/t,
+  буфер 100 000 EU, tier 4.
   Для заливки — IC2-ячейка UU-материи или `IFluidHandler`; `infinity_fluid_cell` — это
   AE2-ячейка ExtraCells, к репликатору отношения не имеет.
 - **Цифровые машины** (`berlit.digital_macerator/compressor/metal_extruder/metal_roller/
@@ -213,7 +214,7 @@ tools/                   — генераторы текстур/GUI и прев
 `
 BERLIT_SELFTEST upgrades: overclocker=true storage=true draconic=true chaotic=true
 BERLIT_SELFTEST spawner cores: first=true duplicate=false other=true stack=64
-BERLIT_SELFTEST replicator: matter=45 stack=64 perStack=2880 fluid=true override=7 restored=45 ic2=115
+BERLIT_SELFTEST replicator: builtIn=-1 matter=45 stack=64 perStack=2880 fluid=true override=7 restored=-1 ic2=-1 unscannable=-1
 BERLIT_SELFTEST replicator machine: patterns=1 matter=45 tank=0 output=64xitem.diamond@0 progress=0
 BERLIT_SELFTEST digital macerator: patterns=67 recipes=67
 BERLIT_SELFTEST digital compressor: patterns=41 recipes=41
