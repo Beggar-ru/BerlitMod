@@ -16,7 +16,17 @@
     "items/avaritia_pattern.png": "32x32 pattern item, redrawn by the 0.29.1 update",
     "items/singularity_pattern.png": "32x32 pattern item, redrawn by the 0.29.1 update",
     "blocks/digital_*.png": "32x32 hand-drawn digital machine faces",
-    "blocks/matter_generator_*.png": "32x32 hand-drawn matter generator faces"
+    "blocks/matter_generator_*.png": "32x32 hand-drawn matter generator faces",
+    "blocks/avaritia_*.png": "32x32 redrawn Avaritia machine faces",
+    "blocks/cobble_*.png": "32x32 redrawn cobble generator faces",
+    "blocks/crafting_*.png": "32x32 AE CPU parts: storages, processors, rings, fits",
+    "blocks/molecular_*.png": "32x32 transformer and farm faces",
+    "blocks/pattern_encoder*.png": "32x32 pattern encoder face",
+    "blocks/singularity_encoder*.png": "32x32 singularity encoder face",
+    "items/accelerator_*.png": "32x32 redrawn accelerator icons",
+    "items/quantum_core_*.png": "32x32 redrawn quantum core icons",
+    "items/reinforced_plate.png": "32x32 redrawn component icon",
+    "items/stack_upgrade.png": "32x32 redrawn upgrade icon"
   },
   "opaque_items": {
     "items/big_interface_part_18.png": "plate-style part icon, the plate fills the tile on purpose",
